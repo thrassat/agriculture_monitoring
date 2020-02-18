@@ -5,18 +5,16 @@
 var mongoose = require('mongoose');
 var closeCon; 
 var dbURI = 'mongodb://localhost/AUdata';
-console.log(process.env);
+
 if(process.env.NODE_ENV === 'production') {
     console.log("NODE_ENV : "+ process.env.NODE_ENV + " // Mode production actif");
-    console.log(process.env.MONGOLAB_URI); 
-    console.log(process.env.MLAB_URI); 
+    console.log(process.env.MONGOLAB_URI);
     dbURI = process.env.MONGOLAB_URI ;
 }
 
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 /* debug */
-
 mongoose.connection.on('connected', function () {
 console.log('Mongoose connected to ' + dbURI);
 });
