@@ -18,6 +18,30 @@ module.exports.test = function (req,res) {
         });
 };
 
+//todo other page!
+// module.exports.readAllSensorGroups = function (req,res) {
+//     if (req.params) {
+//         sensorGroupModel
+//             .find()
+//             .exec(function(err,sensorGroups) {
+//                 if (!sensorGroups) {
+//                     sendJsonResponse(res,404, {
+//                         "message": "Sensor Group list not found"
+//                     });
+//                     return;
+//                 } else if (err) {
+//                     sendJsonResponse(res, 404, err);
+//                     return;
+//                 }
+//                 sendJsonResponse(res,200,sensorGroups);
+//             });       
+//     } else {
+//         sendJsonResponse(res,404, {
+//             "message": "request error"
+//         });
+//     }
+//  //   get back geting mean p207
+// }
 // works : http://localhost:3000/api/v0/livedatas/5e58375ebab525657c4e0266 
 module.exports.readOneSensorGroup = function (req,res) {
     if (req.params && req.params.sensorgroupname) {
