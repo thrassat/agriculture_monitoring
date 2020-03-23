@@ -25,7 +25,7 @@ router.get('/livedatas/:sensorgroupname/:sensorid',ctrlDatas.readOneSensor);
 //add one sensor (+potentiellement automatisé ?) , remove one sensor (+ automatic quand n'envoi plus de données?)
 router.post('/livedatas/:sensorgroupname/:sensorid',ctrlDatas.addOneSensor); 
 
-router.get('/livedatas',ctrlDatas.readAllSensorGroups);
+//router.get('/livedatas',ctrlDatas.readAllSensorGroups);
 
 // TODO separate route ! 
 router.post('/users',ctrlUsers.addUser) ;
