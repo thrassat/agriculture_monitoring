@@ -1,5 +1,5 @@
 var mongoose = require( 'mongoose'); 
-// ajout required quasi partout, des min/max ? todo 
+// ANCIEN DOCUMENT
 
 var storedDataSchema = new mongoose.Schema( {
     date: {type: Date, required: true}, //timestamp?
@@ -24,7 +24,7 @@ var sensorSchema = new mongoose.Schema({
 var sensorGroupSchema = new mongoose.Schema( {
    //ID ? 
    name: String,
-   //geographic location? todo
+   //geographic location? todo?
    owner: mongoose.SchemaTypes.ObjectId, //ref to owner in user collections 
    // avant comme ça voir comment ça marche mongoose.SchemaTypes.ObjectId]
    sensors: [sensorSchema] //[0,3,6]

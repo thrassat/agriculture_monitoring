@@ -3,7 +3,11 @@ var router = express.Router();
 //var ctrlConsultation = require ('../controllers/consultation');
 var ctrlDatas = require('../controllers/liveDatas');
 var ctrlUsers = require('../controllers/user');
+
+var ctrlIndex = require ('../controllers/index');
+
 var ctrlUserGroups = require('../controllers/userGroup');
+var ctrlDatasReceiver = require('../controllers/datasReceiver');
 // TODO const ?
 // REFAIRE LA STRUCTURE! séparé les routes selon les pages 
 
@@ -17,7 +21,7 @@ router.delete('/datas/:trioid',ctrlDatas.deleteTrio);
 /* début real implement */ 
 //SensorGroup
 router.get('/livedatas/:sensorgroupname',ctrlDatas.readOneSensorGroup);
-router.get('/test',ctrlDatas.test);
+//router.get('/test',ctrlDatas.test);
 router.post('/livedatas',ctrlDatas.addOneSensorGroup); 
 
 //sensors , url path? plus ce que contient le parc que livedatas
@@ -31,5 +35,12 @@ router.post('/livedatas/:sensorgroupname/:sensorid',ctrlDatas.addOneSensor);
 router.post('/users',ctrlUsers.addUser) ;
 router.post('/userGroups',ctrlUserGroups.addUserGroup); 
 router.delete('/users/:email',ctrlUsers.deleteUserByEmail);
+
+/* Index routes */ 
+router.get('/index',ctrlIndex.readAllSensorGroups);
+
+// Testing receive post request from arduino 
+router.post('/test',ctrlDatasReceiver.printPost);
+router.post('/receiver',ctrlDatasReceiver.postProcess);
 
 module.exports = router ;

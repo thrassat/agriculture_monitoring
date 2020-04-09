@@ -6,15 +6,18 @@ var sensorGroupModel = mongoose.model('SensorGroup');
 var datas = mongoose.model('StoredData');
 var sendJsonResponse ;
 
+// 1 ere version test structure & possibilités 
+// Maintenant todo : séparé correctement les fichiers et mettre les fonctions de request dans les modèles associés 
+
 // Idee : commencer la vrai appli comme si je consultais en superadmin 
 // Accueil : accès au différentes pages des sensorGroups 
-// TODO : séparé en plusieurs file = paar vue ou par model ? 
 
 module.exports.test = function (req,res) {
     sensorGroupModel
         .find()
         .exec(function(err,found) {
             sendJsonResponse(res,200,found) 
+            console.log("tmp statement") ; 
         });
 };
 
@@ -42,6 +45,7 @@ module.exports.test = function (req,res) {
 //     }
 //  //   get back geting mean p207
 // }
+
 // works : http://localhost:3000/api/v0/livedatas/5e58375ebab525657c4e0266 
 module.exports.readOneSensorGroup = function (req,res) {
     if (req.params && req.params.sensorgroupname) {

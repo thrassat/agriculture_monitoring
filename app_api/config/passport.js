@@ -12,7 +12,7 @@ function (username, password, done) {
         if (err) { return done(err); }
         if (!user) {
             return done(null, false, {
-                message: 'Incorrect username.'
+                message: 'Incorrect username/email.'
             });
         }
         if (!user.validPassword(password)) {

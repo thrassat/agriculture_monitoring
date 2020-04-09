@@ -2,6 +2,9 @@
 /*eslint-env node*/
 'use strict';
 //possible to use multi DB
+
+// Fichier de connection à la base de donnée
+
 var mongoose = require('mongoose');
 var closeCon; 
 var dbURI = 'mongodb://localhost/AU_datas';
@@ -57,10 +60,10 @@ process.on('SIGTERM', function() {
 
 // Mongoose schema
 /* test */
+// todo add new ones ? sensorGroup & storedDatas
 require('./consultation');
 require('./user');
 require('./userGroup'); 
-
 
 /* Example from MongoDB website 
 

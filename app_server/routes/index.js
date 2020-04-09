@@ -4,13 +4,15 @@
 var express = require('express');
 var router = express.Router();
 var ctrlConsultation = require('../controllers/consultation');
+var ctrlIndex = require('../controllers/index');
 
 /*var ctrlAdmin = require('../controllers/admin');
 var ctrlAuth = require('../controllers/auth');*/
 var ctrlOthers = require('../controllers/others');
 
 /* Consultation pages */
-router.get('/', ctrlConsultation.livedata);
+router.get('/',ctrlIndex.listAccessibleSensorGroups);
+router.get('/datas', ctrlConsultation.livedata);
 router.get('/historic', ctrlConsultation.historic);
 
 /* Page de gestion/administration todo */ 

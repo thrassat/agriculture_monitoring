@@ -5,6 +5,8 @@ const userModel = mongoose.model('User');
 const sensorGroupModel = mongoose.model('SensorGroup'); 
 var sendJsonResponse ;
 
+// TODO : sortir les requests et les mettre dans les modèles associés! 
+//inovquer des fonctions du modèle à la place
 // CRUD user 
 // Add User 
 //try with create method 

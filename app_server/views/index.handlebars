@@ -1,0 +1,68 @@
+<!--// doctype html
+// html
+//   head
+//     meta(name='viewport', content='width=device-width, initial-scale=1.0')
+//     title= title
+//     link(rel='stylesheet', href='/bootstrap/css/nightly.bootstrap.min.css')
+//     link(rel='stylesheet', href='/stylesheets/style.css')
+//   body
+//    .navbar.navbar-default.navbar-fixed-top
+//       .container
+//         .navbar-header
+//           a.navbar-brand(href='/') GHMonitoring
+//           button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-main')
+//             span.icon-bar
+//             span.icon-bar
+//             span.icon-bar
+//         #navbar-main.navbar-collapse.collapse
+//           ul.nav.navbar-nav
+//             li
+//               a(href='/about/') About
+
+//     .container
+//       block content
+
+//       footer
+//         .row
+//           .col-xs-12
+//             small &copy; Théo Rassat 2020
+
+//     script(src='/javascripts/jquery-3.4.1.min.js')
+//     script(src='/bootstrap/js/bootstrap.min.js')
+//     // can be used by other templates (autres files utilisera les lignes ci-dessus) 
+-->
+<div id="banner" class="header">
+  <div class="row">
+    <div class="col-lg-6">
+      <h1> {{pageHeader.title}} </h1> 
+        <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
+    </div>
+  </div>
+</div>
+<!--div class="row"-->
+  <ul>
+      {{#each sensorGroupsList}}
+        <li>{{this.name}}</li>
+      {{/each}}
+   </ul>
+</div>
+<!--/div-->
+{{!-- 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.3/handlebars.min.js">
+</script>
+
+<script id="listSensorgroups" type="text/x-handlebars-template">
+  <ul>
+    {{#each sensorGroupsList}}
+      <li>{{this.name}}</li>
+    {{\each}}
+  </ul>
+</script>
+
+<!--script type="text/javascript">
+var source = document.getElementById("listSensorGroups").innerHTML;
+  var template = Handlebars.compile(source);
+  var context = { title: "My New Post", body: "This is my first post!" };
+  var html = template(context); 
+</script-->
+--}}

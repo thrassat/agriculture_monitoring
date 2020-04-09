@@ -33,5 +33,5 @@ userGroupSchema.plugin(timestamps);
 
 //compiling model from a schema
 // Arg1 : name of model, 2: schema to use,
-// 3:optional mongoDB collection name, si vide : par défault pluriel et sans maj du nom model : consultations
+// 3:optional mongoDB collection name, si vide : par défault pluriel et sans maj du nom model 
 mongoose.model('UserGroup',userGroupSchema); 

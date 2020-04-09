@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport", content="width=device-width, initial-scale=1.0"/>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/bootstrap/css/nightly.bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css"/>
+    {{!-- <!-- TODO something like this and pass with routes files ? 
+    {{#each styles}}
+    <link rel="stylesheet" href="css/{{this}}" type="text/css" charset="utf-8">
+    {{/each}}
+    {{#each headScripts}}
+    <script src="js/{{this}}"></script>
+    {{/each}} --> --}}
+</head>
+<body>  
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header"><a class="navbar-brand" href="/">GHMonitoring</a>
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+            </div>
+            <div class="navbar-collapse collapse" id="navbar-main">
+                <ul class="nav navbar-nav">
+                  <li><a href="/app_server/views/about">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+        {{{body}}}
+
+        <footer>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="small"> &copy; 2020 </div>
+                </div>
+            </div>
+        </footer>
+    
+
+    <script src="/javascripts/jquery-3.4.1.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <!--
+        + min / CDN ? 
+        {{#each bodyScripts}}
+    <script type="text/javascript" src="js/{{this}}"></script>
+
+    {{/each}} -->
+</body>
+</html>

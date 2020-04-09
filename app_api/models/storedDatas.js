@@ -6,13 +6,13 @@ const storedDatasSchema = new mongoose.Schema( {
     date: {
         type: Date, 
         required: true
-    }, //timestamp?
+    }, //timestamp? remplacé par le plug-in ou doublé par sécu ? 
     sensorId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'SensorGroup', //_id du sensor embed en vrai, todo
+        ref: 'SensorGroup', //_id du sensor embed en vrai, todo, meme ref un sub document de sensorsgroups 
         required: true
     }, //string 
-    // supp  type: {type: String, required: true},
+    // supp  type: {type: String, required: true}, oui ajouter, pas sur voir note reu6 potentiellement avec l'ID du sensor on verra quel schema il a et on reconnait le type et commen traiteer 
     value: {
         type: mongoose.SchemaTypes.Mixed,
         required: true,
