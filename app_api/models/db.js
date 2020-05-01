@@ -61,6 +61,7 @@ process.on('SIGTERM', function() {
 // Mongoose schema
 /* test */
 // todo add new ones ? sensorGroup & storedDatas
+// possiblement todo pour éviter l'export fait pour chaque schéma à chaque fois 
 require('./consultation');
 require('./user');
 require('./userGroup'); 

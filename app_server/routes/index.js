@@ -3,22 +3,32 @@
 
 var express = require('express');
 var router = express.Router();
-var ctrlConsultation = require('../controllers/consultation');
+var ctrlLive = require('../controllers/live');
 var ctrlIndex = require('../controllers/index');
+var ctrlHistory = require('../controllers/history'); 
+var ctrlAbout = require ('../controllers/about'); 
 
 /*var ctrlAdmin = require('../controllers/admin');
 var ctrlAuth = require('../controllers/auth');*/
-var ctrlOthers = require('../controllers/others');
 
-/* Consultation pages */
+/**********************/
+/* Pages CONSULTATION */
+/**********************/
 router.get('/',ctrlIndex.listAccessibleSensorGroups);
-router.get('/datas', ctrlConsultation.livedata);
-router.get('/historic', ctrlConsultation.historic);
+router.get('/live/:groupid',ctrlLive.displayLiveDatas);
+router.get('/history/:sensorid', ctrlHistory.displayDatasHistory); 
 
-/* Page de gestion/administration todo */ 
+/**********************/
+/*   Pages ADMIN      */
+/**********************/
 
-/* Page de connection todo */ 
-/* Other pages */
-router.get('/about', ctrlOthers.about);
+/**********************/
+/*  Pages CONNECTION  */
+/**********************/
+
+/**********************/
+/*  Pages AUTRES      */
+/**********************/
+router.get('/about/',ctrlAbout.renderAbout);
 
 module.exports = router;

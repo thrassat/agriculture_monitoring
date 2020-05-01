@@ -1,117 +1,221 @@
 const mongoose = require('mongoose');
+//var moment = require('moment-timezone');
+//var storedDatasModel = mongoose.model('StoredData');
+//var sensorGroupModel = mongoose.model('SensorGroup'); Old version
+//New version to use statics method : 
+// link : https://stackoverflow.com/questions/59642997/unable-to-call-mongoose-static-method-error-findbycredential-is-not-a-function 
+// and official mongooose docs
 
-var storedDatasModel = mongoose.model('StoredData');
-var sensorGroupsModel = mongoose.model('SensorGroup');
+// Official documentation for Node HTTP : https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
+// Official express documentation https://expressjs.com/en/4x/api.html#express
+
+const {sensorGroup} = require('../models/sensorGroup') // récupère le Model crée 
+const {storedDatas} = require('../models/storedDatas')
+
 var sendJsonResponse ;
+//var splitReceivedText; 
 
 sendJsonResponse = function(res, status, content) {
     res.status(status);
     res.json(content);
 };
+// Réception d'un http post de l'arduino ici, créer les "stored datas" associées en base 
 
-// TODO METTRE LES REQUEST DANS LES MODELES !!! 
+//1) HTTP POST reçu au format "plain text" et avec le format UNIXEPOCH VALUE (Unixepoch en secondes) , id du sensor en paramètre de la requête (URL) [une version d'envoi au format JSON était premuèrement implémentée]
+//2) Main function récupère : EPOCH, SENSORID, VALUE et DATATYPE
+//3) Selon le datatype, on sait quel format est attendu pour value, appelle de la fonction pour store selon le type
+//4) Stockage des données; envoi directement avec l'EPOCH, Mongoose formatte au format UTC et on garde l'information pour la timezone dans le document du sensorgroup
+//5) Réponse à l'arduino : erreur, besoin d'un renvoi ? alerte quelconque ... en JSON
 
-// todo "quand je reçois un http post ici, créer les " stored datas" associées en base " (MQTT?)
-// 1) afficher le contenu du post reçu ok
-// 2) Prévoir une réponse JSON (dans le content, créer mon standard ou voir comment utiliser httpclient de l'arduino) attestant la bonne réception ou pouvant renvoyer a l'arduino une erreur pour qu'il renvoi? 
-// 3) Find le Capteur ID associé en base, ajouter les données en base selon le format requis
-// 4) Relier au scd30 + processus d'enregistrement 
-
-module.exports.printPost = function (request, response) {
-    console.log(request.body+ " --");
-    console.log(request.params+ " --");
-    console.log(request.params.id+ " --");
-    sendJsonResponse(response,200,{
-        "message": "post received"
-    }); // en profiter pour renvoyer quelque chose ? Pas au format JSON? 
-    // also todo : limit amount of incoming datas // de base limité par express .. pas sur nécessaire (lib : stream-meter for example)
-} 
-// Official documentation for Node HTTP : https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
-// Official express documentation https://expressjs.com/en/4x/api.html#express
-
-// function to verify sensor id related sensor and create new document in related stored datas 
-module.exports.postProcess = function(request,response) {
-    console.log(request.body); 
+/**************************************/
+/*           MAIN FUNCTION            */
+/**************************************/
+module.exports.postProcess =  async function(req,res) {
+    var dataType;
+    var timezone;
+    var epoch; 
+    var date; 
     // use http.createServer ? Non car implémenté similairement par midleware express et dans les routes déjà 
-    // sensor group en base : "_id" : ObjectId("5e5d3f9ed99ab09984a17e5c"),
-    // "name" : "indoor1",
-    // sous document d'1 sensor en base "_id" : "e44a5322-78f1-40b9-946d-be9ad416679c",
-    // 		"name" : "SCD-30-T",
-    // Pré enregistré 3 capteurs différent pour le scd
     // Stored data sont stocké comme ça directement : (fields : date, sensorId, value) 
     // But : retrouvé l'ID du sensorId passé pour savoir quel type de donnée on reçoit et qu'il est effectivement bon 
-    // TODO : le sensor ID en paramètre de l'URL et non comme un field JSON
-    if (!request.body.sensorId) {
+    if (!req.params.sensorid) {
          // sensorid pas dans la requete post
-        sendJsonResponse(response,404, {
-            "message": "Field sensorId missing in post request"
+        sendJsonResponse(res,404, {
+            "message": "Parameter sensorId missing in post request"
         });
     }
     else {
+        // req.body has to be "EPOCH VALUE", epoch in seconds
+        // todo add verification? 
+        var postText = req.body; //NOW : OLD : 20/4/20 16:08:16 15.15 (arduino envoi ça )
+        var sensorId = req.params.sensorid ; 
+        // 30/04 new version, get datatype with sensorId
+        var groupIdDataType = sensorId.split("-"); 
+        var dataType = groupIdDataType[1]; 
+        /*     // get datatype querying (version avant 30/04)
+        try {
         // find the sensor to check what will be the "value" field 
         // help https://stackoverflow.com/questions/21142524/mongodb-mongoose-how-to-find-subdocument-in-found-document 
+          //  timezoneDataType = await sensorGroup.getDataTypeAndTimezoneBySensorId(sensorId);
+            dataType = await sensorGroup.getDataTypeBySensorId(sensorId); 
+        }
+        catch (err) {
+            // todo how to handle error 
+            console.log("error caught from 'getDataTypeById' method : ");
+            console.log(err);
+            // use send JSON response ? 
+        } */
+        //dataType= timezoneDataType.dataType;
+      //  console.log("datatype : "+ dataType);
+        
+        // get timezone name 
+       // timezone = timezoneDataType.timezone; 
 
-        // renvoi le doc du sensor-grp entier (query avec l'id d'un sensor) db.sensorgroups.find({sensors:{$elemMatch: {_id:"e44a5322-78f1-40b9-946d-be9ad416679c"}}}).pretty();
-        console.log(request.body.sensorId);//test
-        // TODO : Sortir la request du controleur ! dans le modèle !!! 
-        // ici appeler : "datatype = getDataTypeBySensorId (sensorId)"
-        // Traiter ensuite pour créer le document à store en base 
-        // appeler : "storeDatasBySensorId (JSON doc, sensorId )"
 
-        sensorGroupsModel
-            //.find({sensors: {$elemMatch: {_id:request.body.sensorId}}}) //works too
-            .find({'sensors._id': request.body.sensorId })
-            .select('sensors') // garder seulement le field sensor du document sensorgroup retourné
-            .exec(
-                function (err,sensorgroup) { 
-                    var sensor;
-                    if(!sensorgroup) {
-                        sendJsonResponse(response, 404, {
-                            "message" : "Le sensor Group du capteur n'a pas été trouvé" // en fonction du field sensorId de la post request
-                        });
-                        return;
-                    } else if (err) {
-                        sendJsonResponse(response, 400, err); 
-                        return;
-                    }
-                    else if (sensorgroup.length!==1) {
-                        //error car plus d'un sensor group renvoyé
-                        sendJsonResponse(response, 400, 404, {
-                            "message" : "Erreur avec l'id du sensor, l'id est présent dans plusieurs sensorgroups?"
-                        });
-                        return;
+       // argument en second , réponse en milisecond
+        epoch = getEpochFromPostText(postText);
+        // possible de récupérer la date avec momentJS au format de la timezone : date = moment.tz(epoch,timezone).format(); 
+        // finalement pas utilisé pour le moment on store directement avec l'epoch time
+
+        // get value
+        value = getValueFromPostText(postText);
+        
+       // selon datatype, traité différement (value type différent)
+        switch(dataType) {
+            case 'temp': // value est donc un int   
+                //console.log(utcDate instanceof Date && !isNaN(date.valueOf()));
+                try { 
+                    // date au format isodate ou epoch peuvent être passé 
+                    // enregistrer similairement par .save()
+                    // Impossible de conserver d'information locale dans Mongo
+                    // format UTC avec zero décalage quoi qu'il arrive (car store comme un int64)
+                    // gérer la timezone au moment de récupérer les données
+                    let status = await storedDatas.registerIntData(epoch,sensorId,Number(value));
+                    if (status !== 201) {
+                        throw new Error("error inserting datas");
                     }
                     else {
-                        sensor = sensorgroup[0].sensors.id(request.body.sensorId);
-                        console.log(sensor); 
-                        if (!sensor) {
-                            sendJsonResponse(response, 404, {
-                                "message" : "Le sensor cherché n'a pas été trouvé" // on ne devrait pas pouvoir passer ici
-                            });
-                        }
-                        else {
-                            // on a le sous-document du sensor concerné dans la variable sensor, on récupère son type dans le field datatype 
-                            console.log(sensor.dataType); 
-                            // prendre la décision de comment sont transmis les informations notamment pour le scd3à qui envoit 3 valeurs
-                            // Ici ce sera un switch , permettant de selon datatype traité différement, on peut ne pas se bloquer sur ça 
-                            if (sensor.dataType=='Temperature') {
-                                // tester un mongoose save, voir doc officielle, mettre en forme datas 
-                            }
-                            // OPTIONS : 
-                            //      - dataType est enfait lié au modèle du capteur, on sait donc le type de donnée qu'il retourne, unarray de 3 valeurs pour le scd?
-                            //      - On enregistre effectivement 3 capteurs différents, un par grandeur, on envoi un post par grandeur, le field datatype sera général pour la température par exemple on veut juste un int
-                            //      - On permet un entre 2 : datatype style : scd-array et on sait ou recup notre grandeur et quoi
-                            //   Question à se poser , comment on va récupérer les stored datas aussi ? ça va être via sensorgroup 
-                            // qui ira chercher ensuite tous les id de sensors contenus dans ce sensorgroup, puis qui ira chercher les stored data en lien avec ces ids 
-                            // DEmain commecner par brancher le scd30 sur le nouvel arduino, se plionger un peu dans l'utilisation 
-                            sendJsonResponse(response,200,sensor);
-                        }
-
+                        sendJsonResponse(res,status,{
+                            "message": "datas stored"
+                        });
                     }
                 }
-            );
-        // sendJsonresponse(response,200,{
-            // "message": "Post well received"
-        // });
+                catch(err) {
+                    // todo something with error handle here ou dans la methode storedData 1588267200
+                    console.log(err); 
+                    sendJsonResponse(res,500,{
+                        "message": "error storing datas"
+                    });
+                }
+              break;           
+              // todo add for rh et co2                                                                                                     
+            default:
+              // code block
+              try { 
+                let status = await storedDatas.registerIntData(epoch,sensorId,Number(value));
+                if (status !== 201) {
+                    throw new Error("error inserting datas");
+                }
+                else {
+                    sendJsonResponse(res,status,{
+                        "message": "datas stored"
+                    });
+                }
+            }
+            catch(err) {
+                // do something with error handle here ou dans la methode storedData
+                console.log(err); 
+                sendJsonResponse(res,500,{
+                    "message": "error storing datas"
+                });
+            }
+
+          } 
     }
 }
+/**************************************/
+/*        TESTING FUNCTION            */
+/**************************************/
+module.exports.printPost = function (req, res) {
+    // console.log(req);
+     console.log(req.params.sensorid+ " --");
+     console.log(req.body) ; 
+     sendJsonResponse(res,200,{
+         "message": "post received"
+     }); // en profiter pour renvoyer quelque chose ? Pas au format JSON? 
+     // also todo : limit amount of incoming datas // de base limité par express .. pas sur nécessaire (lib : stream-meter for example)
+ } 
+
+/********************************************/
+/*        OLD & OTHERS FUNCTIONS            */
+/********************************************/
+/*
+splitReceivedText = function (text) {
+    // todo : add test validation and errors ?
+    var res = new Object();
+    var dateTimeValue = text.split(" ");
+    var yearMonthDay = dateTimeValue[0].split("/");
+    var hourMinuteSecond = dateTimeValue[1].split(":");
+    res.year= "20"+yearMonthDay[0];
+    res.month=yearMonthDay[1];
+    res.day=yearMonthDay[2];
+    res.hour=hourMinuteSecond[0];
+    res.minute=hourMinuteSecond[1]; 
+    res.second=hourMinuteSecond[2];
+    res.value=dateTimeValue[2];
+    return res;
+}*/
+
+// from date 
+getUTCDateFromPostText = function (body) {
+    //todo add validation tests and errors
+    var dateTimeValue = body.split(" ");
+    var yearMonthDay = dateTimeValue[0].split("/");
+    var hourMinuteSecond = dateTimeValue[1].split(":"); 
+    // Date.UTC(year[, month[, day[, hour[, minute[, second[, millisecond]]]]]]) 
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/UTC
+    // todo tests 
+    // year : fullyear, month 0-11, day 1-31, time 0-;; 
+    var d = new Date(); 
+    console.log(d.getTimezoneOffset()); 
+    return new Date(Date.UTC("20"+yearMonthDay[0],Number(yearMonthDay[1])-1,yearMonthDay[2],hourMinuteSecond[0],hourMinuteSecond[1],hourMinuteSecond[2]));
+}
+
+// from Arduino Epoch 
+// epoch du body en second, return epoch en milisecond (bon format pour mongoose et momentjs)
+getEpochFromPostText = function (body) {
+    return 1000*body.split(" ")[0];
+}
+/*
+// old version
+getValueFromPostText = function (body) {
+    //todo add validation tests and errors
+    var dateTimeValue = body.split(" ");
+    return dateTimeValue[2]; 
+}*/
+getValueFromPostText = function(body) {
+    return body.split(" ")[1];
+}
+
+  
+        // Old versions working with promise and callback 
+        // sensorGroup.getTest4(sensorId)
+        // .then(res => {
+        //     console.log("TEST4")
+        //     console.log(res)
+        //    // console.log(res.dataType)
+        // })  
+        // .catch(err => {
+        //     console.log(err)
+        // })
+
+       /* sensorGroup.getTest5(sensorId,function(err, dataType) {
+            if (err) {
+                console.log(err)
+                //send Json rep .
+            }
+            else {
+                console.log("TEST5")
+                console.log(dataType)               
+            }
+        }) */

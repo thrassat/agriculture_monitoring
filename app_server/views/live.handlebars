@@ -1,0 +1,19 @@
+<div id="banner" class="header">
+  <div class="row">
+    <div class="col-lg-6">
+      <h1> {{pageHeader.title}} </h1> 
+        <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
+    </div>
+  </div>
+</div>
+
+<div>
+      <ul>
+      {{#ifEquals true false}} <h2> HIDE </h2> {{/ifEquals}}
+      {{#each datasInfo}}
+      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
+        <li> <a href="/history/{{this.id}}">{{this.name}}</a> - {{#cutAbrev this.type}}{{/cutAbrev}} - {{this.timestamp}} - {{this.value}} {{#unit this.type}}{{/unit}}</li>
+
+      {{/each}}
+   </ul>
+</div>

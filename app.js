@@ -40,7 +40,7 @@ app.use(express.json()); // for parsing "application/json"
 app.use(express.urlencoded({ extended: false})); // for parsing "application/x-www-form-urlencoded"
  // https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0 
 //https://www.twilio.com/blog/2016/07/how-to-receive-a-post-request-in-node-js.html
-
+app.use(bodyParser.text()); // to parse http post text/plain (content-type  )
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/public')));
 

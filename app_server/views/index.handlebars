@@ -42,7 +42,8 @@
 <!--div class="row"-->
   <ul>
       {{#each sensorGroupsList}}
-        <li>{{this.name}}</li>
+      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
+        <li> <a href="live/{{this.uniqueid}}" title="Accéder aux données en temps réel pour ce groupe de capteurs">{{this.name}}</a></li>
       {{/each}}
    </ul>
 </div>

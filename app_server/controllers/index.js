@@ -16,7 +16,9 @@ var renderIndex = function (req,res,resDatas){
       title:'Groupes de capteurs accessibles : ',
       strapline: 'Date/heure - Lieu'
     },
-    //get all sensors groups  
+    //get all sensors groups  , return all fields to index
+    //change names 
+    // todo return au niveau de la request du model ou a une autre étape que ce qui nous intéresse
     sensorGroupsList: resDatas
     /*datas: { // use API response 
         temp: resDatas[0].name,
@@ -25,13 +27,27 @@ var renderIndex = function (req,res,resDatas){
     }*/
   });
 }
-/* hard coded part test */
-/*GET 'live data' page */
-module.exports.listAccessibleSensorGroups = function (req, res) {//passing datas to the view  
+
+/*GET 'ALL SENSORS GROUPS FOR INDEX PAGE */
+module.exports.listAccessibleSensorGroups = async function (req,res) {
+  // remove req where unuseful? 
+//https://www.twilio.com/blog/5-ways-to-make-http-requests-in-node-js-using-async-await
+  try {
+    const response = await axios.get('/api/v0/index') ;
+    renderIndex(req,res,response.data); 
+  } 
+  catch(err) {
+    console.log(err); 
+    // todo how to handle error ?
+  }
+};
+/* FIRST VERSION */
+/*
+module.exports.listAccessibleSensorGroups1 = function (req, res) {//passing datas to the view  
   axios({
     method: 'get',
     url: '/api/v0/index',
-  // responseType: 'JSON' ? 
+  // responseType: 'JSON' ? JSON parse by default 
   })
     // .then(function (response) {
     //   response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
@@ -49,4 +65,7 @@ module.exports.listAccessibleSensorGroups = function (req, res) {//passing datas
   }); 
   
   //renderIndex(req,res);
-};
+};*/
+
+
+

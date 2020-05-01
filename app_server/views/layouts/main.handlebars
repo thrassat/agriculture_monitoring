@@ -6,14 +6,15 @@
     <title>{{title}}</title>
     <link rel="stylesheet" href="/bootstrap/css/nightly.bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css"/>
-    {{!-- <!-- TODO something like this and pass with routes files ? 
+    {{!-- <!-- TODO something like this and pass with routes files ?--> --}}
     {{#each styles}}
-    <link rel="stylesheet" href="css/{{this}}" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="/stylesheets/{{this}}" type="text/css" charset="utf-8">
     {{/each}}
     {{#each headScripts}}
-    <script src="js/{{this}}"></script>
-    {{/each}} --> --}}
+    <script src="/javascripts/{{this}}"></script>
+    {{/each}}
 </head>
+
 <body>  
     <div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
@@ -22,7 +23,7 @@
             </div>
             <div class="navbar-collapse collapse" id="navbar-main">
                 <ul class="nav navbar-nav">
-                  <li><a href="/app_server/views/about">About</a></li>
+                  <li><a href="/about">About</a></li>
                 </ul>
             </div>
         </div>
@@ -38,14 +39,23 @@
             </div>
         </footer>
     
-
-    <script src="/javascripts/jquery-3.4.1.min.js"></script>
+   
+    <!--script src="/javascripts/jquery-3.4.1.min.js"></script-->
+    
+    <script
+            src="https://code.jquery.com/jquery-3.5.0.min.js"
+            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+            crossorigin="anonymous"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
+<!--
+    {{#each bodyScripts}}
+    <script type="text/javascript" src="/javascripts/{{this}}"></script>
+    {{/each}}
+-->
     <!--
         + min / CDN ? 
         {{#each bodyScripts}}
     <script type="text/javascript" src="js/{{this}}"></script>
-
     {{/each}} -->
 </body>
 </html>

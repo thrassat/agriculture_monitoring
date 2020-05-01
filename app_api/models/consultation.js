@@ -24,7 +24,7 @@ var sensorSchema = new mongoose.Schema({
 var sensorGroupSchema = new mongoose.Schema( {
    //ID ? 
    name: String,
-   //geographic location? todo?
+   //geographic location? todo? 
    owner: mongoose.SchemaTypes.ObjectId, //ref to owner in user collections 
    // avant comme ça voir comment ça marche mongoose.SchemaTypes.ObjectId]
    sensors: [sensorSchema] //[0,3,6]

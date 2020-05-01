@@ -1,0 +1,3 @@
+#define SECRET_SSID "BELL575 2.4gz"
+#define SECRET_PASS "1DAD3DFE"
+#define SECRET_IP "192.168.2.16"
