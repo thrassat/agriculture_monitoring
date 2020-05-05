@@ -7,6 +7,7 @@ var ctrlIndex = require ('../controllers/index');
 var ctrlSensorManager = require ('../controllers/sensorManager')
 var ctrlUserGroups = require('../controllers/userGroup');
 var ctrlDatasReceiver = require('../controllers/datasReceiver');
+var ctrlHistory = require('../controllers/history');
 // TODO const ?
 // REFAIRE LA STRUCTURE! séparé les routes selon les pages 
 
@@ -32,6 +33,13 @@ router.get('/index',ctrlIndex.getAllSensorGroups);
 /********************************/
 router.get('/live/:groupid',ctrlLive.getSensors);
 router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
+
+
+/*********************************/
+/*            HISTORY            */
+/*********************************/
+router.get('/datatest/',ctrlHistory.getDatasTest)
+router.get('/groupinfos/:groupid',ctrlHistory.getSensorGroupInfos)
 
 /********************************/
 /*       MANAGE SENSORS         */

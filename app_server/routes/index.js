@@ -18,6 +18,7 @@ router.get('/',ctrlIndex.listAccessibleSensorGroups);
 router.get('/live/:groupid',ctrlLive.displayLiveDatas);
 router.get('/history/:sensorid', ctrlHistory.displayDatasHistory); 
 
+router.get('/datastest/',ctrlHistory.displayDatasHistory)
 /**********************/
 /*   Pages ADMIN      */
 /**********************/

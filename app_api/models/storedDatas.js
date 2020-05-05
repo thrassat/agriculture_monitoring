@@ -52,10 +52,11 @@ storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySe
 /*********************/
 /*  HISTORY METHODS  */
 /*********************/
-storedDatasSchema.statics.getDatasFromTo = async function getDatasBySensorId (sensorId,from,to) {
+storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensorId,from,to) {
     return new Promise(async (resolve,reject) => {
         try {
-            let datas = await this.find({sensorId: sensorId}).find({ date: {$gte: from, $lte: to}}).exec(); 
+            let datas = await this.find({sensorId: sensorId}).find({ date: {$gte: new Date(from), $lte: new Date(to)}}).exec(); 
+            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
             resolve(datas); 
         }
         catch (err) {

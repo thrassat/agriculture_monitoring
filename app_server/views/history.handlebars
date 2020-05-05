@@ -11,12 +11,18 @@
     <h1 class="test">Test</h1>
     <button> Click me </button>
     <canvas id="myChart" width="400" height="400"></canvas>
-        {{datas}}
-      <ul> {{datasInfo}}
-      {{#each datasInfo}}
+        <script>
+         /* console.log({{datas}});
+          console.log("//");
+          var glob = {{datas}};
+          console.log(glob);
+          console.log("//"); */
+        </script>
+      <ul> 
       <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
-        <li> </li>
-      {{/each}}
+        <li> {{timezone}}  </li>
+        <li> {{groupName}}</li>
+        <li> {{sensorId}} </li>
    </ul>
 </div>                
 
@@ -25,4 +31,6 @@
             src="https://code.jquery.com/jquery-3.5.0.min.js"
             integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
             crossorigin="anonymous"></script>
-<script type="text/javascript" src="/javascripts/history.js" datas={{datas}}></script>
+            <!-- using axios test --> 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="/javascripts/history.js" timezone={{timezone}}></script>

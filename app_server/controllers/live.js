@@ -56,6 +56,6 @@ module.exports.displayLiveDatas = async function (req, res) {//passing datas to 
   } 
   catch(err) {
     console.log(err); 
-    // todo how to handle error ?
+    // todo how to handle error ?   
   }
 };

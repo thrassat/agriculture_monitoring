@@ -110,6 +110,30 @@ sensorGroupSchema.statics.getSensorsByGroupId = async function (groupId) {
 };
 
 /****************************/
+/*    HISTORY METHODS       */
+/****************************/
+// peut-être à combiner avec la méthode de la page live qui renvoit les infos que pour les sensors et timezone
+sensorGroupSchema.statics.getSensorGroupInfosById = async function (groupId) {
+    console.log(" ALLO");
+    return new Promise(async (resolve,reject) => {
+        try { 
+            let sensors = await this.find({uniqueid: groupId}).select('name timezone').exec() ;
+            if (sensors.length != 1) {
+                reject(new Error("Duplicated sensorgroup ID"));
+            }
+            else {
+                resolve(sensors[0])
+            }
+        }
+        catch(err){
+            reject(err);
+        }
+        return; 
+   })
+
+};
+
+/****************************/
 /* SENSOR MANAGER METHODS   */
 /****************************/
 sensorGroupSchema.statics.addSensorGroup = async function (uniqueid, name, timezone, owners) {
