@@ -55,17 +55,32 @@ storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySe
 storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensorId,from,to) {
     return new Promise(async (resolve,reject) => {
         try {
-            let datas = await this.find({sensorId: sensorId}).find({ date: {$gte: new Date(from), $lte: new Date(to)}}).exec(); 
+            let datas = await this.find({sensorId: sensorId}).find({ date: {$gte: from, $lte: to}}).sort({date: 1}).exec(); 
             // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
+            // https://www.w3schools.com/js/js_dates.asp 
+            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent 
             resolve(datas); 
         }
         catch (err) {
             reject(err)
         }
     })
-}
+}; 
 
-
+storedDatasSchema.statics.getAllDatas = async function getDatasFromTo (sensorId,from,to) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            let datas = await this.find({sensorId: sensorId}).sort({date: 1}).exec(); 
+            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
+            // https://www.w3schools.com/js/js_dates.asp 
+            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
+            resolve(datas); 
+        }
+        catch (err) {
+            reject(err)
+        }
+    })
+}; 
 /***************************/
 /* DATA RECEIVER METHODS   */
 /***************************/

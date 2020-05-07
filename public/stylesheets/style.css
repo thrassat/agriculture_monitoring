@@ -1,1 +1,26 @@
 .header {margin-top: 10%}   
+
+canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    background-color: beige;
+}
+
+.chart-container {
+    width: 500px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+}
+.main-chart-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* TODO customize */
+#daterange {
+    background-color: #4CAF50;
+} 

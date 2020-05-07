@@ -63,8 +63,9 @@ process.on('SIGTERM', function() {
 // todo add new ones ? sensorGroup & storedDatas
 // possiblement todo pour éviter l'export fait pour chaque schéma à chaque fois 
 require('./consultation');
-require('./user');
+require('./user_V0');
 require('./userGroup'); 
+require('./user'); 
 
 /* Example from MongoDB website 
 

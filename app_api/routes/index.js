@@ -1,13 +1,14 @@
 var express = require ('express');
 var router = express.Router();
 
-var ctrlUsers = require('../controllers/user');
+var ctrlUsers = require('../controllers/user_V0');
 var ctrlLive = require('../controllers/live')
 var ctrlIndex = require ('../controllers/index');
 var ctrlSensorManager = require ('../controllers/sensorManager')
 var ctrlUserGroups = require('../controllers/userGroup');
 var ctrlDatasReceiver = require('../controllers/datasReceiver');
 var ctrlHistory = require('../controllers/history');
+
 // TODO const ?
 // REFAIRE LA STRUCTURE! séparé les routes selon les pages 
 
@@ -39,6 +40,8 @@ router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
 /*            HISTORY            */
 /*********************************/
 router.get('/datatest/',ctrlHistory.getDatasTest)
+router.get('/history/datas/:sensorid/:range',ctrlHistory.getDatas)
+
 router.get('/groupinfos/:groupid',ctrlHistory.getSensorGroupInfos)
 
 /********************************/

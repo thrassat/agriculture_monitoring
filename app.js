@@ -7,7 +7,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
-
+var session = require('express-session');
 var passport = require('passport'); 
 const exphbs = require ('express-handlebars');
 const hbsHelpers = require('./app_server/helpers/hbsHelpers');
@@ -44,7 +44,15 @@ app.use(bodyParser.text()); // to parse http post text/plain (content-type  )
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/public')));
 
+
+// session is optional ! (express & passport : mais permet d'identifier avec un cookie unique les req. utilisateurs plutot qu'avec les credentials) 
+app.use(session({secret: 'secret used to sign the session ID cookie', resave: true, saveUninitialized: false }));
+// https://www.npmjs.com/package/express-session 
+// sitepoint example met les 2 a false // resave si 'touch' method implémentée 
+// todo choose resave option "How do I know if this is necessary for my store? The best way to know is to check with your store if it implements the touch method. If it does, then you can safely set resave: false. If it does not implement the touch method and your store sets an expiration date on stored sessions, then you likely need resave: true."
 app.use(passport.initialize()) ; 
+app.use(passport.session()); 
+
 
 //routes
 app.use('/', indexRouter);

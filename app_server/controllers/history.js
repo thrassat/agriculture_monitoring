@@ -35,12 +35,8 @@ module.exports.displayDatasHistory = async function (req, res) {//passing datas 
   try {
     var sensorId = req.params.sensorid; 
     var sensorGroupId = req.params.sensorid.split('-')[0]; 
-    var datas = [12, 19, 3, 5, 2, 3];
-    console.log(typeof datas);
     // ces infos une fois totalement ciblée peuvent être éventuellement passées depuis le click d'accès à cette page
-    console.log("yo");
     var sensorgroupinfos = await axios.get('/api/v0/groupinfos/'+sensorGroupId);
-    console.log(sensorgroupinfos.data);
     var groupName = sensorgroupinfos.data.name; 
     var timezone = sensorgroupinfos.data.timezone;  
     renderHistoryPage(req,res,sensorId,groupName,timezone);

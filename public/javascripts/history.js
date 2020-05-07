@@ -1,13 +1,182 @@
 //var Chart = require('chart.js');
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+/******************** VANILLA TESTS *******************************************************/
+// helper from https://plainjs.com/javascript/ajax/send-ajax-get-and-post-requests-47/ 
+function getAjax(url, success) {
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('GET', url);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+    };
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.send();
+    return xhr;
+}
 
-$(document).ready(function(){
-    $("button").click(function(){
-        $(".test").hide();
+var select = document.getElementById('daterange'); 
+var ctx = document.getElementById('myChart');
+var sensorId = document.currentScript.getAttribute('sensorId');
+var timezone = document.currentScript.getAttribute('timezone');
+var myChart; 
+
+
+// var config = {
+//     type: 'line',
+//     data: {
+//         labels: [],
+//         datasets: [{
+//             //label: '# of Votes',
+//             data: [],
+//             backgroundColor: [
+//                 'rgba(255, 99, 132, 0.2)',
+//                 'rgba(54, 162, 235, 0.2)',
+//                 'rgba(255, 206, 86, 0.2)',
+//                 'rgba(75, 192, 192, 0.2)',
+//                 'rgba(153, 102, 255, 0.2)',
+//                 'rgba(255, 159, 64, 0.2)'
+//             ],
+//             borderColor: [
+//                 'rgba(255, 99, 132, 1)',
+//                 'rgba(54, 162, 235, 1)',
+//                 'rgba(255, 206, 86, 1)',
+//                 'rgba(75, 192, 192, 1)',
+//                 'rgba(153, 102, 255, 1)',
+//                 'rgba(255, 159, 64, 1)'
+//             ],
+//             borderWidth: 1
+//         }]
+//     },
+//     // chart example https://github.com/chartjs/Chart.js/blob/master/samples/scales/time/line.html 
+//     //https://www.chartjs.org/docs/latest/axes/cartesian/time.html
+//     options: {
+//         responsive: true,
+//         scales: {
+//             yAxes: [{
+//                 ticks: {
+//                    beginAtZero: true // if we want to begin y label at 0 (how about negative temp? )
+//                 }
+//             }],
+//             xAxes: [{
+//                 type: 'time'
+//             }]
+//         }
+//     }
+// };
+
+// window.onload = function () {
+//     console.log(select.value); 
+//     myChart = new Chart(ctx,config);
+//     this.getAndUpdateDatas(myChart); 
+// };
+
+// select.onchange = function () { //works 
+//     console.log(select.value);                                                                                                                                                                                                                                                              
+//     getAndUpdateDatas(myChart); 
+// }; 
+
+// My helper to update datas 
+var getAndUpdateDatas = function (chart) {
+    try {
+        getAjax('/api/v0/history/datas/'+sensorId+'/'+select.value+'?tz='+timezone, function(data){
+            var json = JSON.parse(data);
+            // console.log("from AJAX: ");
+            // console.log(json); 
+            // removeDatas(myChart); 
+            // for (var i=0; i<json.dates.length; i++) {
+            //     addData(myChart,json.dates[i], json.datas[i]);
+            // };
+            chart.data.datasets[0].data = json.datas; 
+            chart.data.labels = json.dates; 
+            chart.update();
+        });
+    }
+    catch (err) {
+        //how to handle , todo
+        console.log(err);
+    }
+};
+// HELPER FOR CHART JS , from original documentation
+//OLD not working properly 
+// function addData(chart, label, data) {
+//     chart.data.labels.push(label);
+//     console.log(chart.data.datasets.length);
+//     chart.data.datasets.forEach((dataset) => {
+//         dataset.data.push(data);
+//     });
+// }
+// function removeDatas(chart) {
+//     for (var i=0; i<chart.data.labels; i++) {
+//         chart.data.labels.pop();
+//         chart.data.datasets.forEach((dataset) => {
+//             dataset.data.pop();
+//         });
+//     }
+// }
+function createConfig(position) {
+    return {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+              //  label: 'My First dataset',
+                borderColor: 'red',
+                backgroundColor: 'green',
+                data: [],
+                fill: false,
+            }
+            ]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: ' Todo titre'
+            },
+            tooltips: {
+                position: position,
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                       beginAtZero: true // if we want to begin y label at 0 (how about negative temp? )
+                    }
+                }],
+                xAxes: [{
+                    type: 'time'
+                }]
+            }
+        }
+    };
+};
+
+window.onload = function() {
+    // position from chart js documentation
+    var container = document.querySelector('.main-chart-container');
+// au besoin ajouter des arguments pour généré dynamiquement plusieurs graphiques
+// todo selon renu final pas besoin de mettre la position comme argument (surtout si on a qu'un graphe ici)
+
+    ['nearest'].forEach(function(position) {
+        var div = document.createElement('div');
+        div.classList.add('chart-container');
+        var canvas = document.createElement('canvas');
+        div.appendChild(canvas);
+        container.appendChild(div);
+        var ctx = canvas.getContext('2d');
+        var config = createConfig(position);
+        myChart = new Chart(ctx, config);
+        this.getAndUpdateDatas(myChart); 
     });
-});
+};
 
+select.onchange = function () { //works 
+    console.log(select.value);                                                                                                                                                                                                                                                              
+    getAndUpdateDatas(myChart); 
+}; 
+
+// do on change/ click / modifier le dataset 
 
 // ce qu'on a fait : tout encapsulé dans une fonction asynchrone 
 // but : pas de probleme de chainage des variables 
@@ -18,6 +187,11 @@ $(document).ready(function(){
 // faire avec argument "from-to" 
 // éventuellement implémenter un bouton pour décider ça sur le front 
 // 
+//------ je veux : un boutton qui défile : permettant de choisir déjà : afficher les données : 
+//sur l'année, sur le mois, sur la semaine, sur le jour, depuis toujours
+//principe : faire choisir à l'utilisateur : form ? 
+
+/* first version 
 (async() => { 
 var ctx = document.getElementById('myChart');
 var timezone = document.currentScript.getAttribute('timezone');
@@ -78,6 +252,7 @@ var buildArrayDateDatas = async function() {
 //   console.log(dateDatasArray); 
 dateDatasArray = await buildArrayDateDatas (); 
 //console.log(dateDatasArray);
+*/
 /****************************************** Begin Tests***************************************************************************************************/
 /* test getting datas */
 // var this_js_script = $('script[src*=history]'); // or better regexp to get the file name..
@@ -91,6 +266,7 @@ dateDatasArray = await buildArrayDateDatas ();
 // go test axios ici 
 /**************************************************End TESTS ********************************************************************* */
 
+/*
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -127,4 +303,4 @@ var myChart = new Chart(ctx, {
         }
     }
 });
-})(); 
+})(); */

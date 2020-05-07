@@ -7,18 +7,20 @@ var ctrlLive = require('../controllers/live');
 var ctrlIndex = require('../controllers/index');
 var ctrlHistory = require('../controllers/history'); 
 var ctrlAbout = require ('../controllers/about'); 
+/*var ctrlAdmin = require('../controllers/admin');*/
 
-/*var ctrlAdmin = require('../controllers/admin');
-var ctrlAuth = require('../controllers/auth');*/
+// PASSPORT & LOGIN
+var passport = require('passport'); 
+const connectEnsureLogin = require('connect-ensure-login');
+var ctrlAuth = require('../controllers/auth');
 
 /**********************/
 /* Pages CONSULTATION */
 /**********************/
-router.get('/',ctrlIndex.listAccessibleSensorGroups);
-router.get('/live/:groupid',ctrlLive.displayLiveDatas);
-router.get('/history/:sensorid', ctrlHistory.displayDatasHistory); 
+router.get('/',connectEnsureLogin.ensureLoggedIn(),ctrlIndex.listAccessibleSensorGroups);
+router.get('/live/:groupid',connectEnsureLogin.ensureLoggedIn(),ctrlLive.displayLiveDatas);
+router.get('/history/:sensorid',connectEnsureLogin.ensureLoggedIn(), ctrlHistory.displayDatasHistory); 
 
-router.get('/datastest/',ctrlHistory.displayDatasHistory)
 /**********************/
 /*   Pages ADMIN      */
 /**********************/
@@ -26,6 +28,28 @@ router.get('/datastest/',ctrlHistory.displayDatasHistory)
 /**********************/
 /*  Pages CONNECTION  */
 /**********************/
+// authenticate
+router.post('/login',ctrlAuth.auth); 
+// send the login page
+router.get('/login',ctrlAuth.displayLogin); 
+//EXAMPLES :
+// todo ad ensureLoggedIn sur les différentes routes?
+// add to our route
+// router.get('/', 
+//   connectEnsureLogin.ensureLoggedIn(),
+//   (req, res) => res.sendFile('html/index.html', {root: __dirname})
+// );
+
+router.post('/register', ctrlAuth.register);
+router.get('/register',ctrlAuth.displayRegister);
+
+router.get('/logout', ctrlAuth.logout);
+// examples 
+router.get('/user',
+  connectEnsureLogin.ensureLoggedIn(),
+  (req, res) => res.send({user: req.user})
+);
+
 
 /**********************/
 /*  Pages AUTRES      */

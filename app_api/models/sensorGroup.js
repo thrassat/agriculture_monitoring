@@ -114,7 +114,6 @@ sensorGroupSchema.statics.getSensorsByGroupId = async function (groupId) {
 /****************************/
 // peut-être à combiner avec la méthode de la page live qui renvoit les infos que pour les sensors et timezone
 sensorGroupSchema.statics.getSensorGroupInfosById = async function (groupId) {
-    console.log(" ALLO");
     return new Promise(async (resolve,reject) => {
         try { 
             let sensors = await this.find({uniqueid: groupId}).select('name timezone').exec() ;
@@ -130,7 +129,6 @@ sensorGroupSchema.statics.getSensorGroupInfosById = async function (groupId) {
         }
         return; 
    })
-
 };
 
 /****************************/

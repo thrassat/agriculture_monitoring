@@ -1,8 +1,7 @@
-const mongoose = require( 'mongoose'); 
-    timestamps = require('mongoose-timestamp');
-
-// todo : validation and mongoose.model...
-//Todo : USER GROUP!
+const mongoose = require('mongoose'); 
+        passportLocalMongoose = require('passport-local-mongoose'); 
+        Schema = mongoose.Schema; 
+        timestamps = require('mongoose-timestamp');
 
 const accessToSchema= new mongoose.Schema({
     accessTo: {
@@ -18,54 +17,40 @@ const groupSchema= new mongoose.Schema({
         ref: 'UserGroup',
     },
 },{ _id: false });
-
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        unique: true,
-        required: true,
-    },
-    // password: {
-    //     //TODO p356 getting mean, add method setpassword & validatepwd
-    //     type: String,
-    //     required: true,
-    // },
-    email: {
-        type: String,
-        trim: true,
-        lowercase: true,
-        unique: true,
-        required: 'Email address is required',
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
-    },
-    hash: String,
-    salt: String,
-        // lowercase + regexp (match) ? 
-   /* createdAt: Date,
-    lastAcessAt: Date, autom avec timestamp, voir si update & acess similar*/ 
+const UserSchema = new Schema ({
+    username: String, 
+    password : String,
     role: {
         type: String,
     },
     group: [groupSchema],
     accessTo: [accessToSchema] //array of sensorGroup ID's
-},
-{collection: 'users'}
-);
-userSchema.methods.setPassword = function (password) {
-    this.salt = crypto.randomBytes(16).toString('hex');
-    this.hash = crypto.pdkdf2(password,this.salt,1000,64,'sha-512').toString('hex'); 
-//todo try more iterations than 1000? 
-}
-userSchema.methods.validPassword = function (password) {
-    var hash = crypto.pdkf2Sync(password,this.salt,1000,64,'sha-512').toString('hex');
-    return this.hash === hash;
-}
 
-userSchema.plugin(timestamps);
-/* données transmises par capteur ? */
-// EMBEDDED OR FOREIGN KEY ? 
+})
 
-//compiling model from a schema
-// Arg1 : name of model, 2: schema to use,
-// 3:optional mongoDB collection name, si vide : par défault pluriel et sans maj du nom model : consultations
-mongoose.model('User',userSchema); 
+UserSchema.plugin(passportLocalMongoose); 
+UserSchema.plugin(timestamps); 
+//https://github.com/saintedlama/passport-local-mongoose#api-documentation
+// https://www.npmjs.com/package/passport-local-mongoose 
+
+// "_id" : ObjectId("5e602713f917353c5858eb85"),
+// 	"username" : "admin",
+// 	"password" : "admin",
+// 	"email" : "admin@admin.ca",
+// 	"role" : "admin",
+// 	"group" : [
+// 		{
+// 			"group" : ObjectId("5e5fd52c80710513dc9c88c9")
+// 		}
+// 	],
+// 	"accessTo" : [ ],
+// 	"updatedAt" : ISODate("2020-03-04T22:09:23.415Z"),
+// 	"createdAt" : ISODate("2020-03-04T22:09:23.415Z"),
+// 	"__v" : 0
+
+// todo better way to use mongoose schema ? 
+//ex 1 : (mherman) module.exports = mongoose.model('users', UserSchema);
+//ex2 : (sitepoitn) const Users = mongoose.model('users', UserSchema); 
+const user = mongoose.model('user',UserSchema);   
+module.exports = {user};
+
