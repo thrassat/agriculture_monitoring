@@ -12,6 +12,11 @@ sendJsonResponse = function(res, status, content) {
 /**********************************************************/
 /*              GET SENSOR GROUP INFO BY ID               */
 /**********************************************************/
+/**** GET SENSOR GROUP NAME & TIMEZONE BY ID  *****/
+/**
+* Get sensor group name & timezone by id
+* @todo
+*/
 module.exports.getSensorGroupInfos = async function (req,res) {
     try {
         // name & timezone mais on peut demaner plus/moins 
@@ -24,37 +29,20 @@ module.exports.getSensorGroupInfos = async function (req,res) {
         });
     }
     return; 
-}
-
+};
 
 /************************************************/
-/*              GET DATAS TEST                  */
+/*              GET DATAS                       */
 /************************************************/
-module.exports.getDatasTest = async function (req,res) {
-    var dateDataArray = [];
-    try {
-        // date need to be on string format : converti explicitement en date ici ou par la méthode du modèle 
-        datas = await storedDatas.getDatasFromTo("f39205955150484347202020ff132a1f-temp",'2019','2021'); 
-        console.log(datas);
-        // get timezone ? sinon pas bon forma pour la date
-        for (var i=0; i<datas.length; i++) {
-          //  dateDataArray.push({"date":})
-        }
-        sendJsonResponse(res,200,datas);
-    }
-    catch (err) {
-        sendJsonResponse(res,404, {
-            "message": "get datas test error "
-        });
-        // todo throw error ?
-    }
-    return;
-}
-
+/**** GET DATAS FOR GIVEN SENSOR AND TIME RANGE *****/
+/**
+* Get stored datas for a specific time range and a given sensor
+* @todo
+*/
+// possibilité actuelle : '1 jour avant', 1 semaine avant, 1 mois avant, 1 année avant, all datas 
 module.exports.getDatas = async function (req,res) {
     var dateDataArray;
     var datas; 
-    console.log("UEEE");
     try {
         var range = req.params.range;
         var sensorId = req.params.sensorid;
@@ -133,4 +121,25 @@ var buildArrayDateDatas = function(storedJson,tz) {
     dateDatasArray = {"dates":dateArray,"datas": dataArray};
     return dateDatasArray; 
 };
+
+module.exports.getDatasTest = async function (req,res) {
+    var dateDataArray = [];
+    try {
+        // date need to be on string format : converti explicitement en date ici ou par la méthode du modèle 
+        datas = await storedDatas.getDatasFromTo("f39205955150484347202020ff132a1f-temp",'2019','2021'); 
+        console.log(datas);
+        // get timezone ? sinon pas bon forma pour la date
+        for (var i=0; i<datas.length; i++) {
+          //  dateDataArray.push({"date":})
+        }
+        sendJsonResponse(res,200,datas);
+    }
+    catch (err) {
+        sendJsonResponse(res,404, {
+            "message": "get datas test error "
+        });
+        // todo throw error ?
+    }
+    return;
+}
 

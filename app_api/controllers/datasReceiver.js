@@ -27,10 +27,18 @@ sendJsonResponse = function(res, status, content) {
 //4) Stockage des données; envoi directement avec l'EPOCH, Mongoose formatte au format UTC et on garde l'information pour la timezone dans le document du sensorgroup
 //5) Réponse à l'arduino : erreur, besoin d'un renvoi ? alerte quelconque ... en JSON
 
-/**************************************/
-/*           MAIN FUNCTION            */
-/**************************************/
-module.exports.postProcess =  async function(req,res) {
+/**************************************************************/
+/*           MAIN FUNCTION - receiving data packets           */
+/**************************************************************/
+/****************************/
+/*   GROUP SETUP METHODS    */
+/****************************/
+/**** HTTP POST PROCESS DATAS  *****/
+/**
+* Process datas sent via HTTP Post by Arduino
+* @todo
+*/
+module.exports.postProcess =  async function postProcess (req,res) {
     var dataType;
     var timezone;
     var epoch; 
@@ -52,35 +60,15 @@ module.exports.postProcess =  async function(req,res) {
         // 30/04 new version, get datatype with sensorId
         var groupIdDataType = sensorId.split("-"); 
         var dataType = groupIdDataType[1]; 
-        /*     // get datatype querying (version avant 30/04)
-        try {
-        // find the sensor to check what will be the "value" field 
-        // help https://stackoverflow.com/questions/21142524/mongodb-mongoose-how-to-find-subdocument-in-found-document 
-          //  timezoneDataType = await sensorGroup.getDataTypeAndTimezoneBySensorId(sensorId);
-            dataType = await sensorGroup.getDataTypeBySensorId(sensorId); 
-        }
-        catch (err) {
-            // todo how to handle error 
-            console.log("error caught from 'getDataTypeById' method : ");
-            console.log(err);
-            // use send JSON response ? 
-        } */
-        //dataType= timezoneDataType.dataType;
-      //  console.log("datatype : "+ dataType);
-        
-        // get timezone name 
-       // timezone = timezoneDataType.timezone; 
-
-
        // argument en second , réponse en milisecond
+       //com1
         epoch = getEpochFromPostText(postText);
         // possible de récupérer la date avec momentJS au format de la timezone : date = moment.tz(epoch,timezone).format(); 
         // finalement pas utilisé pour le moment on store directement avec l'epoch time
-
         // get value
         value = getValueFromPostText(postText);
         
-       // selon datatype, traité différement (value type différent)
+       // selon datatype, traité différement (value type différent) todo 
         switch(dataType) {
             case 'temp': // value est donc un int   
                 //console.log(utcDate instanceof Date && !isNaN(date.valueOf()));
@@ -129,10 +117,172 @@ module.exports.postProcess =  async function(req,res) {
                     "message": "error storing datas"
                 });
             }
-
           } 
     }
 }
+
+/*********************************************/
+/*              SETUP   FUNCTION             */
+/*********************************************/
+/* Méthode recevant les informations de l'arduino (sensor group) à l'allumage  [[[flowchart diagram exist]]]
+    > S'il existe pas, on créer un nouveau group en base 
+    > S'il existe on vérifie que les infos concordent
+    > S'il en manque on les ajoute en base 
+    > On accuse réception pour démarrer la réception des datas packets 
+    
+    CONVENTION du paquet reçu : groupid-groupname-type1-type2-type i .... 
+    type répond aux conventions de l'applications aussi : valeur possible actuellement : 'temp', 'rh', 'co2'
+    todo : groupname à vérifier 
+*/
+/**** HTTP POST GROUP SETUP  *****/
+/**
+* Process group setup informations sent via HTTP Post by Arduino
+* @todo
+*/
+module.exports.groupSetup = async function groupSetup (req,res) {
+    //console.log(req);
+    console.log(req.body.split("-")); 
+    var plainText =  req.body.split("-");
+    var groupId = plainText[0];  
+    var groupName = plainText[1]; 
+    var timezone = plainText[2];
+
+    var types = []; 
+    for(var i=3; i<plainText.length; i++) {
+        types.push(plainText[i]); 
+    }
+    console.log(types); 
+    // todo timezone sent by Arduino ! or how ?     
+    var group; 
+    // find if a sensor group with that id already exists in the DB 
+    try {
+        if(!timezone.match(/[A-Z][a-z]+\/[A-Z][a-z]+/)) {
+            throw new Error("Error in plain text sent - timezone field")
+        };
+        group = await sensorGroup.getSensorGroupById(groupId);
+        // pas de sensor group avec cet id en base
+        if (group==null) {
+            //store new sensorgroup
+            // todo handle status 
+            // tested with plain text: arduinoidtest-grouptest-America/Toronto-temp-temp-rh-co2-rh 
+            // works; other test fot this part ? 
+            let status = await sensorGroup.addSensorGroup(groupId,groupName,timezone);
+            if (status!=201) {
+                throw new Error("Error adding new sensor group");  
+            }
+            else {
+                // add each sensors
+                for(var i=0; i<types.length; i++) {
+                    let res = await sensorGroup.addSensor(groupId,types[i]);
+                    if (res!=201) {
+                        throw new Error("Error adding new "+types[i]+"sensor");
+                    }
+                }
+                // todo get back id ? non ils savent que si on a un ok la ils ajoutes les dt à leurs sensors convention : 
+                // arduinoid-datatype(-count) (-count) si plusieurs sensors du même datatype
+                sendJsonResponse(res,status,{
+                    "message": "Sensor group and all sensors added "
+                });
+                // todo handle this Arduino side 
+            }
+        }
+        // group contient le document lié à ce groupeid
+        else if (!group.name || group.name==="") {
+            // name ? add name if not exist todo or see where to handle group name 
+            //todo (call external method)
+
+        }
+        else if (!group.timezone || group.timezone==="") {
+            // todo ; add timezone if missing ? 
+            // call external method 
+        }
+        else if (group.sensors.length != types.length) {
+            // sensors missing  part todo 
+            // sensor : sensorid, name, datatype 
+            // name est à enlevé required et puis on peut ajouter ici 
+            // todo add application side possibilité d'ajouter un nom aux sensors 
+
+            // case : temp-temp (0 la, 1 la, 2 la) temp (0-1 stocké) 
+            // Je me demande si ce serait pas mieux de faire côté arduino side d'envoyer les datatype-1 si y'en a 2 du même type 
+            // sinon ici je pourrai check dans l'array type combien d'occurence de chaque mot 
+
+            //thanks to corashina comment : https://stackoverflow.com/questions/5667888/counting-the-occurrences-frequency-of-array-elements 
+            const map1 = types.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()); 
+            var realTypesOcc = [...map1.entries()]; 
+            var dbTypes = []; 
+            group.sensors.forEach(elem => {
+                dbTypes.push(elem.dataType); 
+            });
+            const map2 = dbTypes.reduce((acc, e) => acc.set(e, (acc.get(e) || 0) + 1), new Map()); 
+            var dbTypesOcc = [...map2.entries()]; 
+            // realTypesOcc & dbTypesOcc sont des array de la forme : [ ['datatype', nombre occurence], ..]
+            // a partir de la on vérifie si les datatypes "réels" et ceux en base sont équivalent un a un, on détecte qu'un sensor manque en base: on l'insère
+            realTypesOcc.forEach(realE => {
+                dbTypesOcc.forEach( async dbE => {
+                    if (dbE[0]==realE[0]) {
+                        if (dbE[1]<realE[1]) {
+                            // nb de datatype réel envoyé par l'arduino supérieur à ceux en base, on ajoute le nombre de sensors non encore enregistrés
+                            var nbToInsert = realE[1]-dbE[1] ; 
+                            for (i=0; i<nbToInsert; i++) {
+                                var status = await sensorGroup.addSensor(groupId,realE[0]); 
+                                if (status!=201) {
+                                    throw new Error("Error adding new"+realE[0]+"sensor");
+                                }
+                            }
+                            sendJsonResponse(res,status, {
+                                "message": "New sensor(s) successfully added"
+                            })
+                        }
+                        else if (dbE[1]>realE[1]) {
+                            // todo remove sensor, which one? how to now ? issue 
+                            // need name or todo in application side ! 
+                            // send log error to application? 
+                        }
+                    // sinon c'est ok, le nombre de sensors de tel datatype correspondent, on passe au suivant (forcément un qui diffère si on entre ici)
+                    // tested with sequence : arduinoidtest-grouptest-America/Toronto-temp-rh-co2
+                    //arduinoidtest-grouptest-America/Toronto-temp-rh-co2-rh
+                    // arduinoidtest-grouptest-America/Toronto-temp-rh-co2-rh-temp-temp
+                    // works 
+                    }
+                });
+            });
+        }
+        else {
+            // All is already registered
+            sendJsonResponse(res,status, {
+                "message" : "ok"
+            });
+
+        }
+    }
+    catch (err) {
+        console.error(err.name+" : "+err.message); 
+        // reponse sent to arduino (relevant message?)
+        sendJsonResponse(res,500,err.message); 
+        
+    }
+}
+
+
+//com 1
+   /*     // get datatype querying (version avant 30/04)
+        try {
+        // find the sensor to check what will be the "value" field 
+        // help https://stackoverflow.com/questions/21142524/mongodb-mongoose-how-to-find-subdocument-in-found-document 
+          //  timezoneDataType = await sensorGroup.getDataTypeAndTimezoneBySensorId(sensorId);
+            dataType = await sensorGroup.getDataTypeBySensorId(sensorId); 
+        }
+        catch (err) {
+            // todo how to handle error 
+            console.log("error caught from 'getDataTypeById' method : ");
+            console.log(err);
+            // use send JSON response ? 
+        } */
+        //dataType= timezoneDataType.dataType;
+      //  console.log("datatype : "+ dataType);
+        // get timezone name 
+       // timezone = timezoneDataType.timezone; 
+
 /**************************************/
 /*        TESTING FUNCTION            */
 /**************************************/

@@ -10,6 +10,7 @@ sendJsonResponse = function(res, status, content) {
 /**********************************************************/
 /*               ADD SENSOR GROUP                         */
 /**********************************************************/
+// todo jsdoc https://stackoverflow.com/questions/27266857/how-to-annotate-express-middlewares-with-jsdoc
 // groupId en paramètre request
 // name, timezone, owners, dans le body request 
 // Ajout des sensors ensuite

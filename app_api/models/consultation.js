@@ -1,4 +1,5 @@
 var mongoose = require( 'mongoose'); 
+
 // ANCIEN DOCUMENT
 
 var storedDataSchema = new mongoose.Schema( {

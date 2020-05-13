@@ -1,6 +1,12 @@
 const mongoose = require( 'mongoose'); 
       timestamps = require('mongoose-timestamp');
 
+/*************************************************/
+/*                  SUBDOCUMENTS                 */
+/*************************************************/
+/**************************************/
+/*           Sensor Schema            */
+/**************************************/
 const sensorSchema = new mongoose.Schema({
     sensorid: { // on overwrite pas le ObjectID de MongoDB, mais on crée notre propre "id field"
     // format : sensorgrouid-datatype 
@@ -15,10 +21,8 @@ const sensorSchema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
-        required: true, // maybe not required ? 
+        //old :  required: true,
     },
-   /* createdAt: Date,
-    lastAccessAt: Date, ajouté automatiquement via timestamp plug-in*/
     dataType: { // convention actuelle [temp,rh,co2]
         type: String,
         trim: true,
@@ -27,13 +31,21 @@ const sensorSchema = new mongoose.Schema({
     },
 });
 
+/**************************************/
+/*            Owner Schema            */
+/**************************************/
 const ownerSchema= new mongoose.Schema({
     // todo non fonctionnel actuellement 
     owner: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'User',//ref to owner in user collections (populate method)
+        ref: 'User',//ref to owner in user collections (populate method) todo
     },
 });
+
+/*************************************************/
+/*                 MAIN DOCUMENT                 */
+/*              SENSOR GROUP SCHEMA              */
+/*************************************************/
 
 var sensorGroupSchema = new mongoose.Schema({
   // uniqueid : 128bits envoyé par l'Arduino. 
@@ -43,7 +55,7 @@ var sensorGroupSchema = new mongoose.Schema({
        trim: true, 
        required: true,
        index: true
-       // regexp ? 
+       // regexp ? todo
    },
    name: {
        type: String,
@@ -57,24 +69,51 @@ var sensorGroupSchema = new mongoose.Schema({
        trim: true
        //todo regexp
    },
-   //geographic location? 
+   //geographic location? timezone
    owners: [ownerSchema], // todo add owner correctement 
    sensors: [sensorSchema] //[0,3,6] [min,average,max]
 }, 
 {collection: 'sensorgroups'}
 );
 
-sensorSchema.plugin(timestamps); 
-sensorGroupSchema.plugin(timestamps);
+/**************************************/
+/*               PLUGINS              */
+/**************************************/
+sensorSchema.plugin(timestamps); // add created at and last update at
+sensorGroupSchema.plugin(timestamps); // add created at and last update at
 
 /*************************************************************************************************************************/
 /*                                      STATIC SENSOR GROUP METHODS                                                      */  
 /*************************************************************************************************************************/
+/**
+ * @typedef sensor
+ * @property {string} sensorid
+ * @property {string} name
+ * @property {string} datatype
+ * 
+ * @typedef owner
+ * @property {string} userid
+ * 
+ * @typedef sensorGroup
+ * @property {String} uniqueid
+ * @property {String} name
+ * @property {String} timezone
+ * @property {Array.<owner>} owners
+ * @property {Array.<sensor>} sensors
+ * 
+ */
 
 /******************/
 /* INDEX METHODS  */
 /******************/
-sensorGroupSchema.statics.getAllSensorGroups = async function () {
+/**** GET ALL SENSOR GROUPS : *****/
+/**
+* Get all sensor groups
+* @async
+* @return {Promise.<sensorGroup[]>|Error} sensor group documents array
+* @throws throw error if query fails
+*/
+sensorGroupSchema.statics.getAllSensorGroups = async function getAllSensorGroups () {
     // au besoin afiner en renvoyer que les noms ou autre 
    return new Promise(async (resolve,reject) => {
         try {
@@ -90,7 +129,15 @@ sensorGroupSchema.statics.getAllSensorGroups = async function () {
 /******************/
 /* LIVE METHODS   */
 /******************/
-sensorGroupSchema.statics.getSensorsByGroupId = async function (groupId) {
+/**** GET SENSOR GROUP SENSORS & TIMEZONE FIELDS BY ID : *****/
+/**
+* Get sensor group timezone & sensors array by ID
+* @async
+* @param {string} groupId
+* @return {Promise.<sensorGroup>|Error} sensor group document (timezone & sensors array field)
+* @throws throw error if query fails
+*/
+sensorGroupSchema.statics.getSensorsByGroupId = async function getSensorsByGroupId (groupId) {
     // au besoin afiner en renvoyer que les noms ou autre 
    return new Promise(async (resolve,reject) => {
         try { 
@@ -112,8 +159,16 @@ sensorGroupSchema.statics.getSensorsByGroupId = async function (groupId) {
 /****************************/
 /*    HISTORY METHODS       */
 /****************************/
+/**** GET SENSOR GROUP TIMEZONE & NAME FIELDS BY ID : *****/
+/**
+* Get sensor group name & timezone by ID
+* @async
+* @param {string} groupId
+* @return {Promise.<sensorGroup>|Error} sensor group document (name timezone)
+* @throws throw error if query fails
+*/
 // peut-être à combiner avec la méthode de la page live qui renvoit les infos que pour les sensors et timezone
-sensorGroupSchema.statics.getSensorGroupInfosById = async function (groupId) {
+sensorGroupSchema.statics.getSensorGroupInfosById = async function getSensorGroupInfosById (groupId) {
     return new Promise(async (resolve,reject) => {
         try { 
             let sensors = await this.find({uniqueid: groupId}).select('name timezone').exec() ;
@@ -134,7 +189,18 @@ sensorGroupSchema.statics.getSensorGroupInfosById = async function (groupId) {
 /****************************/
 /* SENSOR MANAGER METHODS   */
 /****************************/
-sensorGroupSchema.statics.addSensorGroup = async function (uniqueid, name, timezone, owners) {
+/**** ADD SENSOR GROUP : *****/
+/**
+* Store new sensor group 
+* @async
+* @param {string} uniqueid
+* @param {string} name
+* @param {string} timezone
+* @param {Array.<owner>} owners
+* @return {number|Error} http status (201 created resource success)
+* @throws throw error if mongoose save method fails
+*/
+sensorGroupSchema.statics.addSensorGroup = async function addSensorGroup (uniqueid, name, timezone, owners) {
     var group = new sensorGroup ; 
     group.uniqueid = uniqueid; 
     group.name = name ; 
@@ -150,9 +216,19 @@ sensorGroupSchema.statics.addSensorGroup = async function (uniqueid, name, timez
     throw err; 
    }
 };
-
-sensorGroupSchema.statics.addSensor = async function (groupid,name,dataType) {
+/**** ADD SENSOR TO SENSOR GROUP : *****/
+/**
+* Store new sensor to a given sensor group 
+* @async
+* @param {string} uniqued
+* @param {string} dataType
+* @param {string} name
+* @return {number|Error} http status (201 created resource success)
+* @throws throw error if query or mongoose save method fails
+*/
+sensorGroupSchema.statics.addSensor = async function addSensor (groupid,dataType,name) {
     var sensor = new sensors ; 
+    var count = 0 ; 
     sensor.sensorid = groupid+"-"+dataType; 
     sensor.name = name ; 
     sensor.dataType = dataType ; 
@@ -161,6 +237,15 @@ sensorGroupSchema.statics.addSensor = async function (groupid,name,dataType) {
 // On count le nombre de docs pour ce sensorgroup qui ont ce datatype et store : arduinoid-datatype-(count+1) [garder le 2eme tiret car on utilise des .split]
     try {
         let group = await this.findOne({uniqueid: groupid}).exec(); 
+        // verify unique datatype, if not : id : groupid-datatype-count
+        group.sensors.forEach(elem => {
+            if (elem.dataType == dataType) {
+                count++; 
+            }
+        });
+        if (count!=0) {
+            sensor.sensorid = sensor.sensorid+"-"+count; 
+        }
         await group.sensors.push(sensor); 
         await group.save();
         return 201 ; 
@@ -174,9 +259,17 @@ sensorGroupSchema.statics.addSensor = async function (groupid,name,dataType) {
 /**************************/
 /* DATAS RECEIVER METHODS */
 /**************************/
-
+/**** GET DATATYPE BY SENSOR ID : *****/
+/**
+* Get datatype of a given sensor 
+* @async
+* @param {string} sensorId
+* @return {string} datatype
+* @throws throw error if query fails or internal DB issues
+*/
 // getDataTypeBySensorId -v1
-sensorGroupSchema.statics.getDataTypeBySensorId = function (sensorId) {
+// todo : surement pas besoin 
+sensorGroupSchema.statics.getDataTypeBySensorId = function getDataTypeBySensorId (sensorId) {
       // async ? use await todo 
       // todo idée : ne plus se servir de cette fonction mais de l'uniqueid direct du sensor
     return new Promise((resolve,reject) => {
@@ -218,8 +311,15 @@ sensorGroupSchema.statics.getDataTypeBySensorId = function (sensorId) {
             )
     });
   }
-
-sensorGroupSchema.statics.getDataTypeAndTimezoneBySensorId = function (sensorId) {
+/**** GET DATATYPE & TIMEZONE BY SENSOR ID : *****/
+/**
+* Get datatype of a given sensor 
+* @async
+* @param {string} sensorId
+* @return {Promise} Object with timezone & dataType
+* @throws throw error if query fails or internal DB issues
+*/
+sensorGroupSchema.statics.getDataTypeAndTimezoneBySensorId = function getDataTypeAndTimezoneBySensorId (sensorId) {
     // async ? 
   return new Promise((resolve,reject) => {
       this
@@ -260,6 +360,38 @@ sensorGroupSchema.statics.getDataTypeAndTimezoneBySensorId = function (sensorId)
           )
   });
 }
+
+/****************************/
+/*   GROUP SETUP METHODS    */
+/****************************/
+/**** GET SENSOR GROUP BY ID : *****/
+/**
+* Get all sensor group fields by ID
+* @async
+* @param {string} groupId
+* @return {Promise.<sensorGroup>|Error} sensor group document, if doesn't exists "null"
+* @throws throw error if query fails
+*/
+sensorGroupSchema.statics.getSensorGroupById = async function getSensorGroupById (groupId) {
+    return new Promise(async (resolve,reject) => {
+        try { 
+            let group = await this.find({uniqueid: groupId}).exec() ;
+            if (group.length==0) {
+                resolve(null); 
+            }
+            else if (group.length > 1) {
+                reject(new Error("Duplicated sensorgroup ID"));
+            }
+            else {
+                resolve(group[0]);
+            }
+        }
+        catch(err){
+            reject(err);
+        }
+        return; 
+   })
+};
 
   // First working versions with promises and callbacks 
 

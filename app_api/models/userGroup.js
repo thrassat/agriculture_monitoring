@@ -1,8 +1,7 @@
 const mongoose = require( 'mongoose'); 
     timestamps = require('mongoose-timestamp');
 
-// todo : validation and mongoose.model...
-//Todo : USER GROUP!
+// NOT USED FOR THE MOMENT, todo 
 
 /* TODO je pense tokeep , peut etre pas besoin de redéfinir,
 ou pas gérer accès/droits à d'autres choses
@@ -13,6 +12,11 @@ const accessToSchema= new mongoose.Schema({
     },
 });
 */
+
+/*************************************************/
+/*                 MAIN DOCUMENT                 */
+/*               USER GROUP SCHEMA               */
+/*************************************************/
 const userGroupSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -21,15 +25,14 @@ const userGroupSchema = new mongoose.Schema({
     },
     // lowercase + regexp (match) ? 
     //accessTo: [accessToSchema],
-   /* createdAt: Date,
-    lastAcessAt: Date, autom avec timestamp, voir si update & acess similar*/ 
-    //accessTo: [mongoose.SchemaTypes.ObjectId] //array of sensorGroup ID's
-    // ou potentielle autre restriction? 
+   
 });
 
+/**************************************/
+/*               PLUGINS              */
+/**************************************/
 userGroupSchema.plugin(timestamps);
-/* données transmises par capteur ? */
-// EMBEDDED OR FOREIGN KEY ? 
+
 
 //compiling model from a schema
 // Arg1 : name of model, 2: schema to use,

@@ -17,6 +17,7 @@ sendJsonResponse = function(res, status, content) {
 /******************************************************/
 /*          GET ALL SENSORS BY GROUP ID               */
 /******************************************************/
+// JSDOC todo 
 module.exports.getSensors = async function(req,res) {
     try {
         let sensors = await sensorGroup.getSensorsByGroupId(req.params.groupid); 

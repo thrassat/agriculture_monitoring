@@ -2,11 +2,13 @@
 /*eslint-env node*/
 'use strict';
 //possible to use multi DB
-
-// Fichier de connection à la base de donnée
-
+/**********************************************/
+/*          DATABASE CONNECTION FILE          */
+/**********************************************/
 var mongoose = require('mongoose');
 var closeCon; 
+
+/*************** SETUP DB URI ************************/
 var dbURI = 'mongodb://localhost/AU_datas';
 
 if(process.env.NODE_ENV === 'production') {
@@ -15,9 +17,10 @@ if(process.env.NODE_ENV === 'production') {
     dbURI = process.env.MONGOLAB_URI ;
 }
 
+/*************** CONNECT DB VIA MONGOOSE ************************/
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-/* debug */
+/*************** DEBUG ************************/
 mongoose.connection.on('connected', function () {
 console.log('Mongoose connected to ' + dbURI);
 });
@@ -28,7 +31,7 @@ mongoose.connection.on('disconnected', function () {
 console.log('Mongoose disconnected');
 });
 
-/* Closing connection */
+/*************** Closing connection ************************/
 closeCon = function (msg, callback) {
     mongoose.connection.close(function () { 
         console.log('Mongoose disconnected through '+msg); 

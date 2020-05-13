@@ -60,7 +60,7 @@ module.exports.register = function (req,res,next) {
         if (err) {
           return res.render('register', { error : err.message });
         }
-
+        
         passport.authenticate('local')(req, res, () => {
             req.session.save((err) => {
                 if (err) {

@@ -1,16 +1,15 @@
 const mongoose = require( 'mongoose'); 
 timestamps = require('mongoose-timestamp');
 
+/*************************************************/
+/*                 MAIN DOCUMENT                 */
+/*              STORED DATAS SCHEMA              */
+/*************************************************/
  const storedDatasSchema = new mongoose.Schema( {
     date: {
         type: Date, 
         required: true
     }, //timestamp? remplacé par le plug-in ou doublé par sécu ? 
-    /*sensorId: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'SensorGroup', //_id du sensor embed, ref sensors    en vrai, todo, meme ref un sub document de sensorsgroups 
-        required: true
-    }, //string */ 
     // Changement de conception : on ne force pas être un objectid ce field là, comme ça on peut gérer 
     // le field sensor ID comme on l'entend direct avec son object id 
     // arduinoid-datatype(-num)
@@ -30,13 +29,34 @@ timestamps = require('mongoose-timestamp');
     /* potentielle utilisation d'attribute pattern */
 }, //{collection: todo}
 );
+
+/**************************************/
+/*               PLUGINS              */
+/**************************************/
 storedDatasSchema.plugin(timestamps); // add created at and last update at
 // todo check: voir si mieux d'ajouter juste manuellement un field de création
 
 
+/*************************************************************************************************************************/
+/*                                      STATIC STORED DATAS METHODS                                                      */  
+/*************************************************************************************************************************/
+/**
+ * @typedef storedData
+ * @property {Date} date Timestamp
+ * @property {string} sensorid Stored data of that sensor id
+ * @property {any} value Valeur de la grandeur
+ */
 /******************/
 /* LIVE METHODS   */
 /******************/
+/**** GET LAST DATA BY SENSOR ID : *****/
+/**
+* Get last stored datas for a given sensor
+* @async
+* @param {string} sensorId 
+* @return {Promise.<storedData>|Error} dataPacket 
+* @throws throw error if query fails
+*/
 storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySensorId (sensorId) {
     return new Promise(async (resolve,reject) => {
         try {
@@ -52,6 +72,17 @@ storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySe
 /*********************/
 /*  HISTORY METHODS  */
 /*********************/
+
+/**** GET DATAS FROM..TO BY SENSOR ID : *****/
+/**
+* Get all stored datas for a given sensor between two dates
+* @async
+* @param {string} sensorId 
+* @param {Date} from
+* @param {Date} to
+* @return {Promise.<storedData[]>|Error} datas
+* @throws throw error if query fails
+*/
 storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensorId,from,to) {
     return new Promise(async (resolve,reject) => {
         try {
@@ -66,8 +97,15 @@ storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensor
         }
     })
 }; 
-
-storedDatasSchema.statics.getAllDatas = async function getDatasFromTo (sensorId,from,to) {
+/**** GET ALL DATAS BY SENSOR ID : *****/
+/**
+* Get all stored datas for a given sensor 
+* @async
+* @param {string} sensorId 
+* @return {Promise.<storedData[]>|Error} datas
+* @throws throw error if query fails
+*/
+storedDatasSchema.statics.getAllDatas = async function getAllDatas (sensorId) {
     return new Promise(async (resolve,reject) => {
         try {
             let datas = await this.find({sensorId: sensorId}).sort({date: 1}).exec(); 
@@ -81,12 +119,22 @@ storedDatasSchema.statics.getAllDatas = async function getDatasFromTo (sensorId,
         }
     })
 }; 
+
 /***************************/
 /* DATA RECEIVER METHODS   */
 /***************************/
+/**** REGISTER A DATAPACKET : *****/
+/**
+* Store received number data   
+* @async
+* @param {Date} date timestamp of that data 
+* @param {string} sensorId 
+* @param {number} value
+* @return {number|Error} http status (201 created resource success)
+* @throws throw error if mongoose save method fails
+*/  
 
-// return 201 : http status code for created resource
-// Or throw error 
+// todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
 storedDatasSchema.statics.registerIntData = async function registerIntData (date,sensorId,value) {
    var storedData = new storedDatas ; 
     storedData.date=date; 

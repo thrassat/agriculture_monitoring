@@ -11,8 +11,6 @@
   + ajout de modifications personnelles
 */
 
-//#include <SPI.h>
-//#include <WiFiUdp.h>
 #include <RTCZero.h>
 
 RTCZero rtc;
@@ -41,7 +39,7 @@ uint32_t setEpochFromNTP () {
 
   if (numberOfTries == maxTries) {
     Serial.print("ERROR : NTP (Network Time Protocol) unreachable!!");
-    //while (1);
+    //while (1); comment réessayer ?
   }
   else {
     Serial.print("Epoch received: ");
@@ -58,4 +56,3 @@ uint32_t getEpochy2k () {
 uint32_t getEpoch() {
 return rtc.getEpoch();
 }
-

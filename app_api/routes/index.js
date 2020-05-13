@@ -1,6 +1,7 @@
 var express = require ('express');
 var router = express.Router();
 
+/*************** API controllers ***************/
 var ctrlUsers = require('../controllers/user_V0');
 var ctrlLive = require('../controllers/live')
 var ctrlIndex = require ('../controllers/index');
@@ -8,9 +9,8 @@ var ctrlSensorManager = require ('../controllers/sensorManager')
 var ctrlUserGroups = require('../controllers/userGroup');
 var ctrlDatasReceiver = require('../controllers/datasReceiver');
 var ctrlHistory = require('../controllers/history');
-
-// TODO const ?
-// REFAIRE LA STRUCTURE! séparé les routes selon les pages 
+// const ?
+// Routes par page
 
 /************************************************************************************************************/
 /*                                          API ROUTES                                                      */  
@@ -41,21 +41,21 @@ router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
 /*********************************/
 router.get('/datatest/',ctrlHistory.getDatasTest)
 router.get('/history/datas/:sensorid/:range',ctrlHistory.getDatas)
-
 router.get('/groupinfos/:groupid',ctrlHistory.getSensorGroupInfos)
 
-/********************************/
-/*       MANAGE SENSORS         */
-/********************************/
+/*****************************************/
+/*       MANAGE SENSORS  [postman]       */
+/*****************************************/
 router.post('/add/:groupid',ctrlSensorManager.addSensorGroup); // add new sensorgroup
 router.post('/add/:groupid/:datatype',ctrlSensorManager.addSensorToGroup); 
 
 /********************************/
 /*        DATAS RECEIVER        */
 /********************************/
-// Testing receive post request from arduino 
+//receive post request from arduino 
 router.post('/test/:sensorid',ctrlDatasReceiver.printPost); //  id param for plain text http post, remove :sensorId for Json send
 router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess);
+router.post('/groupsetup',ctrlDatasReceiver.groupSetup); 
 
 
 /* 1er tests tmp , manque au moins l'ID */ /*

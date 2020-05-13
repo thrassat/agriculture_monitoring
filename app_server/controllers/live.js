@@ -1,7 +1,6 @@
   /*jslint node:true*/
 /*eslint-env node*/
 'use strict';
-// todo add has helpert or export module in other file? 
 var moment = require('moment-timezone');
 const axios = require('axios').default;
 axios.defaults.baseURL = "http://localhost:3000";
@@ -11,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 //axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
-
+/*************** Render & datas ***************/
 var renderLivePage = function (req,res,datasInfo){
   res.render('live', {  //'locationlist in getting mean
     title: 'Live datas',
@@ -22,8 +21,8 @@ var renderLivePage = function (req,res,datasInfo){
     datasInfo: datasInfo,
   });
 }
-/* hard coded part test */
-/*GET 'live data' page */
+
+/*************** Function called by routes ***************/
 module.exports.displayLiveDatas = async function (req, res) {//passing datas to the view   
   try {
     //console.log(req.params.groupid); 
@@ -51,7 +50,6 @@ module.exports.displayLiveDatas = async function (req, res) {//passing datas to 
       dataArray.push({"name": name,"type":dataType, "value":value, "timestamp":timestamp, "id":sensors[i].sensorid}); 
     }
    // console.log(dataArray); 
-    // here to do : get last data for each sensors , create an array to send to the render function 
     renderLivePage(req,res,dataArray);//,response.data); 
   } 
   catch(err) {

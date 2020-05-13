@@ -9,7 +9,7 @@
 */
 #include "connectWifi.h"
 #include "httpPostSender.h"
-//#include <ArduinoJson.h>
+//#include <ArduinoJson.h> //necessary if we want to send datatypes Array in JSON format
 #include "getRealTime.h"
 #include "SCD30Getter.h"
 #include "uniqueId.h"
@@ -17,7 +17,7 @@
 char ssid[] = SECRET_SSID;     // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 char IPServer[] = SECRET_IP; 
-char URL[] = "/api/v0/receiver";
+char URL[] = "/api/v0"; // Api URL : todo secret tab ? 
 uint32_t epoch; 
 uint16_t port = 3000; 
 /*uint8_t id[16] ;
@@ -29,9 +29,11 @@ WiFiClient wifiClient;
 byte mac[6];   
 
  // SENSORS 
+ // todo  ask user for followings input ? 
 const uint8_t nbSensor = 3;  // il faut que cela soit une constante pour stocker les ids dans un array
 String ids[nbSensor] = {"no"}; 
-
+String dtypes[nbSensor] = {"temp", "rh","co2"};
+String timezone= "America/Toronto"; 
 // SCD30 part
 uint16_t interval = 10;// (en secondes : de 2 à 1800, uint8_t ne va que jusqu'à 255 uint16_t jusqu'a 2^16-1)
 float resultSCD[3] = {0};
@@ -44,10 +46,13 @@ void setup() {
     // todo remove ? 
   ; // wait for serial port to connect. Needed for native USB port only
   }
+
+ //Serial.println(sizeof(dtypes)); // 36: en bytes donc 12par arg 
+ //Serial.println(sizeof(dtypes[0]));
+
   connect_wifi(ssid,pass);  
   
   //possibilité : a partir de là, si erreur , envoyer à l'application un post spécial avec les informations de l'erreur ? 
-  
   //WiFi.macAddress(mac);
   //UniqueIDdump(Serial);
   /* 
@@ -76,6 +81,8 @@ UniqueID: F3 92 05 95 51 50 48 43 47 20 20 20 FF 13 2A 1F
     // Arduino envoi son id a l'allumage, lui est retourné son nombre de sensor ? 
     // Add one sensor depuis l'appli ? Compliqué car comment le faire savoir à l'arduino? devrait demander à chaque loop, lourd.
     // 
+    // how we build array (user input) an name ? 
+  send_setup_informations(wifiClient,IPServer, port, URL, id, "grouptest", timezone, dtypes, nbSensor); 
 /*
   idScdCo2 = id+"-1"; 
   idScdTemp = id+"-2";
@@ -86,7 +93,7 @@ UniqueID: F3 92 05 95 51 50 48 43 47 20 20 20 FF 13 2A 1F
   Serial.println(id[1]);
   Serial.println("//");
   id2 = idIs(); 
-  char charid[16]; 
+  char charid[16];  
 //  id2.toCharArray(charid,16);
   Serial.println(castId2(id2));
   Serial.println("///");
@@ -125,10 +132,10 @@ void loop() {
   for (uint8_t i=0;i<nbSensor;i++){
     // todo use generic for like this ? 
   }
-  send_plain_post(wifiClient,IPServer,port,URL,id+"-1",(String)epoch,(String)resultSCD[0]);
+  /*send_plain_post(wifiClient,IPServer,port,URL,id+"-1",(String)epoch,(String)resultSCD[0]);
   send_plain_post(wifiClient,IPServer,port,URL,id+"-2",(String)epoch,(String)resultSCD[1]);
   send_plain_post(wifiClient,IPServer,port,URL,id+"-3",(String)epoch,(String)resultSCD[2]);
   //send_plain_post(wifiClient,IPServer,port,URL,"e44a5322-78f1-40b9-946d-be9ad416679c",epoch,(String)resultSCD[1]);
-
+*/  
   delay(interval*1000);
 }

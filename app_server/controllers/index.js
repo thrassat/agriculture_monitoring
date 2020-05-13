@@ -9,26 +9,23 @@ if (process.env.NODE_ENV === 'production') {
 //axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
+/*************** Render & datas ***************/
 var renderIndex = function (req,res,resDatas){
-  res.render("index", {  //'locationlist in getting mean
+  res.render("index", {
     title: 'Index',
     pageHeader: {
       title:'Groupes de capteurs accessibles : ',
-      strapline: 'Date/heure - Lieu'
+      strapline: 'Date/heure - Lieu' //todo
     },
     //get all sensors groups  , return all fields to index
     //change names 
     // todo return au niveau de la request du model ou a une autre étape que ce qui nous intéresse
     sensorGroupsList: resDatas
-    /*datas: { // use API response 
-        temp: resDatas[0].name,
-        rh: resDatas[1].name,
-        co2: '400'
-    }*/
   });
 }
 
-/*GET 'ALL SENSORS GROUPS FOR INDEX PAGE */
+/*************** Function called by routes ***************/
+/*GET 'ALL SENSORS GROUPS AVAILABLE FOR INDEX PAGE */
 module.exports.listAccessibleSensorGroups = async function (req,res) {
   // remove req where unuseful? 
 //https://www.twilio.com/blog/5-ways-to-make-http-requests-in-node-js-using-async-await

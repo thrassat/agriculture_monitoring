@@ -1,7 +1,7 @@
 //var Chart = require('chart.js');
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-/******************** VANILLA TESTS *******************************************************/
+/******************** VANILLA *******************************************************/
 // helper from https://plainjs.com/javascript/ajax/send-ajax-get-and-post-requests-47/ 
 function getAjax(url, success) {
     var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
@@ -13,67 +13,14 @@ function getAjax(url, success) {
     xhr.send();
     return xhr;
 }
-
+/*************** Getting elements ***************/
 var select = document.getElementById('daterange'); 
 var ctx = document.getElementById('myChart');
 var sensorId = document.currentScript.getAttribute('sensorId');
 var timezone = document.currentScript.getAttribute('timezone');
 var myChart; 
 
-
-// var config = {
-//     type: 'line',
-//     data: {
-//         labels: [],
-//         datasets: [{
-//             //label: '# of Votes',
-//             data: [],
-//             backgroundColor: [
-//                 'rgba(255, 99, 132, 0.2)',
-//                 'rgba(54, 162, 235, 0.2)',
-//                 'rgba(255, 206, 86, 0.2)',
-//                 'rgba(75, 192, 192, 0.2)',
-//                 'rgba(153, 102, 255, 0.2)',
-//                 'rgba(255, 159, 64, 0.2)'
-//             ],
-//             borderColor: [
-//                 'rgba(255, 99, 132, 1)',
-//                 'rgba(54, 162, 235, 1)',
-//                 'rgba(255, 206, 86, 1)',
-//                 'rgba(75, 192, 192, 1)',
-//                 'rgba(153, 102, 255, 1)',
-//                 'rgba(255, 159, 64, 1)'
-//             ],
-//             borderWidth: 1
-//         }]
-//     },
-//     // chart example https://github.com/chartjs/Chart.js/blob/master/samples/scales/time/line.html 
-//     //https://www.chartjs.org/docs/latest/axes/cartesian/time.html
-//     options: {
-//         responsive: true,
-//         scales: {
-//             yAxes: [{
-//                 ticks: {
-//                    beginAtZero: true // if we want to begin y label at 0 (how about negative temp? )
-//                 }
-//             }],
-//             xAxes: [{
-//                 type: 'time'
-//             }]
-//         }
-//     }
-// };
-
-// window.onload = function () {
-//     console.log(select.value); 
-//     myChart = new Chart(ctx,config);
-//     this.getAndUpdateDatas(myChart); 
-// };
-
-// select.onchange = function () { //works 
-//     console.log(select.value);                                                                                                                                                                                                                                                              
-//     getAndUpdateDatas(myChart); 
-// }; 
+//com1
 
 // My helper to update datas 
 var getAndUpdateDatas = function (chart) {
@@ -96,23 +43,7 @@ var getAndUpdateDatas = function (chart) {
         console.log(err);
     }
 };
-// HELPER FOR CHART JS , from original documentation
-//OLD not working properly 
-// function addData(chart, label, data) {
-//     chart.data.labels.push(label);
-//     console.log(chart.data.datasets.length);
-//     chart.data.datasets.forEach((dataset) => {
-//         dataset.data.push(data);
-//     });
-// }
-// function removeDatas(chart) {
-//     for (var i=0; i<chart.data.labels; i++) {
-//         chart.data.labels.pop();
-//         chart.data.datasets.forEach((dataset) => {
-//             dataset.data.pop();
-//         });
-//     }
-// }
+
 function createConfig(position) {
     return {
         type: 'line',
@@ -152,6 +83,7 @@ function createConfig(position) {
     };
 };
 
+/*************** Actions ***************/
 window.onload = function() {
     // position from chart js documentation
     var container = document.querySelector('.main-chart-container');
@@ -253,6 +185,84 @@ var buildArrayDateDatas = async function() {
 dateDatasArray = await buildArrayDateDatas (); 
 //console.log(dateDatasArray);
 */
+
+
+// com1
+
+
+// var config = {
+//     type: 'line',
+//     data: {
+//         labels: [],
+//         datasets: [{
+//             //label: '# of Votes',
+//             data: [],
+//             backgroundColor: [
+//                 'rgba(255, 99, 132, 0.2)',
+//                 'rgba(54, 162, 235, 0.2)',
+//                 'rgba(255, 206, 86, 0.2)',
+//                 'rgba(75, 192, 192, 0.2)',
+//                 'rgba(153, 102, 255, 0.2)',
+//                 'rgba(255, 159, 64, 0.2)'
+//             ],
+//             borderColor: [
+//                 'rgba(255, 99, 132, 1)',
+//                 'rgba(54, 162, 235, 1)',
+//                 'rgba(255, 206, 86, 1)',
+//                 'rgba(75, 192, 192, 1)',
+//                 'rgba(153, 102, 255, 1)',
+//                 'rgba(255, 159, 64, 1)'
+//             ],
+//             borderWidth: 1
+//         }]
+//     },
+//     // chart example https://github.com/chartjs/Chart.js/blob/master/samples/scales/time/line.html 
+//     //https://www.chartjs.org/docs/latest/axes/cartesian/time.html
+//     options: {
+//         responsive: true,
+//         scales: {
+//             yAxes: [{
+//                 ticks: {
+//                    beginAtZero: true // if we want to begin y label at 0 (how about negative temp? )
+//                 }
+//             }],
+//             xAxes: [{
+//                 type: 'time'
+//             }]
+//         }
+//     }
+// };
+
+// window.onload = function () {
+//     console.log(select.value); 
+//     myChart = new Chart(ctx,config);
+//     this.getAndUpdateDatas(myChart); 
+// };
+
+// select.onchange = function () { //works 
+//     console.log(select.value);                                                                                                                                                                                                                                                              
+//     getAndUpdateDatas(myChart); 
+// }; 
+
+// HELPER FOR CHART JS , from original documentation
+//OLD not working properly 
+// function addData(chart, label, data) {
+//     chart.data.labels.push(label);
+//     console.log(chart.data.datasets.length);
+//     chart.data.datasets.forEach((dataset) => {
+//         dataset.data.push(data);
+//     });
+// }
+// function removeDatas(chart) {
+//     for (var i=0; i<chart.data.labels; i++) {
+//         chart.data.labels.pop();
+//         chart.data.datasets.forEach((dataset) => {
+//             dataset.data.pop();
+//         });
+//     }
+// }
+
+
 /****************************************** Begin Tests***************************************************************************************************/
 /* test getting datas */
 // var this_js_script = $('script[src*=history]'); // or better regexp to get the file name..

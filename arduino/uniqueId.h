@@ -1,7 +1,7 @@
 #include <ArduinoUniqueID.h>
 
 
-// todo recupérer correctement l'unique id
+// recupére correctement l'unique id
 String getArduinoId () {
   String res = ""; 
   for (size_t i = 0; i < 16; i++) {
