@@ -1,16 +1,10 @@
   /*jslint node:true*/
 /*eslint-env node*/
 'use strict';
-const axios = require('axios').default;
-axios.defaults.baseURL = "http://localhost:3000";
-if (process.env.NODE_ENV === 'production') {
-  axios.defaults.baseURL = "https://quiet-mountain-46017.herokuapp.com/"
-};
-//axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 
+const {sensorGroup} = require('../../models/sensorGroup') 
 /*************** Render & datas ***************/
-var renderIndex = function (req,res,resDatas){
+var renderIndex = function (req,res,sensorGroupsList){
   res.render("index", {
     title: 'Index',
     pageHeader: {
@@ -20,13 +14,28 @@ var renderIndex = function (req,res,resDatas){
     //get all sensors groups  , return all fields to index
     //change names 
     // todo return au niveau de la request du model ou a une autre étape que ce qui nous intéresse
-    sensorGroupsList: resDatas
+    sensorGroupsList: sensorGroupsList,
   });
 }
+/*************** Function called by routes ***************/
+/*GET 'ALL SENSORS GROUPS AVAILABLE FOR INDEX PAGE */
+module.exports.renderIndexWithDatas = async function renderIndexWithDatas (req,res) {
+  // req res useful ? 
+  try { 
+    let groups = await sensorGroup.getAllConfirmedSensorGroups(); 
+    //Fixing Handlebars issue: Access has been denied to resolve the property "uniqueid" because it is not an "own property" of its parent.
+    // https://github.com/handlebars-lang/handlebars.js/issues/1642 
+    groups = groups.map(e => e.toJSON());
+    renderIndex(req,res,groups);
+  }
+  catch (err) {
+    throw err; 
+  }
+};
 
 /*************** Function called by routes ***************/
 /*GET 'ALL SENSORS GROUPS AVAILABLE FOR INDEX PAGE */
-module.exports.listAccessibleSensorGroups = async function (req,res) {
+/*module.exports.listAccessibleSensorGroups = async function (req,res) {
   // remove req where unuseful? 
 //https://www.twilio.com/blog/5-ways-to-make-http-requests-in-node-js-using-async-await
   try {
@@ -37,7 +46,7 @@ module.exports.listAccessibleSensorGroups = async function (req,res) {
     console.log(err); 
     // todo how to handle error ?
   }
-};
+};*/
 /* FIRST VERSION */
 /*
 module.exports.listAccessibleSensorGroups1 = function (req, res) {//passing datas to the view  

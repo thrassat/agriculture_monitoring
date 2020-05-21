@@ -2,13 +2,8 @@
 /*eslint-env node*/
 'use strict';
 var moment = require('moment-timezone');
-const axios = require('axios').default;
-axios.defaults.baseURL = "http://localhost:3000";
-if (process.env.NODE_ENV === 'production') {
-  axios.defaults.baseURL = "https://quiet-mountain-46017.herokuapp.com/"
-};
-//axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+const {sensorGroup} = require('../../models/sensorGroup')
+const {storedDatas} = require('../../models/storedDatas')
 
 /*************** Render & datas ***************/
 var renderLivePage = function (req,res,datasInfo){
@@ -23,37 +18,46 @@ var renderLivePage = function (req,res,datasInfo){
 }
 
 /*************** Function called by routes ***************/
-module.exports.displayLiveDatas = async function (req, res) {//passing datas to the view   
+module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, res) {
   try {
-    //console.log(req.params.groupid); 
-    var groupid = req.params.groupid;
-    // const vs let ? let vs var (let n'est déclaré qu'entre les accolades de sa déclaration)
-    const response = await axios.get('/api/v0/live/'+groupid);
-    let sensors = response.data.sensors; 
-    let timezone = response.data.timezone; 
-    var dataPacket ; 
-    var name ; 
-    var dataType ; 
-    var value;
-    var timestamp ; 
-    var dataArray = [];
-    // get last data for all sensors of the group
-    for (var i=0; i < sensors.length; i++) {
-      //getting stored datas last document
-      dataPacket = await axios.get('/api/v0/live/lastdata/'+sensors[i].sensorid); 
-      //getting name of the sensor
-      name = sensors[i].name; 
-      //creating array to send to the page
-      value = dataPacket.data.value;
-      timestamp = moment(dataPacket.data.date).tz(timezone).format();
-      dataType = sensors[i].sensorid.split("-")[1];
-      dataArray.push({"name": name,"type":dataType, "value":value, "timestamp":timestamp, "id":sensors[i].sensorid}); 
-    }
-   // console.log(dataArray); 
-    renderLivePage(req,res,dataArray);//,response.data); 
-  } 
-  catch(err) {
+    var groupId = req.params.groupid;
+    // get live/:groupid parameter 
+    console.log(req.params.groupid);
+    // get "?" parameter
+    // si ajout de ?name={{this.name}} après le lien cliquable d'index.handlebars
+    //console.log(req.query.name)
+    // aller chercher les données sur ce sensor group 
+    // les dernieres données
+    // creer des array pour envoyer tout ça 
+    
+
+    renderLivePage(req,res,"")
+  
+  }
+  catch (err) {
+    // handler error ? Throw ? Nothing? 
     console.log(err); 
-    // todo how to handle error ?   
   }
 };
+
+
+  // OLD  // getting all sensors for this group
+  //   // for each : name, last data value, unit & timestamp 
+  //   var groupId = req.params.groupid;   
+  //   var sensorsAndTimezone = await sensorGroup.getSensorsAndTimezoneByGroupId(groupId); 
+  //   var sensors = sensorsAndTimezone.sensors; 
+  //   var timezone = sensorsAndTimezone.timezone; 
+  //   var dataPacket, name, dataType, value, unit, timestamp; 
+  //   var dataArray = []; 
+  //   for (var i=0; i < sensors.length; i++) {
+  //     dataPacket =  await storedDatas.getLastDataBySensorId(sensors[i].sensorid) ;
+  //       //getting name of the sensor
+  //       name = sensors[i].name; 
+  //       //creating array to send to the page
+  //       value = dataPacket.value; 
+  //       timestamp = moment(dataPacket.date).tz(timezone).format();
+  //       dataType = sensors[i].data.type;
+  //       unit = sensors[i].data.unit;
+  //       dataArray.push({"name": name,"type":dataType, "value":value, "unit":unit, "timestamp":timestamp, "id":sensors[i].sensorid}); 
+  //     };
+  //     renderLivePage(req,res,dataArray);

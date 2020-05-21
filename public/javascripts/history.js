@@ -84,6 +84,7 @@ function createConfig(position) {
 };
 
 /*************** Actions ***************/
+// 
 window.onload = function() {
     // position from chart js documentation
     var container = document.querySelector('.main-chart-container');

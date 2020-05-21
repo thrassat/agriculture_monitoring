@@ -39,12 +39,14 @@
     </div>
   </div>
 </div>
+<a href="/admin"> ADMIN </a>
 <a href="/logout"> LOGOUT </a>
 <!--div class="row"-->
   <ul>
       {{#each sensorGroupsList}}
-      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
-        <li> <a href="live/{{this.uniqueid}}" title="Accéder aux données en temps réel pour ce groupe de capteurs">{{this.name}}</a></li>
+      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+      todo if name is empty ? -->
+        <li> <a href="live/{{this.groupId}}" title="Accéder aux données en temps réel pour ce groupe de capteurs">{{this.name}}</a></li>
       {{/each}}
    </ul>
 </div>

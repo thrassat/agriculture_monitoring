@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "bulma": "^0.8.2",
+    "bulmaswatch": "^0.8.1",
     "chart.js": "^2.9.3",
     "connect-ensure-login": "^0.1.1",
     "cookie-parser": "~1.4.4",
@@ -18,7 +20,6 @@
     "express": "~4.16.1",
     "express-handlebars": "^3.1.0",
     "express-session": "^1.17.1",
-    "handlebars": "^4.7.3",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "moment-timezone": "^0.5.28",
@@ -29,5 +30,8 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.0.1",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "handlebars": "^4.7.6"
   }
 }

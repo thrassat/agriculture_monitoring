@@ -4,7 +4,6 @@ var router = express.Router();
 /*************** API controllers ***************/
 var ctrlUsers = require('../controllers/user_V0');
 var ctrlLive = require('../controllers/live')
-var ctrlIndex = require ('../controllers/index');
 var ctrlSensorManager = require ('../controllers/sensorManager')
 var ctrlUserGroups = require('../controllers/userGroup');
 var ctrlDatasReceiver = require('../controllers/datasReceiver');
@@ -24,17 +23,10 @@ router.post('/userGroups',ctrlUserGroups.addUserGroup);
 router.delete('/users/:email',ctrlUsers.deleteUserByEmail);
 
 /********************************/
-/*              INDEX           */
-/********************************/
-router.get('/index',ctrlIndex.getAllSensorGroups);
-//router.get('/testindex',ctrlIndex.testgetall);
-
-/********************************/
 /*              LIVE            */
 /********************************/
 router.get('/live/:groupid',ctrlLive.getSensors);
 router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
-
 
 /*********************************/
 /*            HISTORY            */
@@ -56,6 +48,8 @@ router.post('/add/:groupid/:datatype',ctrlSensorManager.addSensorToGroup);
 router.post('/test/:sensorid',ctrlDatasReceiver.printPost); //  id param for plain text http post, remove :sensorId for Json send
 router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess);
 router.post('/groupsetup',ctrlDatasReceiver.groupSetup); 
+// version post 14.05 
+router.post('/ardSetup',ctrlDatasReceiver.ardSetup);
 
 
 /* 1er tests tmp , manque au moins l'ID */ /*

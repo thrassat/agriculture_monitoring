@@ -1,11 +1,29 @@
 const mongoose = require('mongoose');
-const {sensorGroup} = require('../models/sensorGroup') // récupère le Model crée 
-const {storedDatas} = require('../models/storedDatas')
+const {sensorGroup} = require('../../models/sensorGroup') // récupère le Model crée 
+const {storedDatas} = require('../../models/storedDatas')
 var sendJsonResponse ;
 sendJsonResponse = function(res, status, content) {
     res.status(status);
     res.json(content);
 };
+
+/**********************************************************/
+/*       ADD SENSOR GROUP FROM POST ARDUINO               */
+/**********************************************************/
+
+module.exports.addUnconfirmedSensorGroup = async function (req,res) {
+    try {
+        // method in sensor group
+    }
+    catch (err) {
+
+    }
+};
+
+
+
+
+
 
 /**********************************************************/
 /*               ADD SENSOR GROUP                         */

@@ -1,6 +1,6 @@
 var passport = require ('passport'); 
 // tmp testing
-const {user} = require('../../app_api/models/user');
+const {user} = require('../../models/user');
 
 // try to use promise ? async/await
 module.exports.auth = function (req,res,next) {

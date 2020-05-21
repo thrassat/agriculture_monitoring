@@ -20,9 +20,9 @@ const hbsHelpers = require('./app_server/helpers/hbsHelpers');
 
 /********** Config **********/
         /** Passport**/
-require('./app_api/config/passport');
+require('./config/passport');
         /** Database **/
-require('./app_api/models/db');
+require('./config/db');
 
 /********** Routers **********/
         /** Server **/
@@ -43,7 +43,7 @@ app.set('view engine', 'jade');
 app.set('views', path.join(__dirname, 'app_server', 'views'));
 app.engine('handlebars',exphbs({
   defaultLayout: "main",
-  helpers: hbsHelpers
+  helpers: hbsHelpers,
 })); 
 app.set('view engine','handlebars');
 //app.locals.layout =

@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 //Bring the "consultation schema", created on: models/consultations
 //Models folder moves from app_server to app_api
 
-const {sensorGroup} = require('../models/sensorGroup') // récupère le Model crée 
-const {storedDatas} = require('../models/storedDatas')
+const {sensorGroup} = require('../../models/sensorGroup') // récupère le Model crée 
+const {storedDatas} = require('../../models/storedDatas')
 /* Old version
 var sensorGroupModel = mongoose.model('SensorGroup');
 var datas = mongoose.model('StoredData');*/

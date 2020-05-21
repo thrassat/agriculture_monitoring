@@ -9,9 +9,9 @@ const mongoose = require('mongoose');
 // Official documentation for Node HTTP : https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
 // Official express documentation https://expressjs.com/en/4x/api.html#express
 
-const {sensorGroup} = require('../models/sensorGroup') // récupère le Model crée 
-const {storedDatas} = require('../models/storedDatas')
-
+const {sensorGroup} = require('../../models/sensorGroup'); // récupère le Model crée 
+const {storedDatas} = require('../../models/storedDatas');
+//const sensorManager = require('./sensorManager');
 var sendJsonResponse ;
 //var splitReceivedText; 
 
@@ -30,9 +30,6 @@ sendJsonResponse = function(res, status, content) {
 /**************************************************************/
 /*           MAIN FUNCTION - receiving data packets           */
 /**************************************************************/
-/****************************/
-/*   GROUP SETUP METHODS    */
-/****************************/
 /**** HTTP POST PROCESS DATAS  *****/
 /**
 * Process datas sent via HTTP Post by Arduino
@@ -58,6 +55,8 @@ module.exports.postProcess =  async function postProcess (req,res) {
         var postText = req.body; //NOW : OLD : 20/4/20 16:08:16 15.15 (arduino envoi ça )
         var sensorId = req.params.sensorid ; 
         // 30/04 new version, get datatype with sensorId
+        // allé chercher sensor : datatype & is confirmed ? 
+
         var groupIdDataType = sensorId.split("-"); 
         var dataType = groupIdDataType[1]; 
        // argument en second , réponse en milisecond
@@ -120,10 +119,116 @@ module.exports.postProcess =  async function postProcess (req,res) {
           } 
     }
 }
+/********************************************************/
+/*              SETUP   FUNCTION - newV                 */
+/********************************************************/
+/**** HTTP POST GROUP SETUP  *****/
+// receive plain text : arduinoid-idsens1-idsens2... 
+// method called one time, each time the arduino is switch on 
+/**
+* Process group setup informations sent via HTTP Post by Arduino
+* @todo
+*/
+// tested via postman 
+module.exports.ardSetup = async function ardSetup (req,res) {
+    var plainText = req.body.split("-");
+    var groupId = plainText[0]; 
+    var sensors = []; 
+    for(var i=1; i<plainText.length; i++) {
+        sensors.push(plainText[i]); 
+    }
+    // si confirmé on à rien a faire on renvoit ok
+    // confirmation de chaque sensor ? ici
+    try {
+        var confirmed = await sensorGroup.isGroupConfirmed(groupId); 
+    }
+    catch (err) {
+        sendJsonResponse(res, 500, {
+            "message" : "Error from isGroupConfirmed method, please retry, if persistent please contact an admin"
+        });
+    }
+    if (confirmed == null) {
+        console.log("confirmed = null");
+         // non enregistré : register unconfirmed sensorgroup and its sensors
+         // arduinouniqueid-t1-t2-rh works 
+         // arduinouniqueid-t1-t1-rh marche aussi, alors que sensorId est bien mis à unique 
+         // todo resolve this 
+         // https://stackoverflow.com/questions/25914973/mongoose-unique-index-on-subdocument
+         // apparement non supporté donc vérification manuelle si nécessaire
+        try {
+            let status = await sensorGroup.addUnconfirmedSensorGroup(groupId,sensors);
+            if (status != 201) {
+                throw new Error(); 
+            }
+            else {
+                sendJsonResponse(res, 201, {
+                    "message" : "new unconfirmed group and sensors added"
+                });
+            }
+        }
+        catch (err) {
+            console.log(err); 
+            sendJsonResponse(res,500, {
+                "message" : "Error inserting new sensorgroup, please retry, if persistent please contact an admin"
+            });
+         }
+    }
+    else if (confirmed === true) {
+        console.log("confirmed = true");
+        // idée :
+        // enregistre ceux qui existaient pas 
+        // return un array des sensors non confirmés 
+        try {
+            // todo : pb si 2 array au même ID 
+            // add new sensors if non already stored 
+            // return array of unconfirmed sensors IDS (and new ones)
+            let unconfirmedArray = await sensorGroup.isSensorsConfirmed(groupId,sensors); 
+            if (unconfirmedArray.length === 0) {
+                sendJsonResponse(res, 200, {
+                    "message" : "Your sensor group and all your sensors are confirmed !"
+                })
+            } else {
+                sendJsonResponse(res, 200, {
+                    "message" : "your sensor group is confirmed, those sensors are not " + unconfirmedArray + " - contact an admin if you want them confirmed and functional"
+                });
+            }
+        }
+        catch (err) {
+            sendJsonResponse(res,500, {
+                "message" : "Error checking sensors confirmation and addind new ones, please retry, if persistent please contact an admin"
+            });
+        }
+    }
+    else  { // confirmed = false
+        console.log("confirmed = false");
+         // non confirmé mais enregistré : 
+        // ajout de sensors en base si manquant 
+        // envoi message pour dire que rien n'est confirmé
+        try {
+            let newStoredSensors = await sensorGroup.checkAndAddIfNewSensors(groupId,sensors);
+            if (newStoredSensors.length ===0) {
+                sendJsonResponse(res, 200, {
+                    "message" : "Your sensor group and all sensors are already registered but still not confirmed by an admin, please contact one if necessary"
+                });
+            }
+            else {
+                sendJsonResponse(res, 201, {
+                    "message" : "New sensors : "+newStoredSensors+" are now stored ; Your sensor group and all sensors are registered but still not confirmed by an admin, please contact one if necessary ;"
+                });
+            };
+        }
+        catch (err) {
+            console.log(err); 
+            sendJsonResponse(res,500, {
+                "message" : "Error checking and adding new sensors to your unconfirmed sensor group, please retry, if persistent please contact an admin"
+            });
+        }
+    }
+};
 
-/*********************************************/
-/*              SETUP   FUNCTION             */
-/*********************************************/
+/********************************************************/
+/*              SETUP   FUNCTION - vbefore14.05         */
+/********************************************************/
 /* Méthode recevant les informations de l'arduino (sensor group) à l'allumage  [[[flowchart diagram exist]]]
     > S'il existe pas, on créer un nouveau group en base 
     > S'il existe on vérifie que les infos concordent

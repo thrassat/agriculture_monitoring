@@ -12,7 +12,7 @@ var ctrlLive = require('../controllers/live');
 var ctrlIndex = require('../controllers/index');
 var ctrlHistory = require('../controllers/history'); 
 var ctrlAbout = require ('../controllers/about'); 
-/*var ctrlAdmin = require('../controllers/admin');*/
+var ctrlAdmin = require('../controllers/admin');
 var ctrlAuth = require('../controllers/auth');
 
             /******* For authentication ******/
@@ -20,18 +20,23 @@ var ctrlAuth = require('../controllers/auth');
 var passport = require('passport'); 
 const connectEnsureLogin = require('connect-ensure-login');
 
+/// TMP 
+router.get('/bulma', function (req,res) {
+  res.render("bulmatest")
+});
 
 /**********************/
 /* Pages CONSULTATION */
 /**********************/
-router.get('/',connectEnsureLogin.ensureLoggedIn(),ctrlIndex.listAccessibleSensorGroups);
-router.get('/live/:groupid',connectEnsureLogin.ensureLoggedIn(),ctrlLive.displayLiveDatas);
+router.get('/',connectEnsureLogin.ensureLoggedIn(),ctrlIndex.renderIndexWithDatas);
+router.get('/live/:groupid',connectEnsureLogin.ensureLoggedIn(),ctrlLive.renderLiveWithDatas);
+// pour le moment juste historique sur une grandeur : possibilité de générer pour plusieurs todo 
 router.get('/history/:sensorid',connectEnsureLogin.ensureLoggedIn(), ctrlHistory.displayDatasHistory); 
 
 /**********************/
 /*   Pages ADMIN      */
 /**********************/
-
+router.get('/admin',connectEnsureLogin.ensureLoggedIn(),ctrlAdmin.renderAdminWithDatas);
 /**********************/
 /*  Pages CONNECTION  */
 /**********************/

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport", content="width=device-width, initial-scale=1.0"/>
     <title>{{title}}</title>
-    <link rel="stylesheet" href="/bootstrap/css/nightly.bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/bulmaswatch.min.css"/>
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css"/>
     {{!-- <!-- TODO something like this and pass with routes files ?--> --}}
     {{#each styles}}
@@ -16,7 +16,7 @@
 </head>
 
 <body>  
-    <div class="navbar navbar-default navbar-fixed-top">
+    <!-- Bootstrap navbar div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header"><a class="navbar-brand" href="/">GHMonitoring</a>
                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
@@ -27,7 +27,42 @@
                 </ul>
             </div>
         </div>
-    </div>
+    </div-->
+    <nav class="navbar is-success" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a href="/"><h1>APPLICATION NAME</h1></a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div id="navbarMain" class="navbar-menu">
+            <div class="navbar-start">
+                <a href="/" class="navbar-item">
+                    Accueil
+                </a>
+                <a href="/admin" class="navbar-item">
+                    Admin
+                </a>
+
+                <a href="/about" class="navbar-item">
+                    About
+                </a>
+            </div>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a href="/loogout" class="button is-danger">
+                        Log out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
     
         {{{body}}}
 
@@ -39,14 +74,42 @@
             </div>
         </footer>
     
+    <script> 
+        // from Bulma website navbar documentation
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Get all "navbar-burger" elements
+        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+        // Check if there are any navbar burgers
+        if ($navbarBurgers.length > 0) {
+
+            // Add a click event on each of them
+            $navbarBurgers.forEach( el => {
+                el.addEventListener('click', () => {
+
+                // Get the target from the "data-target" attribute
+                const target = el.dataset.target;
+                const $target = document.getElementById(target);
+
+                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                el.classList.toggle('is-active');
+                $target.classList.toggle('is-active');
+
+                });
+            });
+        }
+
+    });
+    </script>
    
     <!--script src="/javascripts/jquery-3.4.1.min.js"></script-->
     <!-- TODO Jquery useful everywhere? -->
-    <script
+    <!--script
             src="https://code.jquery.com/jquery-3.5.0.min.js"
             integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
-            crossorigin="anonymous"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
+            crossorigin="anonymous"></script-->
+    <!--script src="/bootstrap/js/bootstrap.min.js"></script-->
 <!--
     {{#each bodyScripts}}
     <script type="text/javascript" src="/javascripts/{{this}}"></script>

@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 var moment = require('moment-timezone');
 
-const {sensorGroup} = require('../models/sensorGroup')
-const {storedDatas} = require('../models/storedDatas')
+const {sensorGroup} = require('../../models/sensorGroup')
+const {storedDatas} = require('../../models/storedDatas')
 var sendJsonResponse 
 sendJsonResponse = function(res, status, content) {
     res.status(status);
