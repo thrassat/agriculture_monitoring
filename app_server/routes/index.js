@@ -65,8 +65,9 @@ function isLoggedIn(req,res,next) {
 router.get('/', isLoggedIn , ctrlIndex.renderIndexWithDatas);
 router.get('/live/:groupid',connectEnsureLogin.ensureLoggedIn(),ctrlLive.renderLiveWithDatas);
 // pour le moment juste historique sur une grandeur : possibilité de générer pour plusieurs todo 
-router.get('/history/:sensorid',connectEnsureLogin.ensureLoggedIn(), ctrlHistory.displayDatasHistory); 
-
+//old 
+//router.get('/history/:sensorid',connectEnsureLogin.ensureLoggedIn(), ctrlHistory.displayDatasHistory); 
+router.get('/historic/:groupId',ctrlHistory.displayDatasHistory)
 /**********************/
 /*   Pages ADMIN      */
 /**********************/

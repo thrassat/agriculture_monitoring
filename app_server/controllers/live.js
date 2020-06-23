@@ -4,7 +4,7 @@
 var moment = require('moment-timezone');
 const {sensorGroup} = require('../../models/sensorGroup')
 const {storedDatas} = require('../../models/storedDatas')
-
+const {jsH, chunkArray} = require ('../helpers/jsHelpers')
 /*************** Render & datas ***************/
 var renderLivePage = function (req,res,datasInfo){
   res.render('live', {  //'locationlist in getting mean
@@ -30,16 +30,16 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
     // aller chercher les données sur ce sensor group 
     // les dernieres données
     // creer des array pour envoyer tout ça 
-    let group = await sensorGroup.getSensorGroupById(groupId); 
-    let sensors = group.sensors; 
+    var group = await sensorGroup.getSensorGroupById(groupId); 
+    var sensors = group.sensors; 
     // plutot méthode getConfirmedSensors ou afficher "please confirm sensor pour ceux qui le sont pas "
     // gérer côté front affichage des confirmed or not 
-    console.log(sensors);
+   
     for (var i=0 ; i<sensors.length; i++) {
       if (sensors[i].confirmed) {
         // check integer ? 
         if (sensors[i].data.type === 'number') {
-          let dataPacket = await storedDatas.getLastDataByIds(groupId,sensors[i].sensorId);
+          var dataPacket = await storedDatas.getLastDataByIds(groupId,sensors[i].sensorId);
           // this ?
           // la valeur se retrouve mais ne s'affiche pas ... utiliser propre array
          // sensors[i].lastData = dataPacket.value; 
@@ -51,14 +51,25 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
           // console.log(sensors[i].lastData)
           // console.log(sensors[i].date)
           // console.log(sensors[i])
-          dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true,"sensLastData":dataPacket});
+          if (dataPacket) {
+            var timestamp = moment(dataPacket.date).tz(group.timezone).format('MMMM Do YYYY, h:mm:ss a');
+            dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true,"sensLastDataValue":dataPacket.value, "sensLastDataDate": timestamp});
+          }
+          else {
+            dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true});
+          }
         }
         else {
           //dataType is not number 
           // si l'implémentation de d'autres type est prévu faire ici 
           // sinon pour l'instant traité comme un entier 
           let dataPacket = await storedDatas.getLastDataByIds(groupId,sensors[i].sensorId);
-          dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true,"sensLastData":dataPacket});
+          if (dataPacket) {
+            dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true,"sensLastDataValue":dataPacket.value,"sensLastDataDate":dataPacket.date});
+          }
+          else {
+            dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId, "sensMetric":sensors[i].metric,"sensDataInfos":sensors[i].data,"sensConfirmation": true  });
+          }
        }
       }
       else {
@@ -66,7 +77,11 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
         dataArray.push({"sensName":sensors[i].name,"sensId":sensors[i].sensorId,"sensConfirmation": false});
       }
     }
-    renderLivePage(req,res,dataArray)
+   // dataArray = dataArray.map(e => e.toJSON() ); 
+    var chunked = chunkArray(dataArray,3);
+    console.log(chunked);
+    console.log(chunked[0].sensLastData)
+    renderLivePage(req,res,chunked)
   
   }
   catch (err) {

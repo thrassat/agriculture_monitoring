@@ -20,11 +20,11 @@ var sensorId = document.currentScript.getAttribute('sensorId');
 var timezone = document.currentScript.getAttribute('timezone');
 var myChart; 
 
-//com1
+//com1                                                      
 
 // My helper to update datas 
 var getAndUpdateDatas = function (chart) {
-    try {
+    try {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
         getAjax('/api/v0/history/datas/'+sensorId+'/'+select.value+'?tz='+timezone, function(data){
             var json = JSON.parse(data);
             // console.log("from AJAX: ");

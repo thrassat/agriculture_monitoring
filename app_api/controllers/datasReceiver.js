@@ -324,7 +324,6 @@ module.exports.ardSetup = async function ardSetup (req,res) {
         });
     }
     if (confirmed == null) {
-        console.log("confirmed = null");
          // non enregistré : register unconfirmed sensorgroup and its sensors
          // arduinouniqueid-t1-t2-rh works 
          // arduinouniqueid-t1-t1-rh marche aussi, alors que sensorId est bien mis à unique 

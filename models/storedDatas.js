@@ -125,6 +125,7 @@ storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensor
         }
     })
 }; 
+
 /**** GET ALL DATAS BY SENSOR ID : *****/
 /**
 * Get all stored datas for a given sensor 
@@ -134,6 +135,28 @@ storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensor
 * @throws throw error if query fails
 */
 storedDatasSchema.statics.getAllDatas = async function getAllDatas (sensorId) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            let datas = await this.find({sensorId: sensorId}).select('value date').sort({date: 1}).exec(); 
+            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
+            // https://www.w3schools.com/js/js_dates.asp 
+            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
+            resolve(datas); 
+        }
+        catch (err) {
+            reject(err)
+        }
+    })
+}; 
+/**** GET ALL DATAS BY SENSOR ID OLD: *****/
+/**
+* Get all stored datas for a given sensor 
+* @async
+* @param {string} sensorId 
+* @return {Promise.<storedData[]>|Error} datas
+* @throws throw error if query fails
+*/
+storedDatasSchema.statics.getAllDatas1 = async function getAllDatas1 (sensorId) {
     return new Promise(async (resolve,reject) => {
         try {
             let datas = await this.find({sensorId: sensorId}).sort({date: 1}).exec(); 

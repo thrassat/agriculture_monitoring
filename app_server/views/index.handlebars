@@ -35,35 +35,34 @@
   <h1 class="title"> {{pageHeader.title}} </h1>
   <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
 </div>
-
-<a href="/admin"> ADMIN </a>
-<a href="/logout"> LOGOUT </a>
-<!--div class="row"-->
-  <ul>
-      {{#each sensorGroupsList}}
-      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
-      todo if name is empty ? -->
-        <li> <a href="live/{{this.groupId}}" title="Accéder aux données en temps réel pour ce groupe de capteurs">{{this.name}}</a></li>
-      {{/each}}
-   </ul>
+<!--div class="hero is-primary">
+  <div class="hero-body"></div>
+</div-->
+<hr/>
+<div class="container">
+  {{#each sensorGroupsList}}
+  <div class="level"> 
+    {{#each this}}
+      <div class="level-item">
+        <div class="card">
+          <header class="card-header">
+            <p class="card-header-title">
+              Nom du groupe : {{this.name}}
+            </p>
+          </header>
+          <div class="card-content">
+            <div class="content">
+              <!--unique id ? -->
+              Content ? 
+            </div>
+          </div>
+          <div class="card-footer">
+            <a href="/live/{{this.groupId}}" class="card-footer-item"> Données en temps réel </a>
+            <a href="/historic/{{this.groupId}}" class="card-footer-item"> Historiques des données </a>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+  {{/each}}
 </div>
-<!--/div-->
-{{!-- 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.3/handlebars.min.js">
-</script>
-
-<script id="listSensorgroups" type="text/x-handlebars-template">
-  <ul>
-    {{#each sensorGroupsList}}
-      <li>{{this.name}}</li>
-    {{\each}}
-  </ul>
-</script>
-
-<!--script type="text/javascript">
-var source = document.getElementById("listSensorGroups").innerHTML;
-  var template = Handlebars.compile(source);
-  var context = { title: "My New Post", body: "This is my first post!" };
-  var html = template(context); 
-</script-->
---}}

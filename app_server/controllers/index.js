@@ -3,13 +3,28 @@
 'use strict';
 
 const {sensorGroup} = require('../../models/sensorGroup') 
+
+// from https://ourcodeworld.com/articles/read/278/how-to-split-an-array-into-chunks-of-the-same-size-easily-in-javascript 
+var chunkArray = function (myArray, chunk_size){
+  var index = 0;
+  var arrayLength = myArray.length;
+  var tempArray = [];
+  var myChunk; 
+  for (index = 0; index < arrayLength; index += chunk_size) {
+      myChunk = myArray.slice(index, index+chunk_size);
+      // Do something if you want with the group
+      tempArray.push(myChunk);
+  }
+  return tempArray;
+}
+
 /*************** Render & datas ***************/
 var renderIndex = function (req,res,sensorGroupsList){
   res.render("index", {
     title: 'Index',
     pageHeader: {
       title:'Groupes de capteurs accessibles : ',
-      strapline: 'Date/heure - Lieu' //todo
+      strapline: 'Voici la liste des groupes de capteurs confirmés auxquels vous avez accès' //todo
     },
     //get all sensors groups  , return all fields to index
     //change names 
@@ -26,7 +41,8 @@ module.exports.renderIndexWithDatas = async function renderIndexWithDatas (req,r
     //Fixing Handlebars issue: Access has been denied to resolve the property "uniqueid" because it is not an "own property" of its parent.
     // https://github.com/handlebars-lang/handlebars.js/issues/1642 
     groups = groups.map(e => e.toJSON());
-    renderIndex(req,res,groups);
+    var chunked = chunkArray(groups,3);
+    renderIndex(req,res,chunked);
   }
   catch (err) {
     throw err; 

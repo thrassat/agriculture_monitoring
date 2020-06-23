@@ -10,55 +10,77 @@
   <h1 class="title"> {{pageHeader.title}} </h1>
   <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
 </div>
-<div class="container">
-  {{#each datasInfo}}
-    <div class="card"> 
-      {{this.sensName}}
-    </div>
-  {{/each}}
-<div>
-
+<hr/>
 {{#each datasInfo}}
-  <div class="column"> 
-    <div class="box notification">{{this.sensName}}
-    </div>
-</div>
-{{/each}}
-
-  <div class="column"> 
-    <div class="box notification is-info">
-      <div class="level">
-      {{#each datasInfo}}
-        <div class"level-item">
-          {{this.sensName}}
-          {{#if this.sensLastData}}
-            {{this.sensLastData.value}}
-            {{this.sensLastData.date}}
+<div class="columns">
+  {{#each this}}
+  <div class="column is-one-third">
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title">
+          Nom du capteur : {{this.sensName}}
+        </p>        <!-- ID ?? -->
+      </header>
+      <div class="card-content">
+        <div class="content">
+          {{#if this.sensConfirmation}}
+            <p> Métrique : {{this.sensMetric}}</p>
+            {{#if this.sensLastDataValue}}
+            <div class="box content is-large">
+              <p class="is-large"> {{this.sensLastDataValue}} {{this.sensDataInfos.unit}}
+              </p>
+            </div>
+            <p> {{this.sensLastDataDate}}
+            </p>
+            {{else}}
+            <div class="box">
+              <p> Pas de donnée retrouvée
+              </p>
+            </div>
+            {{/if}}
+          {{else}}
+            <div class="box notification is-warning">
+              <p>Capteur non-confirmé </p>
+            </div>
           {{/if}}
         </div>
-      {{/each}}
-      <!-- si beaucoup ne reviens pas a la ligne js pour calculer la taille ? --> 
       </div>
     </div>
   </div>
-
-
-
-
-      <ul>
-      {{#ifEquals true false}} <h2> HIDE </h2> {{/ifEquals}}
-      {{#each datasInfo}}
-      <p> OLD 
-      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
-        <li> <a href="/history/{{this.id}}">{{this.name}}</a> - {{#cutAbrev this.type}}{{/cutAbrev}} - {{this.timestamp}} - {{this.value}} {{#unit this.type}}{{/unit}}</li>
-      </p>
-      <p>
-        New object : <!-- data timestamp a eastern daylight time , a été convertie au GMT -4>..-->
-        {{#each this}}
-          {{this}}
-        {{/each}}
-      </p>
-
-      {{/each}}
-   </ul>
+  {{/each}}
 </div>
+{{/each}}
+
+  {{!-- {{#each datasInfo}}
+  <div class="level">
+    {{#each this}}
+    <div class="level-item">
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title">
+            Nom du capteur : {{this.sensName}}
+          </p>        <!-- ID ?? -->
+        </header>
+        <div class="card-content">
+          <div class="content">
+            {{#if this.sensConfirmation}}
+              <p> Métrique : {{this.sensMetric}}</p>
+            <div class="box">
+              <p> {{this.sensLastDataValue}} {{this.sensData.unit}}</p>
+              <p> {{this.sensLastDataDate}}</p>
+            </div>
+            {{else}}
+              <div class="box notification is-warning">
+                <p>Capteur non-confirmé </p>
+              </div>
+            {{/if}}
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{/each}} --}}
+
+
