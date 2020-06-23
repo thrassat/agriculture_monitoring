@@ -31,14 +31,11 @@
 //     script(src='/bootstrap/js/bootstrap.min.js')
 //     // can be used by other templates (autres files utilisera les lignes ci-dessus) 
 -->
-<div id="banner" class="header">
-  <div class="row">
-    <div class="col-lg-6">
-      <h1> {{pageHeader.title}} </h1> 
-        <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
-    </div>
-  </div>
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
 </div>
+
 <a href="/admin"> ADMIN </a>
 <a href="/logout"> LOGOUT </a>
 <!--div class="row"-->

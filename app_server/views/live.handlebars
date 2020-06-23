@@ -1,18 +1,63 @@
-<div id="banner" class="header">
+<!--div id="banner" class="header">
   <div class="row">
     <div class="col-lg-6">
       <h1> {{pageHeader.title}} </h1> 
         <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
     </div>
   </div>
+</div-->
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
 </div>
-
+<div class="container">
+  {{#each datasInfo}}
+    <div class="card"> 
+      {{this.sensName}}
+    </div>
+  {{/each}}
 <div>
+
+{{#each datasInfo}}
+  <div class="column"> 
+    <div class="box notification">{{this.sensName}}
+    </div>
+</div>
+{{/each}}
+
+  <div class="column"> 
+    <div class="box notification is-info">
+      <div class="level">
+      {{#each datasInfo}}
+        <div class"level-item">
+          {{this.sensName}}
+          {{#if this.sensLastData}}
+            {{this.sensLastData.value}}
+            {{this.sensLastData.date}}
+          {{/if}}
+        </div>
+      {{/each}}
+      <!-- si beaucoup ne reviens pas a la ligne js pour calculer la taille ? --> 
+      </div>
+    </div>
+  </div>
+
+
+
+
       <ul>
       {{#ifEquals true false}} <h2> HIDE </h2> {{/ifEquals}}
       {{#each datasInfo}}
+      <p> OLD 
       <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque -->
         <li> <a href="/history/{{this.id}}">{{this.name}}</a> - {{#cutAbrev this.type}}{{/cutAbrev}} - {{this.timestamp}} - {{this.value}} {{#unit this.type}}{{/unit}}</li>
+      </p>
+      <p>
+        New object : <!-- data timestamp a eastern daylight time , a été convertie au GMT -4>..-->
+        {{#each this}}
+          {{this}}
+        {{/each}}
+      </p>
 
       {{/each}}
    </ul>

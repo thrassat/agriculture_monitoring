@@ -13,6 +13,10 @@ timestamps = require('mongoose-timestamp');
     // Changement de conception : on ne force pas être un objectid ce field là, comme ça on peut gérer 
     // le field sensor ID comme on l'entend direct avec son object id 
     // arduinoid-datatype(-num)
+    groupId: {
+        type: String, 
+        required: true,
+    },
     sensorId: {
         type: String,
         required: true,
@@ -49,7 +53,31 @@ storedDatasSchema.plugin(timestamps); // add created at and last update at
 /******************/
 /* LIVE METHODS   */
 /******************/
-/**** GET LAST DATA BY SENSOR ID : *****/
+
+
+/**** GET LAST DATA BY SENSOR ID: *****/
+/**
+* Get last stored datas for a given sensor
+* @async
+* @param {string} groupId
+* @param {string} sensorId 
+* @return {Promise.<storedData>|Error} dataPacket 
+* @throws throw error if query fails
+*/
+storedDatasSchema.statics.getLastDataByIds = async function getLastDataByIds (groupId,sensorId) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            let dataPacket  = await this.findOne({groupId: groupId, sensorId: sensorId}).sort({date: -1}).exec();
+            resolve(dataPacket); 
+        }
+        catch(err) {
+            reject(err);    
+        }
+    })
+}; 
+
+
+/**** GET LAST DATA BY SENSOR ID OLD: *****/
 /**
 * Get last stored datas for a given sensor
 * @async
@@ -123,7 +151,45 @@ storedDatasSchema.statics.getAllDatas = async function getAllDatas (sensorId) {
 /***************************/
 /* DATA RECEIVER METHODS   */
 /***************************/
-/**** REGISTER A DATAPACKET : *****/
+/**** REGISTER A INTEGER DATAPACKET : *****/
+/**
+* Store received number data   
+* @async
+* @param {Date} date timestamp of that data 
+* @param {string} groupId 
+* @param {string} sensorId 
+* @param {number} value
+* @return {number|Error} http status (201 created resource success)
+* @throws throw error if mongoose save method fails
+*/  
+
+// todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
+storedDatasSchema.statics.registerIntData = async function registerIntData (date,groupId,sensorId,value) {
+    var storedData = new storedDatas ; 
+     storedData.date=date; 
+    // SensorId n'est pas un 'objectId' mongoose
+    storedData.groupId = groupId; 
+    storedData.sensorId=sensorId;
+    storedData.value=value;    
+    try { 
+         await storedData.save(); 
+         return 201; 
+    }
+    catch(err) {
+     // do something with error , handle here or throw to dataReceiver
+     console.log(err); 
+     throw err; 
+     //possible "style "
+     /*if (err instanceof HttpError && err.response.status == 404) {
+         // loop continues after the alert
+         alert("No such user, please reenter.");
+       } else {
+         // unknown error, rethrow
+         throw err;
+       }*/
+    }
+ }
+/**** REGISTER A DATAPACKET OLD VERSION : *****/
 /**
 * Store received number data   
 * @async
@@ -135,7 +201,7 @@ storedDatasSchema.statics.getAllDatas = async function getAllDatas (sensorId) {
 */  
 
 // todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
-storedDatasSchema.statics.registerIntData = async function registerIntData (date,sensorId,value) {
+storedDatasSchema.statics.registerIntDataOld = async function registerIntDataOld (date,sensorId,value) {
    var storedData = new storedDatas ; 
     storedData.date=date; 
    // SensorId n'est pas un 'objectId' mongoose

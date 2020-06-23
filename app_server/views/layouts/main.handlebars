@@ -13,6 +13,7 @@
     {{#each headScripts}}
     <script src="/javascripts/{{this}}"></script>
     {{/each}}
+    <script src="https://use.fontawesome.com/b3bf3a94d0.js"></script>
 </head>
 
 <body>  
@@ -56,23 +57,25 @@
         <div class="navbar-end">
             <div class="navbar-item">
                 <div class="buttons">
-                    <a href="/loogout" class="button is-danger">
+                    <a href="/logout" class="button is-danger">
                         Log out
                     </a>
                 </div>
             </div>
         </div>
     </nav>
-    
-        {{{body}}}
-
-        <footer>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="small"> &copy; 2020 </div>
-                </div>
+    <body>
+        <div class="section">
+            {{{body}}}
+        </div>
+    </body>
+    <footer>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="small"> &copy; 2020 </div>
             </div>
-        </footer>
+        </div>
+    </footer>
     
     <script> 
         // from Bulma website navbar documentation

@@ -3,7 +3,6 @@ var router = express.Router();
 
 /*************** API controllers ***************/
 var ctrlUsers = require('../controllers/user_V0');
-var ctrlLive = require('../controllers/live')
 var ctrlSensorManager = require ('../controllers/sensorManager')
 var ctrlUserGroups = require('../controllers/userGroup');
 var ctrlDatasReceiver = require('../controllers/datasReceiver');
@@ -25,8 +24,8 @@ router.delete('/users/:email',ctrlUsers.deleteUserByEmail);
 /********************************/
 /*              LIVE            */
 /********************************/
-router.get('/live/:groupid',ctrlLive.getSensors);
-router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
+//router.get('/live/:groupid',ctrlLive.getSensors);
+//router.get('/live/lastdata/:sensorid',ctrlLive.getLastData);
 
 /*********************************/
 /*            HISTORY            */
@@ -46,7 +45,9 @@ router.post('/add/:groupid/:datatype',ctrlSensorManager.addSensorToGroup);
 /********************************/
 //receive post request from arduino 
 router.post('/test/:sensorid',ctrlDatasReceiver.printPost); //  id param for plain text http post, remove :sensorId for Json send
-router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess);
+//router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess); old
+router.post('/receiver/:groupId/:sensorId',ctrlDatasReceiver.postProcess);
+// old 
 router.post('/groupsetup',ctrlDatasReceiver.groupSetup); 
 // version post 14.05 
 router.post('/ardSetup',ctrlDatasReceiver.ardSetup);

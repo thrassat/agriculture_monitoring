@@ -20,22 +20,197 @@ sendJsonResponse = function(res, status, content) {
     res.json(content);
 };
 // Réception d'un http post de l'arduino ici, créer les "stored datas" associées en base 
+// A REFAIRE AVEC LES NOUVEAUX CHANGEMENTS ! 
 
 //1) HTTP POST reçu au format "plain text" et avec le format UNIXEPOCH VALUE (Unixepoch en secondes) , id du sensor en paramètre de la requête (URL) [une version d'envoi au format JSON était premuèrement implémentée]
-//2) Main function récupère : EPOCH, SENSORID, VALUE et DATATYPE
+//2) Main function récupère : EPOCH, SENSORID, VALUE et DATATYPE (si le capteur est confirmé !)
 //3) Selon le datatype, on sait quel format est attendu pour value, appelle de la fonction pour store selon le type
 //4) Stockage des données; envoi directement avec l'EPOCH, Mongoose formatte au format UTC et on garde l'information pour la timezone dans le document du sensorgroup
 //5) Réponse à l'arduino : erreur, besoin d'un renvoi ? alerte quelconque ... en JSON
 
-/**************************************************************/
-/*           MAIN FUNCTION - receiving data packets           */
-/**************************************************************/
+
+/*********************************************************************/
+/*           MAIN FUNCTION - receiving data packets   newV           */
+/*********************************************************************/
+/* receive dans l'URL : api/V0/receiver/:groupId/:sensorId dans body epoch value
+d'ici : aller chercher le sensor : si il est confirmé, on stocke la nouvelle value 
+instauré quelque chose en fonction du datatype? 
+epoch in seconds */
 /**** HTTP POST PROCESS DATAS  *****/
 /**
 * Process datas sent via HTTP Post by Arduino
 * @todo
 */
-module.exports.postProcess =  async function postProcess (req,res) {
+module.exports.postProcess = async function postProcess (req,res) {
+    // use http.createServer ? Non car implémenté similairement par midleware express et dans les routes déjà 
+    // Stored data sont stocké comme ça directement : (fields : date, sensorId, value) 
+    // But : retrouvé l'ID du sensorId passé pour savoir quel type de donnée on reçoit et qu'il est effectivement bon 
+    try {  
+        if (!req.params.sensorId || !req.params.groupId) {
+            // sensorid pas dans la requete post
+           sendJsonResponse(res,404, {
+               "message": "Parameter sensorId missing in post request"
+           });
+           return;
+        }
+        else {
+            var dataType, epoch, groupConfirmed; 
+            // req.body has to be "EPOCH VALUE", epoch in seconds
+            // todo add verification? 
+            var postText = req.body; //NOW : OLD : 20/4/20 16:08:16 15.15 (arduino envoi ça )
+            var groupId = req.params.groupId;
+            var sensorId = req.params.sensorId ;
+            var group = await sensorGroup.getSensorGroupById(groupId) ; 
+            // ou ici juste recupérer le boolean confirmation et query pour récupéré le capteur ensuite 
+            // choix fait : tout récupérer ici pour éviter de lancer plusieurs query
+            if (!group.confirmed) {
+                sendJsonResponse(res,400, {
+                    "message" : "This sensor group is not confirmed, it has to be confirmed by an admin before it can store datas"
+                });
+                return; 
+            }
+            else {
+                var sensor; 
+                console.log(sensorId)
+                for(var i=0; i<group.sensors.length;i++) {
+                    if (group.sensors[i].sensorId === sensorId) {
+                        sensor = group.sensors[i];
+                    }   
+                }
+                //var sensor = await sensorGroup.getSensorBySensorId(groupId,sensorId);
+                console.log(sensor);
+        
+                if (!sensor.confirmed) {
+                    sendJsonResponse(res,400, {
+                        "message" : "The sensor" +sensorId+ "is not confirmed, it has to be confirmed by an admin before it can store datas"
+                    })
+                    return; 
+                }
+                else {
+                    // argument en secondes , réponse en milisecond, récupère ce qui est situé avant l'espace
+                    epoch = getEpochFromPostText(postText);
+                    // possible de récupérer la date avec momentJS au format de la timezone : date = moment.tz(epoch,timezone).format(); 
+                    // finalement pas utilisé pour le moment on store directement avec l'epoch time
+                    // get value (récupère ce qui est après l'espace et avant le prochain)
+                    value = getValueFromPostText(postText);
+                    // perform verification with min/max
+                    // Quelle format de données peut-on avoir autre qu'un entier ? 
+                    // si jamais rajouter un field dans le paramétrage des capteurs ajoutant si la donnée est un entier etc ? 
+                    // Ou contraindre ici ? 
+                    dataType = sensor.data.type; 
+                    var metric = sensor.metric ; 
+                    console.log(dataType);
+                    console.log(typeof dataType); 
+                    console.log(typeof value);
+                    if (sensor.dataType === "integer") {
+                        if (sensor.data.min && value<sensor.data.min) {
+                            sendJsonResponse(res,400, {
+                                "message" : "value below the minimum value for "+sensorId
+                            });
+                        }
+                        else if (sensor.data.max && value>sensor.data.max) {
+                            sendJsonResponse(res,400, {
+                                "message" : "value exceeds maximal value for "+sensorId
+                            });
+                        }
+                        else {
+                            // store data as int
+                            let result = await storedDatas.registerIntData(epoch,groupId,sensorId,Number(value)); 
+                            if (result ===201) {
+                                sendJsonResponse(res,201, {
+                                "message" : "datas sucessfully stored"
+                                });
+                            } 
+                        }
+                    }
+                    else {
+                        /* A AMELIORER ICI SI DES DATATYPES DIFFERENTS D'ENTIER DOIVENT ETRE ENREGISTRE */
+                        // faire un elsif si un nouveau type est ajouté 
+                        //pour l'instant seul un entier ou autre est autorisé au paramétrage 
+                        // besoins fait ici 
+                        let result = await storedDatas.registerIntData(epoch,groupId,sensorId,Number(value)); 
+                        if (result ===201) {
+                            sendJsonResponse(res,201, {
+                            "message" : "datas sucessfully stored"
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    catch (err) {
+        console.log(err);
+        sendJsonResponse(res,500,{
+            "message": "error storing datas"
+        });
+        /// ??? réu todo
+    }
+}   
+
+//         // swith : integer . default . other to be implemented ? 
+//        // selon datatype, traité différement (value type différent) todo 
+//         switch(dataType) {
+//             case 'temp': // value est donc un int   
+//                 //console.log(utcDate instanceof Date && !isNaN(date.valueOf()));
+//                 try { 
+//                     // date au format isodate ou epoch peuvent être passé 
+//                     // enregistrer similairement par .save()
+//                     // Impossible de conserver d'information locale dans Mongo
+//                     // format UTC avec zero décalage quoi qu'il arrive (car store comme un int64)
+//                     // gérer la timezone au moment de récupérer les données
+//                     let status = await storedDatas.registerIntData(epoch,sensorId,Number(value));
+//                     if (status !== 201) {
+//                         throw new Error("error inserting datas");
+//                     }
+//                     else {
+//                         sendJsonResponse(res,status,{
+//                             "message": "datas stored"
+//                         });
+//                     }
+//                 }
+//                 catch(err) {
+//                     // todo something with error handle here ou dans la methode storedData 1588267200
+//                     console.log(err); 
+//                     sendJsonResponse(res,500,{
+//                         "message": "error storing datas"
+//                     });
+//                 }
+//               break;           
+//               // todo add for rh et co2                                                                                                     
+//             default:
+//               // code block
+//               try { 
+//                 let status = await storedDatas.registerIntData(epoch,sensorId,Number(value));
+//                 if (status !== 201) {
+//                     throw new Error("error inserting datas");
+//                 }
+//                 else {
+//                     sendJsonResponse(res,status,{
+//                         "message": "datas stored"
+//                     });
+//                 }
+//             }
+//             catch(err) {
+//                 // do something with error handle here ou dans la methode storedData
+//                 console.log(err); 
+                
+//             }
+//           } 
+//     }
+// }
+
+
+
+/*********************************************************************/
+/*           MAIN FUNCTION - receiving data packets   vbefore 14.05  */
+/*********************************************************************/
+/**** HTTP POST PROCESS DATAS  *****/
+/**
+* Process datas sent via HTTP Post by Arduino
+* @todo
+*/
+module.exports.postProcesOld =  async function postProcessOld (req,res) {
     var dataType;
     var timezone;
     var epoch; 
@@ -125,6 +300,7 @@ module.exports.postProcess =  async function postProcess (req,res) {
 /**** HTTP POST GROUP SETUP  *****/
 // receive plain text : arduinoid-idsens1-idsens2... 
 // method called one time, each time the arduino is switch on 
+// WORKS : ardSetup.txt file for tests & explications
 /**
 * Process group setup informations sent via HTTP Post by Arduino
 * @todo

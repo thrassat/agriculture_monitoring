@@ -27,8 +27,12 @@ const sensorSchema = new mongoose.Schema({
         trim: true,
         //old :  required: true,
     },
-    data: { // convention actuelle [temp,rh,co2]
-        type: {
+    metric: {
+        type: String, 
+        trim: true
+    },
+    data: { // 
+        type: { // actuelle : integer or other
             type: String,
             trim: true
         },
@@ -80,14 +84,16 @@ var sensorGroupSchema = new mongoose.Schema({
    name: {
        type: String,
        trim: true,
-      // required: true, 
-       unique: true,
+       sparse: true,
        //switch to unique ? Unique fait aussi index
+         // required: true, 
    },
    timezone: {
+       // prevu pour stocker ce format de momentjs America/Toronto 
        type: String,
        //required: true,
-       trim: true
+       trim: true,
+       match: /[A-Z][a-z]+\/[A-Z][a-z]+/,
        //todo regexp
    },
    //geographic location? timezone
@@ -103,6 +109,25 @@ var sensorGroupSchema = new mongoose.Schema({
 sensorSchema.plugin(timestamps); // add created at and last update at
 sensorGroupSchema.plugin(timestamps); // add created at and last update at
 
+/**************************************/
+/*               ERRORS               */
+/**************************************/
+// from mongoose doc // FOR ADMIN
+//https://mongoosejs.com/docs/middleware.html
+sensorGroupSchema.post('save', function(error, doc, next) {
+    if (error.name === 'MongoError' && error.code === 11000) {
+      //let key_val = error.errmsg.match(   ).splice(1,3);
+      //var x= error.errmsg.split("index:")[1].split("dup key")[0].split("_")[0];
+      var field = error.errmsg.split("index:")[1].split("dup key")[0].split("_")[0];
+     // works var value = error.errmsg.split("index:")[1].split("dup key")[1].split("\"")[1].split("\"")[0]; // verif
+      var value= error.errmsg.match(/\".*\"/);
+      //let [i, field, value] = error.errmsg.match(/index:\s([a-z]+).*{\s?\:\s?"([a-z]+)"/i);
+      // todo reu : s'assurer que c'est correct de mettre le champ comme ça ou donner ce type d'erreur 
+      next(new Error('La valeur : '+value+ ' est déjà existante pour le champ "'+field.trim()+'" - Veuillez réessayer'));
+    } else {
+      next();
+    }
+  });
 /*************************************************************************************************************************/
 /*                                      STATIC SENSOR GROUP METHODS                                                      */  
 /*************************************************************************************************************************/
@@ -367,6 +392,7 @@ sensorGroupSchema.statics.isGroupConfirmed = async function isGroupConfirmed (gr
     })
 };
 
+
 /**** GET UNCONFIRMED SENSORS FROM SENSORS IDS ARRAY : *****/
 /**
 * Get unconfirmed sensors ids array from sensors ids array for a given groupid, also if new sensors are in the arg array, there are stored
@@ -470,6 +496,54 @@ sensorGroupSchema.statics.checkAndAddIfNewSensors = async function checkAndAddIf
         return; 
     }) 
 };
+
+/**** GET SENSOR OBJECT BY SENSOR ID : *****/
+/** OLD NOT WORKING
+* Get a given sensor 
+* @async
+* @param {string} sensorId
+* @return {Promise} Sensor Object 
+* @throws throw error if query fails or internal DB issues
+*/
+sensorGroupSchema.statics.getSensorBySensorId = function getSensorBySensorId (sensorId) {
+    // async ? 
+  return new Promise((resolve,reject) => {
+      this
+          .find({'sensors._id': sensorId})
+          .select('sensors') 
+          .exec(
+              function(err,sensorgroup) {
+                  var sensor;
+                  if (err) {
+                      reject(err); 
+                  }
+                  else if (sensorgroup.length!==1) {
+                       //CMt répondre ? 
+                      // créer mon erreur en mode sensor group non trouvé
+                      if (sensorgroup.length === 0) {
+                          reject(new Error("Sensor group not found"));
+                      }
+                      else {
+                      //error car +d'1 sensor group trouvé : throw my error ? 
+                      reject(new Error("More than 1 sensor group found"));
+                      }
+                  }   
+                  else {
+                      // get sensor subdocument
+                      sensor=sensorgroup[0].sensors.id(sensorId);
+                      if(!sensor) {
+                          //right way? peut etre inutile, impossible entrer ici
+                          // error le sensor n'a pas été trouvé 
+                          reject(new Error("Sensor not found within the sensor group document"));
+                      }
+                      else {
+                          resolve(sensor);
+                      }
+                  }
+              }
+          )
+  });
+}
 
 
 /****************** VERSION BEFORE 14.05 ******************/

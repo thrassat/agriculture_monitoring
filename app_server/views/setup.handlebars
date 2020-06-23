@@ -1,0 +1,305 @@
+{{#if formErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each formErrors}}
+      <li> {{this.msg}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if mongooseErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each mongooseErrors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if validations}}
+  <div class="box container notification is-success">
+    <ul>
+    {{#each validations}}
+      <li> {{this}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
+<!-- Open group setup content -->
+<div class="box container notification myhover" onclick='showGroupContainer()'>
+  <p class="is-medium"> Paramétrer le groupe de capteurs : « {{sensorGroup.groupId}} »
+    <span class="icon is-small">
+    <i class="fa fa-caret-down" aria-hidden="true"></i>
+    </span>
+  </p>
+</div>
+<!-- group setup content -->
+<div class="container box" id="groupContent" style="display: none;">
+  <form name="groupForm" action="/setup/{{sensorGroup.groupId}}" method="post">
+    <div class="field">
+      <label for="groupName" class="label"> Nom du groupe de capteurs : 
+      </label>
+      <div class="control">
+        <input class="input" name="groupName" type="text" placeholder="Mon nom de groupe" value="{{sensorGroup.name}}" required>
+      </div>
+    </div>
+  <!-- todo reu ? form radio si choix entre 2, ou ajout de plus de timezone/ entrée utilisateur  --> 
+    <div class="field">      
+      <label for="groupTz" class="label"> Quelle est la timezone dans laquelle se situe le groupe de capteurs (Arduino)?
+        <p class="is-small" style="font-weight: normal; font-style:italic"> Pour Montréal et une grande partie du Québec, choisir "America/Toronto"</p>
+      </label>
+        <div class="control">
+          <div class="select">
+            <select name="groupTz" id="tzSelect"> 
+              <option> America/Toronto</option>
+              <option> Europe/Paris </option>
+            </select>
+          </div>
+        </div>
+    </div>
+
+    <div class="field">
+      <label for="groupAdmin" class="label"> Qui sera admnistrateur pour ce groupe? 
+      </label>
+      <div class="control">
+          <div class="select">
+            <select name="groupAdmin"> 
+                <option> JS déroulé dans les users TODO </option>
+            </select>
+          </div>
+      </div>
+    </div>  
+
+    <div class="field">
+      <label class="label"> Groupe :
+      </label>
+      <!-- todo may improve with script-->
+      {{#if sensorGroup.confirmed}} 
+        <div class="control">
+          <label class="radio" for="groupConfirmed"> Confirmé
+          </label>
+          <input type="radio" id="groupConfirmed" name="groupConfirmed" value="confirmed" checked>
+          <label class="radio" for="groupUnconfirmed"> Non-confirmé
+          </label>
+          <input type="radio" id="groupUnconfirmed" name="groupConfirmed" value="unconfirmed">
+        </div>
+      {{else}}
+        <div class="control">
+          <label class="radio" for="groupConfirmed"> Confirmé
+          </label>
+          <input type="radio" id="groupConfirmed" name="groupConfirmed" value="confirmed">
+          <label class="radio" for="groupUnconfirmed"> Non-confirmé
+          </label>
+          <input type="radio" id="groupUnconfirmed" name="groupConfirmed" value="unconfirmed" checked>
+        </div>
+      {{/if}}
+    </div>
+    <div class="field">
+      <div class="control"> 
+        <button class="button is-link" type="submit">Soumettre</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<div class="box container notification myhover" onclick='showSensorsContainer()'>
+  <p class="" > Paramétrer les capteurs de ce groupe
+    <span class="icon is-small">
+      <i class="fa fa-caret-down" aria-hidden="true"></i>
+    </span>
+  </p>
+</div>
+<div class="container" id="sensorsContent" style="display: none;">
+  <div class="field">
+    <div class="tabs is-medium">
+      <ul>
+        {{#each sensorGroup.sensors}}
+        <li> <a class="tabLinkForm" onclick="showCardForm('{{this.sensorId}}')"> {{this.sensorId}}</a>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+    {{#each sensorGroup.sensors}}
+      <div class="card sensorFormContent" style="display:none" id='form{{this.sensorId}}'>
+        <header class="card-header">
+          <p class="card-header-title title is-5">
+            Paramétrage du capteur : {{this.sensorId}}
+          </p>  
+          <!-- insérer notificaiton pour quand le capteur est déjà confirmé, faire qch commeça -->
+        </header>
+        <div class="card-content">
+          {{#if this.confirmed}}
+          {{!-- already confirm --}}
+          <div class="notification is-warning">
+            Ce capteur est déjà confirmé, vous pouvez cependant annuler sa confirmation ou modifier/compléter ses informations
+          </div>
+          {{else}}
+          <div class="notification is-info">
+            Ce capteur n'est pas confirmé, vous pouvez le confirmer en complétant les informations nécessaires 
+          </div>
+          {{/if}}
+          <form  name="sensorForm-{{this.sensorId}}" onsubmit="sendToCurrentUrlWithSensorId(this,'{{this.sensorId}}');"  method="post">
+            <!-- mieux qu'essayer d'add un param input type="hidden" name="explore" value="search" /-->
+            <div class="field">
+              <label class="label">Nom du capteur : 
+              </label>
+              <div class="control">
+                <input class="input" name="sensName" type="text" placeholder="Mon nom de capteur" required="required"  value="{{this.name}}">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label"> Informations sur la donnée : 
+              </label>
+              <div class="control">
+                <label> Quelle est la grandeur mesurée ?
+                  <input class="input" name="sensMetric" type="text" placeholder="Température, humidtité relative de l'air, etc..." value='{{this.metric}}' required>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label for="sensType"> Quel est son type ?  
+                </label>
+                <div class="select">
+                  <select name="sensType" required>
+                    <option value="number" default> Un nombre </option>
+                    <option value="other"> Autre </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label for="sensUnit"> Unité :
+                  <input class="input" name="sensUnit" type="text" placeholder="°C, %, ppm..." value='{{this.data.unit}}' required>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label> Valeur maximale (optionelle)
+                  <input class="input" name="sensVmax" type="number" placeholder="Valeur max" value='{{this.data.max}}'>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label> Valeur minimale (optionelle)
+                  <input class="input" name="sensVmin" type="number" placeholder="Valeur min" value='{{this.data.min}}'>
+                </label> 
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label> Précision (optionelle)
+                  <input class="input" name="sensPrec" type="text" placeholder="Une valeur de précision à appliquer..." value='{{this.data.precision}}'>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label"> Capteur :
+              </label>
+              <!-- todo may improve with script-->
+              {{#if this.confirmed}} 
+                <div class="control">
+                  <label class="radio"> Confirmé
+                  </label>
+                  <input type="radio" id="sensConfirmed" name="sensConfirmation" value="confirmed" checked>
+                  <label class="radio"> Non-confirmé
+                  </label>
+                  <input type="radio" id="sensUnconfirmed" name="sensConfirmation" value="unconfirmed">
+                </div>
+              {{else}}
+                <div class="control">
+                  <label class="radio"> Confirmé
+                  </label>
+                  <input type="radio" id="sensConfirmed" name="sensConfirmation" value="confirmed">
+                  <label class="radio"> Non-confirmé
+                  </label>
+                  <input type="radio" id="sensUnconfirmed" name="sensConfirmation" value="unconfirmed" checked>
+                </div>
+              {{/if}}
+            </div>
+            <div class="field">
+              <div class="control"> 
+                <button class="button is-link" type="submit">Soumettre</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-footer"> 
+          Possible footer 
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
+
+<script>
+  // from https://stackoverflow.com/questions/19611557/how-to-set-default-value-for-html-select
+  var tzSelect = document.getElementById('tzSelect');
+  for (var i,j=0; i=tzSelect.options[j]; j++ ) {
+    if(i.value == '{{sensorGroup.timezone}}') {
+      tzSelect.selectedIndex = j; 
+      break; 
+    }
+  }
+</script>
+<script type="text/javascript">
+  function showForm(sensorId) {  
+    document.getElementById('formSensor').style.display = "block";
+  }
+
+  function showCardForm(sensorId) {
+    //https://www.w3schools.com/howto/howto_js_tabs.asp
+    var i,tabcontent, tablinks ; 
+    // Hide sensor tab content
+    tabcontent= document.getElementsByClassName("sensorFormContent");
+    for (i=0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display ="none";
+    }
+    // remove active class on tabs links
+    tablinks = document.getElementsByClassName("tabLinkForm");
+    for (i=0; i<tablinks.length;i++) {
+      tablinks[i].parentElement.className = tablinks[i].parentElement.className.replace(" is-active","");
+    }
+
+    //show ccurrent 
+    document.getElementById("form"+sensorId).style.display = "block"; 
+    event.currentTarget.parentElement.className += " is-active";
+  }
+
+  function showGroupContainer() {
+    var groupContent, groupLink; 
+    groupContent = document.getElementById('groupContent');
+    if (groupContent.style.display==="none") {
+      groupContent.style.display="block";
+    }
+    else {
+      groupContent.style.display = "none"; 
+    }
+  }
+
+  function showSensorsContainer() {
+    var sensorsContent; 
+    sensorsContent = document.getElementById('sensorsContent');
+    if (sensorsContent.style.display==="none") {
+      sensorsContent.style.display="block";
+    }
+    else {
+      sensorsContent.style.display = "none"; 
+    }
+  }
+  
+  function sendToCurrentUrlWithSensorId(form,sensorId) {
+    // utiliser le actionUrl2 car si on modifie 2 capteurs à la suite on ajoute pas forcément à l'url de base 
+    var actionUrl2 = "/setup/"+'{{sensorGroup.groupId}}'+"/"+sensorId;
+    var actionUrl = window.location.href + "/" + sensorId ; 
+    form.action = actionUrl2; 
+  }
+</script>

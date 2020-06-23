@@ -1,4 +1,20 @@
 let hbsHelpers = {
+    nameOrEmpty: function(name) {
+        // les 2 cas ont été testés 
+        // todo : afficher quoi? car normalement pas possible de paramètrer ensuite 
+        if (name === undefined || name==="") {
+            return "ID vide.. a régler côté Arduino"
+        }
+        return name;
+    },
+    booleanToConfirmedString: function(bool) {
+        if (bool) {
+            return "Confirmé";
+        }
+        else {
+            return "Non-confirmé"
+        }
+    },
     inc: function(value, options) {
         console.log('reading it');
         return parseInt(value) + 1;

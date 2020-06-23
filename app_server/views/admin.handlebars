@@ -31,32 +31,183 @@
 //     script(src='/bootstrap/js/bootstrap.min.js')
 //     // can be used by other templates (autres files utilisera les lignes ci-dessus) 
 -->
-<div id="banner" class="header">
-  <div class="row">
-    <div class="col-lg-6">
-      <h1> {{pageHeader.title}} </h1> 
-        <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+
+<!--div class="row"-->
+<div class="section">
+  <div class="card">
+    <header class="card-header">
+      <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
+    </header>
+    <div class="card-content">
+      <div class="content">
+        <ul>
+          {{#each sensorGroupsUnconfirmed}}
+          <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+          todo if name is empty ? -->
+          <li> 
+            <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+              {{nameOrEmpty this.groupId}}
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
     </div>
   </div>
 </div>
-<a href="/logout"> LOGOUT </a>
-<!--div class="row"-->
-  <ul>
-      {{#each sensorGroupsList}}
-      <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
-      todo if name is empty ? -->
-        <li> <a href="live/{{this.groupId}}" title="Accéder aux données en temps réel pour ce groupe de capteurs">{{this.name}}</a></li>
-      {{/each}}
-   </ul>
+<div class="section">
+  <div class="card">
+    <header class="card-header">
+      <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
+    </header>
+    <div class="card-content">
+      <div class="content">
+        <ul>
+          {{#each sensorGroupsUnconfirmed}}
+          <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+          todo if name is empty ? -->
+          <li> 
+            <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+              {{nameOrEmpty this.groupId}}
+            </a>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
+
+<nav class="level">
+  <div class="level-left">
+    <div class="level-item">
+      <div class="card">
+        <header class="card-header">
+         <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
+        </header>
+        <div class="card-content">
+          <div class="content">
+            <ul>
+              {{#each sensorGroupsUnconfirmed}}
+              <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+              todo if name is empty ? -->
+              <li> 
+              <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+                {{nameOrEmpty this.groupId}}
+              </a>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="level-item">
+      <div class="card">
+        <header class="card-header">
+         <p class="card-header-title"> Groupe de capteurs nconfirmés </p>
+        </header>
+        <div class="card-content">
+          <div class="content">
+            <ul>
+              {{#each sensorGroupsConfirmed}}
+              <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+              todo if name is empty ? -->
+              <li> 
+              <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+                {{nameOrEmpty this.groupId}}
+              </a>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+   <div class="level-right">
+    <div class="level-item">
+      <div class="card">
+        <header class="card-header">
+         <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
+        </header>
+        <div class="card-content">
+          <div class="content">
+            <ul>
+              {{#each sensorGroupsUnconfirmed}}
+              <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
+              todo if name is empty ? -->
+              <li> 
+              <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+                {{nameOrEmpty this.groupId}}
+              </a>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</nav>
+
+  <!-- possiblement bien plus simple de faire une page pour ça et meixu passer les args : ça dans a si jamais data-target="#modalGroupSetup" id="test" -->
+<!--div class="modal" id="modalGroupSetup">  
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title"> Paramétrage groupe de capteur</p>
+      <button class="delete" aria-label="close"></button>
+    </header>
+
+    <section class="modal-card-body">
+      <div class="content">
+        <p> My content</p>
+      </div>
+    </section>
+  </div>
+</div-->
+
 <!--/div-->
+<!--script> 
+  var modal = document.getElementById('modalGroupSetup');
+  var btn = document.getElementById('test') ; 
+  var span = document.getElementsByClassName('delete')[0];
+  btn.onclick = function () {
+    modal.style.display = "block" ;
+  }
+  span.onclick = function() {
+    modal.style.display = "none"; 
+  }
+  window.onclick = function (event) {
+    if (event.target==modal) {
+      modal.syle.display = "none";
+    }
+  }
+  
+  //$(".modal-button").click(function() {
+  //  var target = $(this).data("target");
+  //  $("html").addClass("is-clipped");
+  //  $(target).addClass("is-active");
+  //  });
+         
+  //$(".modal-close").click(function() {
+  //  $("html").removeClass("is-clipped");
+  //  $(this).parent().removeClass("is-active");
+  //  });
+</script-->
 {{!-- 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.3/handlebars.min.js">
 </script>
 
 <script id="listSensorgroups" type="text/x-handlebars-template">
   <ul>
-    {{#each sensorGroupsList}}
+    {{#each sensorGroupsUnconfirmed}}
       <li>{{this.name}}</li>
     {{\each}}
   </ul>

@@ -39,7 +39,8 @@ const UserSchema = new Schema ({
         type: String,
     },
     group: [groupSchema],
-    accessTo: [accessToSchema] //array of sensorGroup ID's
+    accessTo: [accessToSchema], //array of sensorGroup ID's
+    //manage: sensorgroupids pour lequel l'utilisateur est administrateur ?  
 })
 /**************************************/
 /*               PLUGINS              */

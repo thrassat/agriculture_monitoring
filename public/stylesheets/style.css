@@ -1,4 +1,4 @@
-.header {margin-top: 10%}   
+/*.header {margin-top: 10%}*/   
 
 canvas {
     -moz-user-select: none;
@@ -24,3 +24,9 @@ canvas {
 #daterange {
     background-color: #4CAF50;
 } 
+
+.myhover:hover {
+    background-color: #4B7E82;
+    opacity:0.6;
+    color:black; 
+}
