@@ -1,29 +1,40 @@
-<form action="/login" method="post">
-    <div class="title">
-      <h3>Login</h3>
+<div class="container">
+  <div class="columns is-centered">
+    <div class="column box has-text-centered is-half">
+      <h1 class="title"> {{pageHeader.title}} </h1>
+      <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+      <hr/>
+      <form action="/login" method="post">
+          <div class="field">
+            <label class="label" for="username">Nom d'utilisateur :</label>
+            <div class="control">
+              <input class="input has-text-centered is-rounded" type="text" name="username" placeholder="username12" required/>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="password">Mot de passe :</label>
+            <div class="control">
+              <input class="input has-text-centered is-rounded" type="password" name="password" placeholder="*********" required />
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <button class="button is-link" type="submit" required>Se connecter</button>
+            </div>
+          </div>
+          <div class="notification is-danger" id="error-message" style="display:none">   
+          </div>
+      </form>
     </div>
-    <div class="field">
-      <label>Username:</label>
-      <input type="text" name="username" />
-      <br />
-    </div>
-    <div class="field">
-      <label>Password:</label>
-      <input type="password" name="password" required />
-    </div>
-    <div class="field">
-      <input class="submit-btn" type="submit" value="Submit" required />
-    </div>
-    <label id="error-message"></label>
-  </form>
-
+  </div>
+</div>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const info = urlParams.get('info');
 
     if(info) {
       const errorMessage = document.getElementById("error-message");
-      errorMessage.innerText = info;
+      errorMessage.innerText = info;  
       errorMessage.style.display = "block";
     }
   </script>

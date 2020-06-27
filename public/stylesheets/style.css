@@ -4,9 +4,15 @@ canvas {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-    background-color: beige;
+    
+
 }
 
+.chartContainer {
+    background-color: rgb(243, 252, 245);
+}
+
+/* OLD version (before bulma)
 .chart-container {
     width: 500px;
     margin-left: 40px;
@@ -18,12 +24,12 @@ canvas {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-}
+}*/
 
-/* TODO customize */
+/* 
 #daterange {
     background-color: #4CAF50;
-} 
+} */
 
 .myhover:hover {
     background-color: #4B7E82;

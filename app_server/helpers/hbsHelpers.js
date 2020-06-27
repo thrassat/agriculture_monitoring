@@ -48,7 +48,7 @@ let hbsHelpers = {
             default:
                 return ''; 
           } 
-    }
+    },
 }
 
 module.exports = hbsHelpers;

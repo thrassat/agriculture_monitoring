@@ -10,10 +10,10 @@ const mongoose = require( 'mongoose');
 /*************** Render & datas ***************/
 var renderSetup = function (req,res,group,formErrorArray,mongooseErrorArray,validationsMessageArray){
   res.render("setup", {
-    title: 'Admin',
+    title: 'Group setup',
     pageHeader: {
-      title:'Admin todo ',
-      strapline: 'Date/heure - Lieu' //todo
+      title:"Paramétrage d'un groupe de capteurs et de ses capteurs",
+      strapline: "Remplissez les informations dans les formulaires ci-après pour celles que vous souhaitez modifier/ajouter/confirmer" //todo
     },
     //get all sensors groups  , return all fields to index
     //change names 

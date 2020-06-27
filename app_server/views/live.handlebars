@@ -7,8 +7,15 @@
   </div>
 </div-->
 <div class="container">
-  <h1 class="title"> {{pageHeader.title}} </h1>
-  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+  <div class="columns">
+    <div class="column">
+      <h1 class="title"> {{pageHeader.title}} </h1>
+      <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+    </div>
+    <div class="column">
+      <a href="/historic/{{groupId}}" class="button is-link is-rounded"> Accès à l'historique</a>
+    </div>
+  </div>  
 </div>
 <hr/>
 {{#each datasInfo}}

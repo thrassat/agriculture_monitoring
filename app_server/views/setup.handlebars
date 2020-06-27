@@ -1,3 +1,10 @@
+<!-- todo add common title subtitle header ? --> 
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+<hr/>
+
 {{#if formErrors}}
   <div class="box container notification is-danger">
     <ul>
@@ -25,6 +32,7 @@
     </ul>
   </div>
 {{/if}}
+
 
 <!-- Open group setup content -->
 <div class="box container notification myhover" onclick='showGroupContainer()'>
@@ -165,7 +173,7 @@
                 </label>
                 <div class="select">
                   <select name="sensType" required>
-                    <option value="number" default> Un nombre </option>
+                    <option value="number" selected> Un nombre </option>
                     <option value="other"> Autre </option>
                   </select>
                 </div>

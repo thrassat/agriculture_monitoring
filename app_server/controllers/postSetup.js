@@ -1,6 +1,7 @@
 const validator = require('express-validator');
 const { check, body } = require('express-validator');
 
+//[ NOT USED ]
 // validator/sanitisers are middleware : array of middleware functions instead of arg (req,res,next)
 // https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/forms/Create_genre_form
 module.exports.postSetupHandler = [ 
@@ -8,9 +9,9 @@ module.exports.postSetupHandler = [
    body('inputTest','ce champ est requis').not().isEmpty().trim().escape(),
 
     async function postSetupHandler(req,res) {
-        console.log('test1')
+       
        /// await check('inputTest','ce champ est requis').trim().isLength({min:1})
-        console.log(req.body.inputTest)
+       // console.log(req.body.inputTest)
          // Finds the validation errors in this request and wraps them in an object with handy functions
         const errors = validator.validationResult(req); 
         if (!errors.isEmpty()) {

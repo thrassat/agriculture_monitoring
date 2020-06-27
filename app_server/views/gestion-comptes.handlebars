@@ -1,0 +1,37 @@
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+     <div class="buttons">
+        <a class="button is-rounded is-info" href="/gestion-comptes/new-user"> Créer un nouveau compte </a> 
+        <a class="button is-rounded is-info" href="/gestion-comptes/new-user-group"> Créer un nouveau groupe d'utilisateur</a> 
+    </div>
+</div>
+<hr/>
+<div class="container">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">
+                Comptes existants
+            </p>
+        </header>
+        <div class="card-content">
+            {{#each users}}
+            <a class="button is-primary is-rounded" href="">{{this.username}} - {{this.role}} </a>
+            {{/each}}
+        </div>
+    </div>
+    <br/>
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">
+            Groupes d'utilisateurs existants
+            </p>           
+        </header>
+        <div class="card-content">
+            {{#each users}}
+            <a class="button is-primary is-rounded" href="">{{this.username}} - {{this.role}} </a>
+            {{/each}}
+        </div>
+    </div>
+
+</div>

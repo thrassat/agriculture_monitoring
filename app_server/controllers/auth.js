@@ -13,7 +13,8 @@ module.exports.auth = function (req,res,next) {
         }
         // fail redirect to login with error message info 
         if (!user) {
-            return res.redirect('/login?info=' + info);
+            //console.log(info);
+            return res.redirect('/login?info=' + info.message);
         }
         // success redirect to root '/'
         req.logIn(user, function(err) {
@@ -47,10 +48,11 @@ module.exports.displayLogin = function (req,res) {
 var renderLogin = function (req,res,){
     res.render("login", {  
       title: 'login',
-    //   pageHeader: {
-    //     title:'Groupes de capteurs accessibles : ',
-    //     strapline: 'Date/heure - Lieu'
-    //   },
+      layout: 'loginLayout',
+      pageHeader: {
+        title:'Login',
+        strapline: 'Veuillez entrer vos identifiants de connexion'
+      },
     });
   }
 

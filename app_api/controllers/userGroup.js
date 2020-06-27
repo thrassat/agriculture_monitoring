@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 
-var userGroupModel = mongoose.model('UserGroup');
+var userGroupModel = mongoose.model('userGroup');
 var sendJsonResponse ;
 sendJsonResponse = function(res, status, content) {
     res.status(status);

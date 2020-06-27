@@ -10,6 +10,7 @@
     "npm": "~6.13.6"
   },
   "dependencies": {
+    "@bevacqua/rome": "^3.0.3",
     "axios": "^0.19.2",
     "bulmaswatch": "^0.8.1",
     "chart.js": "^2.9.3",
@@ -29,7 +30,9 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.0.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "select-pure": "^0.6.0-alpha.0",
+    "tail.datetime": "^0.4.13"
   },
   "devDependencies": {
     "bulma": "^0.8.2",

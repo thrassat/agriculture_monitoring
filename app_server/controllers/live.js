@@ -6,7 +6,7 @@ const {sensorGroup} = require('../../models/sensorGroup')
 const {storedDatas} = require('../../models/storedDatas')
 const {jsH, chunkArray} = require ('../helpers/jsHelpers')
 /*************** Render & datas ***************/
-var renderLivePage = function (req,res,datasInfo){
+var renderLivePage = function (req,res,datasInfo,groupId){
   res.render('live', {  //'locationlist in getting mean
     title: 'Live datas',
     pageHeader: {
@@ -14,6 +14,7 @@ var renderLivePage = function (req,res,datasInfo){
       strapline: 'Capteurs disponibles et leur dernière donnée enregistrée'
     },
     datasInfo: datasInfo,
+    groupId: groupId
   });
 }
 
@@ -23,7 +24,6 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
     var groupId = req.params.groupid;
     var dataArray = [];
     // get live/:groupid parameter 
-    console.log(req.params.groupid);
     // get "?" parameter
     // si ajout de ?name={{this.name}} après le lien cliquable d'index.handlebars
     //console.log(req.query.name)
@@ -79,9 +79,7 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
     }
    // dataArray = dataArray.map(e => e.toJSON() ); 
     var chunked = chunkArray(dataArray,3);
-    console.log(chunked);
-    console.log(chunked[0].sensLastData)
-    renderLivePage(req,res,chunked)
+    renderLivePage(req,res,chunked,groupId)
   
   }
   catch (err) {

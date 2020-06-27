@@ -1,38 +1,40 @@
+<script type="text/javascript" src="/javascripts/tail.datetime.min.js"></script>
+
 <div class="container">
-  <h1 class="title"> {{pageHeader.title}} </h1>
-  <h2 class="subtitle">  Groupe de capteurs : {{group.name}} ; Timezone : {{group.tz}}</h2>
+  <div class="columns">
+    <div class="column">
+      <h1 class="title"> {{pageHeader.title}} </h1>
+      <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+    </div>
+    <div class="column">
+      <a href="/live/{{group.id}}" class="button is-link is-rounded"> Accès aux données temps réel</a>
+    </div>
+  </div>  
 </div>
 <hr/>
 
-{{#each sensDatas}}
-  {{#each this.sensInfos}}
-    {{this}}
-  {{/each}} 
-  {{#each this.datasTime}}
-    {{this}}
-  {{/each}} 
-{{/each}}
-
-{{#each sensDatas}} 
+<input type="text" class="tail-datetime-field" />
+<input type="text" id="dtRome" />
+{{#each sensInfos}} 
   <div class="columns">
   {{#each this}}
     <div class="column is-half">
       <div class="card">
         <header class="card-header">
           <p class="card-header-title">
-            Capteur : {{this.sensInfos.name}}
+            Capteur : {{this.name}}
           </p>
         </header>
         <div class="card-content">
           <div class="content">
-            <p> Métrique : {{this.sensInfos.metric}} en {{this.sensInfos.unit}}
+            <p> Métrique : {{this.metric}} en {{this.unit}}
             </p>
             <div class="field">
-              <label class="label" for="daterange{{this.sensInfos.id}}">Période d'affichage :
+              <label class="label" for="daterange{{this.id}}">Période d'affichage :
               </label>
               <div class="control">
                 <div class="select">
-                  <select id="daterange{{this.sensInfos.id}}">
+                  <select class="range" id="select-{{this.id}}" name="daterange{{this.id}}">
                     <option value="day" selected>Dernière 24heures</option>
                     <option value="week">Derniere semaine</option>
                     <option value="month">Dernier mois</option>
@@ -43,67 +45,84 @@
               </div>
             </div>
           </div>
-          <div class="box" id="chartContainer{{this.sensInfos.id}}">
+          <div class="box chartContainer" id="chart-{{this.id}}">
             
           </div>
         </div>
 
       </div>
-    {{#each this.sensInfos}}
-      {{this}}
-    {{/each}}
-    {{#each this.datasTime}}
-      {{this}}
-    {{/each}}
     </div>
   {{/each}}
   </div>
 {{/each}}
 
-<script type="text/javascript" >
-  console.log("{{sensDatas.sensInfos}}");
-  var group = '{{group}}'
-  console.log(group)
-  console.log(document)
- // var sensDatas = {{{sensDatas}}} ; 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.25.3/moment.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/javascripts/moment-timezone-with-data-10-year-range.min.js"></script>
+<script type="text/javascript" src="/javascripts/rome.standalone.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 
-  for (var i=0; i<sensDatas.length;i++) {
-    console.log(sensDatas[i])
-  }
-  console.log(sensDatas)
-  console.log(sensDatas.length)
-  console.log(sensDatas[0][0].sensInfos)
-  console.log(sensDatas.datasTime)
-// recup sensor id ::: ou tricky par les elements 
-// Mais récupèrer mes données aussi ici .. 
-// axios au final ? 
-// hiding it ? 
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function(){
+    tail.DateTime(".tail-datetime-field", { /* Your Options */ });
+  });
+</script>
 
-function createConfig(position) {
+<script type="text/javascript">
+  var dt = document.getElementById('dtRome');
+ // console.log(moment().format('Europe/Paris'));
+  // console.log(moment.isMoment(rome.moment())) // truefff
+  //console.log(rome.moment().utcOffset()) // -240 
+  //console.log(moment().utcOffset()) // -240 
+  // console.log(moment.tz(moment(),'Europe/Paris').utcOffset()); //120 
+  // console.log(moment.tz(rome.moment(),'Europe/Paris')); // moment object mais strange 
+ //var newM = moment.tz(rome.moment(),'Europe/Paris');
+  //rome.use(newM)
+  /// ce que je pense faire : regarder l'offset de rome , regarder l'offset de la tz : si similaire ok, sinon juste mettre un message 
+  rome(dt);
+    // rome.use = rome.moment().format('Europe/Paris');
+  //rome.moment();
+ // console.log(rome.moment);
+ // rome.use(moment().format('Europe/Paris'));
+//  console.log(rome.moment()); 
+  
+
+</script>
+
+<script type="text/javascript"> 
+var selects = document.getElementsByClassName('range'); 
+var charts = document.getElementsByClassName('chartContainer'); 
+var tz = '{{group.tz}}'; 
+var canvasArray = [];
+function createConfig() {
     return {
         type: 'line',
         data: {
             labels: [],
             datasets: [{
-              //  label: 'My First dataset',
-                borderColor: 'red',
-                backgroundColor: 'green',
+                //label: 'if we want label: display false in options.legend',
+                borderColor:  'rgb(78,162,97)',
+                backgroundColor: 'rgb(255,255,255)',
                 data: [],
                 fill: false,
+                borderWidth: 2,
             }
             ]
         },
+        
         options: {
+            legend: { 
+              display:false 
+            }, 
             responsive: true,
-            title: {
+           /* title: {
                 display: true,
                 text: ' Todo titre'
-            },
-            tooltips: {
+            },*/
+           /* tooltips: {
                 position: position,
                 mode: 'index',
                 intersect: false,
-            },
+            },*/
             scales: {
                 yAxes: [{
                     ticks: {
@@ -117,4 +136,102 @@ function createConfig(position) {
         }
     };
 };
+
+// helper from https://plainjs.com/javascript/ajax/send-ajax-get-and-post-requests-47/ 
+function getAjax(url, success) {
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('GET', url);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+    };
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.send();
+    return xhr;
+}
+// Initiate data by default range
+var initChartDatas = function (chart,sensorId,timezone,range) {
+    try {     
+      var url = window.location.href+"/"+sensorId+"?tz="+timezone+"&range="+range;
+      getAjax(url, function(data) {
+        var json = JSON.parse(data);
+        chart.data.datasets[0].data = json.datas; 
+        chart.data.labels = json.dates; 
+        chart.update();
+      })
+    }
+    catch (err) {
+        //how to handle , todo reu
+        console.log(err);
+    }
+};
+
+// Update data when selected input change 
+var getAndUpdateDatas = function (sensorId,timezone,range) {
+    try {     
+      var chart ; 
+      for (var i=0; i<canvasArray.length; i++) {
+        if (canvasArray[i].sensor === sensorId) {
+          chart = canvasArray[i].chart ; 
+          break; 
+        }
+      }
+      var url = window.location.href+"/"+sensorId+"?tz="+timezone+"&range="+range;
+      getAjax(url, function(data) {
+        var json = JSON.parse(data);
+        chart.data.datasets[0].data = json.datas; 
+        chart.data.labels = json.dates; 
+        chart.update();
+      })
+    }
+    catch (err) {
+        //how to handle , todo
+        console.log(err);
+    }
+};
+// ON LOAD : Create canva element and initiate chart with datas
+window.onload = function() {
+  for(i=0; i<charts.length; i++) {
+    var current = charts[i]; 
+    var sensorId = current.id.split("-")[1]; 
+    var canvas = document.createElement('canvas');
+    current.appendChild(canvas); 
+    var ctx = canvas.getContext('2d'); 
+    var config = createConfig(); 
+    chart = new Chart(ctx,config);
+    canvasArray.push({"sensor":sensorId, "chart":chart}); 
+    initChartDatas(chart,sensorId,tz,selects[i].value);
+  }
+}
+
+// ON SELECT CHANGE : update datas
+// works, but right way ? (index j always 3 if print in on change function)
+for (j=0; j<selects.length;j++) { 
+  selects[j].onchange = function () {
+    getAndUpdateDatas(this.id.split('-')[1],tz,this.value); 
+  }
+}
 </script>
+
+<!--script sens={{sensDatas}} >
+ /* console.log(Handlebars.templates) ; 
+  console.log("{{sensDatas.sensInfos}}");
+  var group = '{{group}}'
+  console.log(group)
+  console.log(document)
+  var x = document.currentScript.getAttribute('sens')
+  console.log(x) ; 
+  console.log({{@exphbs}}) ; 
+ // var sensDatas = {{{sensDatas}}} ; 
+
+  for (var i=0; i<sensDatas.length;i++) {
+    console.log(sensDatas[i])
+  }
+  console.log(sensDatas)
+  console.log(sensDatas.length)
+  console.log(sensDatas[0][0].sensInfos)
+  console.log(sensDatas.datasTime) */
+// recup sensor id ::: ou tricky par les elements 
+// Mais récupèrer mes données aussi ici .. 
+// axios au final ? 
+// hiding it ? 
+</script-->

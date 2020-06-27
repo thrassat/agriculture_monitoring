@@ -1,82 +1,55 @@
-<!--// doctype html
-// html
-//   head
-//     meta(name='viewport', content='width=device-width, initial-scale=1.0')
-//     title= title
-//     link(rel='stylesheet', href='/bootstrap/css/nightly.bootstrap.min.css')
-//     link(rel='stylesheet', href='/stylesheets/style.css')
-//   body
-//    .navbar.navbar-default.navbar-fixed-top
-//       .container
-//         .navbar-header
-//           a.navbar-brand(href='/') GHMonitoring
-//           button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-main')
-//             span.icon-bar
-//             span.icon-bar
-//             span.icon-bar
-//         #navbar-main.navbar-collapse.collapse
-//           ul.nav.navbar-nav
-//             li
-//               a(href='/about/') About
 
-//     .container
-//       block content
-
-//       footer
-//         .row
-//           .col-xs-12
-//             small &copy; Théo Rassat 2020
-
-//     script(src='/javascripts/jquery-3.4.1.min.js')
-//     script(src='/bootstrap/js/bootstrap.min.js')
-//     // can be used by other templates (autres files utilisera les lignes ci-dessus) 
--->
 <div class="container">
   <h1 class="title"> {{pageHeader.title}} </h1>
   <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
 </div>
-
-<!--div class="row"-->
-<div class="section">
-  <div class="card">
-    <header class="card-header">
-      <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
-    </header>
-    <div class="card-content">
-      <div class="content">
-        <ul>
+<hr/>
+<div class="columns">
+  <div class="column is-half">
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <ul>
           {{#each sensorGroupsUnconfirmed}}
-          <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
-          todo if name is empty ? -->
-          <li> 
-            <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
-              {{nameOrEmpty this.groupId}}
-            </a>
-          </li>
+            <li> 
+              <a class="button is-warning modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+                {{nameOrEmpty this.groupId}}
+              </a>
+            </li>
           {{/each}}
-        </ul>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="section">
-  <div class="card">
-    <header class="card-header">
-      <p class="card-header-title"> Groupe de capteurs non-confirmés </p>
-    </header>
-    <div class="card-content">
-      <div class="content">
-        <ul>
-          {{#each sensorGroupsUnconfirmed}}
-          <!-- button ? permettre accès tps réel et historique directement depuis l'accueil pour chaque
-          todo if name is empty ? -->
-          <li> 
-            <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
-              {{nameOrEmpty this.groupId}}
-            </a>
-          </li>
+  <div class="column is-half">
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title"> Groupe de capteurs confirmés </p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <ul>
+          {{#each sensorGroupsConfirmed}}
+            <li> 
+              <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
+                {{nameOrEmpty this.groupId}}
+              </a>
+              <ul>
+              {{#each this.sensors}}
+                {{#unless this.confirmed}}
+                  <li><span class="tag is-warning"> Capteur {{this.sensorId}} non-confirmé</p>
+                  </li>
+                {{/unless}}
+              {{/each}}
+              </ul>
+            </li>
           {{/each}}
-        </ul>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

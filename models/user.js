@@ -38,8 +38,19 @@ const UserSchema = new Schema ({
     role: {
         type: String,
     },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        unique: true,
+        required: 'Email address is required',
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+    },
     group: [groupSchema],
-    accessTo: [accessToSchema], //array of sensorGroup ID's
+    accessTo: [accessToSchema], 
+    isAdmin: [accessToSchema] //new mais surement nécessaire 
+    
+        //array of sensorGroup ID's
     //manage: sensorgroupids pour lequel l'utilisateur est administrateur ?  
 })
 /**************************************/
@@ -50,6 +61,18 @@ UserSchema.plugin(timestamps);  // add created at & lastupdate at
 
 //https://github.com/saintedlama/passport-local-mongoose#api-documentation
 // https://www.npmjs.com/package/passport-local-mongoose 
+
+UserSchema.statics.getAllUsersNameRole = async function getAllUsersNameRole () {
+    return new Promise(async (resolve,reject) => {
+        try {
+            let users = await this.find().select('username role').exec();
+            resolve(users);
+        }
+        catch (err) {
+            reject(err);
+        }
+    })
+};
 
 
 // todo better way to use mongoose schema ? 

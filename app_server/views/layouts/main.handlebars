@@ -6,17 +6,19 @@
     <title>{{title}}</title>
     <link rel="stylesheet" type="text/css" href="/stylesheets/bulmaswatch.min.css"/>
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css"/>
+    
     {{!-- <!-- TODO something like this and pass with routes files ?--> --}}
     {{#each styles}}
     <link rel="stylesheet" href="/stylesheets/{{this}}" type="text/css" charset="utf-8">
     {{/each}}
     {{#each headScripts}}
-    <script src="/javascripts/{{this}}"></script>
+    <script type="text/javascript" src="/javascripts/{{this}}"></script>
     {{/each}}
     <script src="https://use.fontawesome.com/b3bf3a94d0.js"></script>
 </head>
 
 <body>  
+    
     <!-- Bootstrap navbar div class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header"><a class="navbar-brand" href="/">GHMonitoring</a>
@@ -44,10 +46,12 @@
                 <a href="/" class="navbar-item">
                     Accueil
                 </a>
-                <a href="/admin" class="navbar-item">
-                    Admin
+                <a href="/gestion-capteurs" class="navbar-item">
+                    Gestion Capteurs
                 </a>
-
+                <a href="/gestion-comptes" class="navbar-item">
+                    Gestion Comptes
+                </a>
                 <a href="/about" class="navbar-item">
                     About
                 </a>

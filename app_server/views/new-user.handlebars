@@ -1,0 +1,207 @@
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+<hr/>
+
+{{#if formErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each formErrors}}
+      <li> {{this.msg}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if mongooseErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each mongooseErrors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if validations}}
+  <div class="box container notification is-success">
+    <ul>
+    {{#each validations}}
+      <li> {{this}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
+<div class="container box">
+    <form name="newUserForm" action="/gestion-comptes/new-user" method="post">
+        <div class="field">
+            <label class="label" for="userMail"> E-mail</label>
+            <label for="userMail" class="label is-small has-text-weight-light is-italic"> Cette adresse sera asssociée au nouveau compte, c'est ici que l'utilisateur recevra le lien pour confirmer son compte en (créant/modifiant?) son nom d'utilisateur et son mot de passe </label>
+            <p class="control">
+                <input class="input" name="userMail" type="email" placeholder="usermail@domain.com" required>
+            </p>
+        </div>
+        <div class="field">
+            <div class="control">
+                password tmp ?
+            </div>
+        </div>
+        
+        <div class="field">
+             <label class="label" for="userName"> Nom d'utilisateur </label>
+            <label for="userName" class="label is-small has-text-weight-light is-italic"> L'utilisateur pourra le modifier </label>   
+            <div class="control">
+              <input class="input" name="userName" type="text" placeholder="username1" required>
+            </div>
+        </div>
+    
+        <div class="field">
+             <label class="label" for="userGroup"> Groupe(s) d'utilisateur : 
+            </label>
+             <label for="userName" class="label is-small has-text-weight-light is-italic"> Il est possible d'appartenir à aucun, un ou plusieurs groupes</label>
+            <div class="control">
+                {{#each userGroups}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="userGroup" value="{{this.name}}">
+                    {{this.name}}
+                    </label> - 
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="userRole"> Rôle
+            </label>
+            <label for="userMail" class="label is-small has-text-weight-light is-italic"> Donner plus d'infos </label>
+            <div class="control">
+                <div class="select">
+                    <select name="userRole" id="userRoleSelect"> 
+                        <option value="user" selected> Utilisateur </option>  
+                        <option value="admin"> Admin </option>
+                        <option value="superadmin"> Super admin </option>
+                    </select>       
+                </div>
+            </div>
+        </div>
+
+        <div id="commonUserForm">
+            <div class="field">
+                <label class="label" for="userGroupAccess"> Accès au(x) groupe(s) de capteurs (utilisateur)
+                </label>
+                <div class="control">
+                    {{#each confirmedGroupNames}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="userGroupAccess" value="{{this.groupId}}">
+                    {{this.name}}
+                    </label> - 
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        
+
+        <div id="adminForm" style="display:none">
+            <div class="field">
+                <label class="label" for="adminGroupAccess"> Accès au(x) groupe(s) de capteurs (admin)
+                </label>
+                <div class="control">
+                    {{#each confirmedGroupNames}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="adminGroupAccess" value="{{this.groupId}}">
+                    {{this.name}}
+                    </label> - 
+                    {{/each}}
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="adminGroupAdmin"> Sera administrateur pour le(s) groupe(s) : 
+                </label>
+                <div class="control">
+                    {{#each confirmedGroupNames}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="adminGroupAdmin" value="{{this.groupId}}">
+                    {{this.name}}
+                    </label> - 
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+
+        <div id="superadminForm" style="display:none">
+            <div class="field">
+                <label class="label" for="groupAccess"> Accès à tous les groupes de capteurs (superadmin)
+                </label>
+            </div>
+             <div class="field">
+                <label class="label" for="groupAccess"> Administrateur de tous les groupes de capteurs (superadmin)
+                </label>
+            </div>
+        </div>
+        
+        <!--div class="field">
+            <label for="userGroup"> Accès au(x) groupe(s) de capteurs
+            </label>
+            <div class="control">
+                <div class="select">
+                    <select name="userAccess" id="userAccessSelect" multiple> 
+                        {{#each confirmedGroupNames}}
+                            <option> {{this.name}} </option> 
+                        {{/each}}
+                    </select>      
+                </div>
+            </div>
+        </div-->
+
+        <br/>
+        <div class="field">
+            <div class="control"> 
+                <button class="button is-link" type="submit">Soumettre</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--script type="text/javascript" src="/javascripts/vanillaSelectBox.js"></script>
+<script type="text/javascript">
+  //  first mutliselect try fails document.multiselect('#userAccessSelect');
+  let mySelect = new vanillaSelectBox("#userAccessSelect"); 
+</script-->
+
+<script type="text/javascript"> 
+    var userGroup = document.getElementById('userGroupSelect');
+    var role = document.getElementById('userRoleSelect'); 
+    var commonUserBloc = document.getElementById('commonUserForm') ; 
+    var adminBloc = document.getElementById('adminForm'); 
+    var superadminBloc = document.getElementById('superadminForm');
+    window.onload = function () {
+        role.value = 'user';
+        adminBloc.style.display = 'none'; 
+        superadminBloc.style.display = 'none'; 
+        commonUserBloc.style.display ='block'
+        userGroup.value ='none'; 
+    }
+    role.onchange = function () {
+        if (role.value ==="utilisateur") {
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        } 
+        else if (role.value ==="admin") {
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='none'
+            adminBloc.style.display = 'block'; 
+        }
+        else if (role.value === "superadmin") {
+            adminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='none'
+            superadminBloc.style.display = 'block'; 
+        }
+        else {
+            // display common user if abnormal behavior
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        }
+    };
+   
+</script>

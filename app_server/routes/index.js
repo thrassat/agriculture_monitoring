@@ -12,11 +12,14 @@ var ctrlLive = require('../controllers/live');
 var ctrlIndex = require('../controllers/index');
 var ctrlHistory = require('../controllers/history'); 
 var ctrlAbout = require ('../controllers/about'); 
-var ctrlAdmin = require('../controllers/admin');
+var ctrlGestCapteurs = require('../controllers/gestCapteurs');
 var ctrlAuth = require('../controllers/auth');
 var ctrlSetup = require('../controllers/setup')
 var ctrlPostSetup = require('../controllers/postSetup');
-            /******* For authentication ******/
+// USERS
+var ctrlComptes = require('../controllers/gestCompt');
+var ctrlAccountCreator = require('../controllers/accountCreator'); 
+  /******* For authentication ******/
 // PASSPORT & LOGIN
 var passport = require('passport'); 
 const connectEnsureLogin = require('connect-ensure-login');
@@ -68,10 +71,11 @@ router.get('/live/:groupid',connectEnsureLogin.ensureLoggedIn(),ctrlLive.renderL
 //old 
 //router.get('/history/:sensorid',connectEnsureLogin.ensureLoggedIn(), ctrlHistory.displayDatasHistory); 
 router.get('/historic/:groupId',ctrlHistory.displayDatasHistory)
+router.get('/historic/:groupId/:sensorId',ctrlHistory.getDatas)
 /**********************/
 /*   Pages ADMIN      */
 /**********************/
-router.get('/admin',connectEnsureLogin.ensureLoggedIn(),ctrlAdmin.renderAdminWithDatas);
+router.get('/gestion-capteurs',connectEnsureLogin.ensureLoggedIn(),ctrlGestCapteurs.renderAdminWithDatas);
 router.get('/setup/:groupId',connectEnsureLogin.ensureLoggedIn(),ctrlSetup.renderSetupWithDatas);
 router.post('/setup/test',connectEnsureLogin.ensureLoggedIn(),ctrlPostSetup.postSetupHandler);  
 //router.post('/setup2/:sensorid', connectEnsureLogin.ensureLoggedIn, ctrlSetup.renderPostSensor);
@@ -81,6 +85,10 @@ router.post('/setup/:groupId',connectEnsureLogin.ensureLoggedIn(), ctrlSetup.ren
 router.post('/test/:test1/:test2', function (req,res) { res.render("setup", {title:"OK"}); console.log("hola")});
 router.post('/test/:test1',function (req,res) { res.render("setup", {title:"KO"}); console.log("yoo") });
 //router.post('/setup')
+
+router.get('/gestion-comptes',ctrlComptes.displayGestCompt)
+router.get('/gestion-comptes/new-user',ctrlAccountCreator.displayNewUser)
+router.post('/gestion-comptes/new-user',ctrlAccountCreator.newUserFormHandler)
 /**********************/
 /*  Pages CONNECTION  */
 /**********************/

@@ -5,11 +5,11 @@
 const {sensorGroup} = require('../../models/sensorGroup') 
 /*************** Render & datas ***************/
 var renderAdmin = function (req,res,unconfirmedList,confirmedList){
-  res.render("admin", {
-    title: 'Admin',
+  res.render("gestion-capteurs", {
+    title: 'Gestion capteurs',
     pageHeader: {
-      title:'Admin todo ',
-      strapline: 'Actuellement : gestion des groupes de capteurs' //todo
+      title:'Gestion des capteurs',
+      strapline: "Accès au paramétrage des différents groupe de capteurs et chacun de leurs capteurs"
     },
     //get all sensors groups  , return all fields to index
     //change names 

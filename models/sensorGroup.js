@@ -174,6 +174,28 @@ sensorGroupSchema.statics.getAllConfirmedSensorGroups = async function getAllCon
    })
 };
 
+/// account creator 
+
+/**** GET ALL CONFIRMED SENSOR GROUPS NAMES : *****/
+/**
+* Get all confirmed sensor groups names
+* @async
+* @return {Promise.<sensorGroup[]>|Error} confirmed sensor groups names array
+* @throws throw error if query fails
+*/
+sensorGroupSchema.statics.getAllConfirmedSensorGroupsNamesIds = async function getAllConfirmedSensorGroupsNamesIds () {
+    // au besoin afiner en renvoyer que les noms ou autre 
+   return new Promise(async (resolve,reject) => {
+        try {
+            let groups = await this.find({confirmed: true},{_id:0}).select('groupId name').exec(); 
+            resolve(groups);
+        }
+        catch(err){
+            reject(err);
+        }
+   })
+};
+
 /******************/
 /* LIVE METHODS   */
 /******************/
