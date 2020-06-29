@@ -15,6 +15,20 @@ var ctrlHistory = require('../controllers/history');
 /************************************************************************************************************/
 
 /********************************/
+/*        DATAS RECEIVER        */
+/********************************/
+//receive post request from arduino 
+router.post('/test/:sensorid',ctrlDatasReceiver.printPost); //  id param for plain text http post, remove :sensorId for Json send
+//router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess); old
+router.post('/receiver/:groupId/:sensorId',ctrlDatasReceiver.postProcess);
+// old 
+router.post('/groupsetup',ctrlDatasReceiver.groupSetup); 
+// version post 14.05 
+router.post('/ardSetup',ctrlDatasReceiver.ardSetup);
+
+
+// NOT USED -----------------------------------------------------
+/********************************/
 /*              USERS           */
 /********************************/
 router.post('/users',ctrlUsers.addUser) ;
@@ -39,18 +53,6 @@ router.get('/groupinfos/:groupid',ctrlHistory.getSensorGroupInfos)
 /*****************************************/
 router.post('/add/:groupid',ctrlSensorManager.addSensorGroup); // add new sensorgroup
 router.post('/add/:groupid/:datatype',ctrlSensorManager.addSensorToGroup); 
-
-/********************************/
-/*        DATAS RECEIVER        */
-/********************************/
-//receive post request from arduino 
-router.post('/test/:sensorid',ctrlDatasReceiver.printPost); //  id param for plain text http post, remove :sensorId for Json send
-//router.post('/receiver/:sensorid',ctrlDatasReceiver.postProcess); old
-router.post('/receiver/:groupId/:sensorId',ctrlDatasReceiver.postProcess);
-// old 
-router.post('/groupsetup',ctrlDatasReceiver.groupSetup); 
-// version post 14.05 
-router.post('/ardSetup',ctrlDatasReceiver.ardSetup);
 
 
 /* 1er tests tmp , manque au moins l'ID */ /*

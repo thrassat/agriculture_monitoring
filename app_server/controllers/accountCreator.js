@@ -13,6 +13,7 @@ var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors,
         title: "Création d'un nouveau compte",
         strapline: "Complétez le formulaire suivant pour créer un nouveau compte"
       },
+      userTriedInfo: req.body,
       confirmedGroupNames: confirmedGroupNames,
       userGroups: userGroups,
       formErrors: formErrors,
@@ -44,15 +45,15 @@ module.exports.newUserFormHandler = [
     try {
       console.log(req.body);
       // probleme pour instancier l'user object 
-      var user = new Object();
+      var uz = new Object();
       var formErrors = [];
       var mongooseErrors = [];
       var validations = [];
       formErrors = validator.validationResult(req);
 
       /* don't requery that and send errors differently ? */ 
-      let confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
-      let userGroups = await userGroup.getAllUserGroups();
+      var confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
+      var userGroups = await userGroup.getAllUserGroups();
       confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
       userGroups = userGroups.map(e=>e.toJSON()); 
       if (!formErrors.isEmpty()) {
@@ -60,24 +61,55 @@ module.exports.newUserFormHandler = [
       }
       else { 
         // required fields
-        user.username = req.body.userName; 
-        user.email = req.body.userMail; 
-        user.role = req.body.userRole; 
+        uz.username = req.body.userName; 
+        uz.email = req.body.userMail; 
+        uz.role = req.body.userRole; 
         if (req.body.userGroup) {
+          if (typeof req.body.userGroup === 'string') {
           //like this ? on verra au save
-          user.group = req.body.userGroup;
+          uz.group = []
+          uz.group.push(req.body.userGroup);
+          } 
+          else {
+            uz.group = req.body.userGroup;
+          }
         }
-        if (user.role === "user") {
+        if (uz.role === "user") {
 
         // how to handle checkboxes ? 
         // stocker les _id mongo ? ou les unique name arduino OUI ça (si effectivement ceux hardware c bon)
+          uz.accessTo = req.body.userGroupAccess; 
 
         }
-        else if (user.role === "admin") {
-       
-        }
-        else if (user.role === "superadmin") {
+        else if (uz.role === "admin") {
+          // si un seul choix pas dans un array ; todo
+          console.log(typeof req.body.adminGroupAdmin)
+          console.log(typeof req.body.adminGroupAccess)
 
+          if (typeof req.body.adminGroupAccess === 'string') {
+            // 1 seul sélectionné, n'est pas un array
+            uz.accessTo= [];
+            uz.accessTo.push(req.body.adminGroupAccess);
+          }
+          else {
+            
+            uz.accessTo = req.body.adminGroupAccess;
+            console.log(typeof uz.accessTo)
+           // console.log(uz.accessTo.toArray())
+          }
+
+          if (typeof req.body.adminGroupAdmin === 'string') {
+            // 1 seul sélectionné, n'est pas un array
+            uz.isAdmin= [];
+            uz.isAdmin.push(req.body.adminGroupAdmin);
+          }
+          else {
+            uz.isAdmin = req.body.adminGroupAdmin
+          }
+        
+        }
+        else if (uz.role === "superadmin") {
+          // add accessTo / admin all ? 
         }
         else {
           // normalement impossible 
@@ -87,11 +119,28 @@ module.exports.newUserFormHandler = [
 
         // call user schema method : addUser 
         // password ? 
+        // faire un add user pour chaque role ? 
+        
+        user.serializeUser(uz); // something with this?
+        await user.addUserObject(uz) ; 
+        validations.push("Utilisateur crée avec succès");
+        renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+
       }
     }
     catch(err) {
-      throw err; 
-      // handlehowto ? 
+      console.log(err); 
+      mongooseErrors.push(err); 
+      console.log(" RES OBJECT : ")
+      console.log(res);
+      console.log(" REQ OBJECT : ")
+      console.log(req);
+      renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations); 
+      // handlehowto ? send message to view : améliorer ça car la on a entièrement le message 
+      // on a fait qcch de ce type pour le sensorgroup
+      // avoir les valeurs déjà rentrées dans le formualire
+      // todo
+
     }
    }
 ];

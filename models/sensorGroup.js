@@ -13,7 +13,7 @@ const sensorSchema = new mongoose.Schema({
         type: String,
         trim: true,
         required: true, 
-       // unique: true, //comment : fix fro ardSetup function
+       // unique: true, //comment : fix for ardSetup function
         index: true, //added after storing datas tests
        // sparse: true, //alow null values when registered and next filled with unique values 
     },

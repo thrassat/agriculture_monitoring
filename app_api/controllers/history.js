@@ -9,6 +9,8 @@ sendJsonResponse = function(res, status, content) {
     res.json(content);
 };
 
+/* NOT USED */
+
 /**********************************************************/
 /*              GET SENSOR GROUP INFO BY ID               */
 /**********************************************************/

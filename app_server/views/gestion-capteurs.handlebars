@@ -36,7 +36,7 @@
           {{#each sensorGroupsConfirmed}}
             <li> 
               <a class="button is-primary modal-button" href="/setup/{{this.groupId}}"  title="Paramétrer ce groupe de capteurs">
-                {{nameOrEmpty this.groupId}}
+                {{nameOrEmpty this.name}}
               </a>
               <ul>
               {{#each this.sensors}}
@@ -54,7 +54,7 @@
     </div>
   </div>
 </div>
-
+{{!-- 
 <nav class="level">
   <div class="level-left">
     <div class="level-item">
@@ -127,7 +127,7 @@
     </div>
   </div>
 
-</nav>
+</nav> --}}
 
   <!-- possiblement bien plus simple de faire une page pour ça et meixu passer les args : ça dans a si jamais data-target="#modalGroupSetup" id="test" -->
 <!--div class="modal" id="modalGroupSetup">  

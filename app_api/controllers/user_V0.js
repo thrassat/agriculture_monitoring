@@ -10,6 +10,9 @@ sendJsonResponse = function(res, status, content) {
     res.json(content);
 };
 
+
+/* NOT USED */
+
 // CRUD user 
 // TODO ADD METHODS HAS MONGOOSE SCHEMA STATICS METHODS 
 // En standby 

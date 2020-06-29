@@ -349,7 +349,7 @@ module.exports.ardSetup = async function ardSetup (req,res) {
          }
     }
     else if (confirmed === true) {
-        console.log("confirmed = true");
+        
         // idée :
         // enregistre ceux qui existaient pas 
         // return un array des sensors non confirmés 
@@ -375,7 +375,6 @@ module.exports.ardSetup = async function ardSetup (req,res) {
         }
     }
     else  { // confirmed = false
-        console.log("confirmed = false");
          // non confirmé mais enregistré : 
         // ajout de sensors en base si manquant 
         // envoi message pour dire que rien n'est confirmé

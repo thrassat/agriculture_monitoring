@@ -99,6 +99,7 @@ module.exports.renderPostSetup =
       } else {
         group.confirmed = false;
       }
+      // todo appeler une méthode du model? 
       await group.save(); 
       // send validation message ?? 
       validations.push("Le groupe de capteurs a été modifié avec succès");

@@ -12,6 +12,8 @@ sendJsonResponse = function(res, status, content) {
 // TODO ADD METHODS HAS MONGOOSE SCHEMA STATICS METHODS 
 // En standby 
 
+/* NOT USED */
+
 
 /*************************************************************/
 /*                  ADD USER GROUP                           */
