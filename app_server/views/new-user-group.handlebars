@@ -1,0 +1,76 @@
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+<hr/>
+
+{{#if formErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each formErrors}}
+      <li> {{this.msg}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if mongooseErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each mongooseErrors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if validations}}
+  <div class="box container notification is-success">
+    <ul>
+    {{#each validations}}
+      <li> {{this}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
+<div class="container box">
+    <form name="newUserGroupForm" action="/gestion-comptes/new-user-group" method="post">
+        <div class="field">
+             <label class="label" for="groupName"> Nom du groupe d'utilisateurs </label>  
+            <div class="control">
+              <input class="input" name="groupName" type="text" placeholder="groupname" required>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label class="label" for="groupAccess"> Accès au(x) groupe(s) de capteurs : 
+            </label>
+            <div class="control">
+                {{#each confirmedGroupNames}}
+                <label class="checkbox">
+                <input type="checkbox" name="groupAccess" value="{{this.groupId}}">
+                {{this.name}}
+                </label> - 
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="groupAdmin"> Les utilisateurs seront administrateur pour le(s) groupe(s) : 
+            </label>
+            <div class="control">
+                {{#each confirmedGroupNames}}
+                <label class="checkbox">
+                <input type="checkbox" name="groupAdmin" value="{{this.groupId}}">
+                {{this.name}}
+                </label> - 
+                {{/each}}
+            </div>
+        </div>
+        <br/>
+        <div class="field">
+            <div class="control"> 
+                <button class="button is-link" type="submit">Soumettre</button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,34 @@
+
+
+* première utilisation : avoir la console arduino IDE ou le arduino create web editor en ligne
+
+* importer l'ensemble du "sketchbook" 
+
+* Remplir le tab (programme/onglet) secret avec l'information SSID du WIFI, le mot de passe et l'adresse IP du serveur de l'API (en local : adresse ip personne commande ifconfig sur Ubuntu) 
+
+* Compiler le programme (bien sélectionner MKR WIFI 1010)
+
+* Vérfiier que le serveur et l'application sont disponibles (si local : application qui tourne, serveur mongo connecté) 
+
+* remplir le nombre de capteurs sur l'arduino et un identifiant unique pour chaque sans espace ou caractères sépciaux dans le fichier main.ino (dire les variables todo)
+
+* Connecter l'Arduino 
+
+* Ouvrir le "monitor" pour lire les réponses de l'application
+
+* 1er lancement : on  devrait être connecté au wifi et avoir reçu le fait que l'arduino est ajouté et il doit maintenant être confirmé, l'envoi de données ne fonctionnent logiquement pas ensuite, il faut aller le paramétrer côté application (screen ou il est apparu) 
+
+[[ todo superadmin juste peuvent gérer ça ]] 
+
+* Screenshot 2107 21:24 du coté applicaiton et arduino 
+
+* Une fois le groupe de capteur confirmé et chacun des capteurs (page de paramétrage)  : on peut relancer l'arduino qui devrait pousser ses données 
+
+* On a accès aux données temps réel 
+
+* données en screen laisser tourner 2 heures : réussi 
+
+[[ a vérfiier : j'ai accès a l'arduino alors que j'ai pas donner les droits ? Dire qui a accès et qui est admin quand on le paramètre ! 
+Que faire quand la donnée passe pas ? a l'air d'être pas mal le cas  ]] 
+
+

@@ -1,29 +1,43 @@
   /*jslint node:true*/
 /*eslint-env node*/
-'use strict';
+
 var moment = require('moment-timezone');
-const {sensorGroup} = require('../../models/sensorGroup')
-const {storedDatas} = require('../../models/storedDatas')
-const {jsH, chunkArray} = require ('../helpers/jsHelpers')
+const {sensorGroup} = require('../../models/sensorGroup');
+const {storedDatas} = require('../../models/storedDatas');
+const {jsH, chunkArray} = require ('../helpers/jsHelpers'); 
 /*************** Render & datas ***************/
 var renderLivePage = function (req,res,datasInfo,groupId){
   res.render('live', {  //'locationlist in getting mean
     title: 'Live datas',
     pageHeader: {
       title:'Données en temps réel ',
-      strapline: 'Capteurs disponibles et leur dernière donnée enregistrée'
+      strapline: 'Capteurs disponibles et leur(s) dernière(s) donnée(s) enregistrée(s)'
     },
     datasInfo: datasInfo,
     groupId: groupId
   });
 }
 
+var renderUserLivePage = function (req,res,datasInfo,groupId) {
+  res.render('live', {
+    title: 'Live datas', 
+    pageHeader: {
+      title: 'Données en temps réel', 
+      strapline: 'Capteurs disponibles et leur(s) dernière(s) donnée(s) enregistrée(s)' 
+    }, 
+    layout: 'mainUser',
+    datasInfo: datasInfo,
+    groupId: groupId
+  });
+
+};
+
 /*************** Function called by routes ***************/
 module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, res) {
   try {
-    var groupId = req.params.groupid;
+    var groupId = req.params.groupId;
     var dataArray = [];
-    // get live/:groupid parameter 
+    // get live/:groupId parameter 
     // get "?" parameter
     // si ajout de ?name={{this.name}} après le lien cliquable d'index.handlebars
     //console.log(req.query.name)
@@ -79,8 +93,12 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
     }
    // dataArray = dataArray.map(e => e.toJSON() ); 
     var chunked = chunkArray(dataArray,3);
-    renderLivePage(req,res,chunked,groupId)
-  
+    if (req.user.role === 'superadmin' || req.user.role ==='admin') {
+      renderLivePage(req,res,chunked,groupId)
+    }
+    else {
+      renderUserLivePage(req,res,chunked,groupId)
+    } 
   }
   catch (err) {
     // handler error ? Throw ? Nothing? 
@@ -92,7 +110,7 @@ module.exports.renderLiveWithDatas = async function renderLiveWithDatas (req, re
 
   // OLD  // getting all sensors for this group
   //   // for each : name, last data value, unit & timestamp 
-  //   var groupId = req.params.groupid;   
+  //   var groupId = req.params.groupId;   
   //   var sensorsAndTimezone = await sensorGroup.getSensorsAndTimezoneByGroupId(groupId); 
   //   var sensors = sensorsAndTimezone.sensors; 
   //   var timezone = sensorsAndTimezone.timezone; 

@@ -14,7 +14,7 @@
           <div class="field">
             <label class="label" for="password">Mot de passe :</label>
             <div class="control">
-              <input class="input has-text-centered is-rounded" type="password" name="password" placeholder="*********" required />
+              <input class="input has-text-centered is-rounded" type="password" name="password" placeholder="*********" autocomplete="current-password" required/>
             </div>
           </div>
           <div class="field">
@@ -25,16 +25,61 @@
           <div class="notification is-danger" id="error-message" style="display:none">   
           </div>
       </form>
+      <div class="level">
+        <div class="level-left"></div>  
+        <div class="level-right">
+          <div class="level-item">
+            <!--button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe d'utilisateurs</button-->
+            <a onclick="document.getElementById('confirmationModal').style.display='block'"> Mot de passe oublié</a>
+          </div>
+        </div>
+      </div>
+   
     </div>
   </div>
 </div>
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const info = urlParams.get('info');
 
-    if(info) {
-      const errorMessage = document.getElementById("error-message");
-      errorMessage.innerText = info;  
-      errorMessage.style.display = "block";
-    }
-  </script>
+<div class="modal" id="confirmationModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title"> Mot de passe oublié </p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('confirmationModal').style.display='none'"></button>
+    </header>
+    <section class="modal-card-body">
+      <!-- Content ... -->
+      <p>Vous êtes sur le point réinitialiser votre mot de passe, votre ancien mot de passe sera inutilisable, vous allez recevoir un lien par email pour en créer un nouveau sous 24h. <br/> Cette action est <b>irréversible</b>, êtes-vous sûr? 
+      </p>
+    </section>
+    <footer class="modal-card-foot">
+      <form action="/resetPwd" method="post">
+        <div class="field">
+          <label class="label" for="userMail"> E-mail lié à votre compte</label>
+          <div class="control">
+              <input class="input" name="userMail" type="email" placeholder="usermail@domain.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+              <div class="buttons">
+                <button class="button is-warning" type='submit'>Oui, réinitialiser</button>
+                 <button class="button" onclick="document.getElementById('confirmationModal').style.display='none'">Non, annuler l'opération</button>
+              </div>
+          </div>
+        </div>
+      </form>
+      
+    </footer>
+  </div>
+</div>
+  
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const info = urlParams.get('info');
+
+  if(info) {
+    const errorMessage = document.getElementById("error-message");
+    errorMessage.innerText = info;  
+    errorMessage.style.display = "block";
+  }
+</script>

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport", content="width=device-width, initial-scale=1.0"/>
     <title>{{title}}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" type="text/css" href="/stylesheets/bulmaswatch.min.css"/>
     <link rel="stylesheet" type="text/css" href="/stylesheets/style.css"/>
     
@@ -14,7 +15,7 @@
     {{#each headScripts}}
     <script type="text/javascript" src="/javascripts/{{this}}"></script>
     {{/each}}
-    <script src="https://use.fontawesome.com/b3bf3a94d0.js"></script>
+  
 </head>
 
 <body>  
@@ -59,6 +60,13 @@
         </div>
 
         <div class="navbar-end">
+             <div class="navbar-item">
+                <div class="buttons">
+                    <button onclick="goBack()" class="button is-info">
+                      <i class="fa fa-chevron-circle-left"></i>
+                    </button>
+                </div>
+            </div>
             <div class="navbar-item">
                 <div class="buttons">
                     <a href="/logout" class="button is-danger">
@@ -76,7 +84,11 @@
     <footer>
       
     </footer>
-    
+    <script>
+        function goBack() {
+        window.history.back();
+        }
+    </script>
     <script> 
         // from Bulma website navbar documentation
     document.addEventListener('DOMContentLoaded', () => {

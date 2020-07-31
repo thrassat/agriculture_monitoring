@@ -111,13 +111,14 @@ storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySe
 * @return {Promise.<storedData[]>|Error} datas
 * @throws throw error if query fails
 */
-storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensorId,from,to) {
+storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (groupId,sensorId,from,to) {
     return new Promise(async (resolve,reject) => {
         try {
-            let datas = await this.find({sensorId: sensorId}).find({ date: {$gte: from, $lte: to}}).sort({date: 1}).exec(); 
+            let datas = await this.find({groupId: groupId, sensorId: sensorId}).find({ date: {$gte: from, $lte: to}}).sort({date: 1}).exec(); 
             // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
             // https://www.w3schools.com/js/js_dates.asp 
             // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent 
+              //console.log(datas)
             resolve(datas); 
         }
         catch (err) {
@@ -134,10 +135,10 @@ storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (sensor
 * @return {Promise.<storedData[]>|Error} datas
 * @throws throw error if query fails
 */
-storedDatasSchema.statics.getAllDatas = async function getAllDatas (sensorId) {
+storedDatasSchema.statics.getAllDatas = async function getAllDatas (groupId,sensorId) {
     return new Promise(async (resolve,reject) => {
         try {
-            let datas = await this.find({sensorId: sensorId}).select('value date').sort({date: 1}).exec(); 
+            let datas = await this.find({groupId: groupId, sensorId: sensorId}).select('value date').sort({date: 1}).exec(); 
             // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
             // https://www.w3schools.com/js/js_dates.asp 
             // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
@@ -225,12 +226,13 @@ storedDatasSchema.statics.registerIntData = async function registerIntData (date
 
 // todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
 storedDatasSchema.statics.registerIntDataOld = async function registerIntDataOld (date,sensorId,value) {
-   var storedData = new storedDatas ; 
-    storedData.date=date; 
-   // SensorId n'est pas un 'objectId' mongoose
-   storedData.sensorId=sensorId;
-   storedData.value=value;    
-   try { 
+    try { 
+        var storedData = new storedDatas ; 
+        storedData.date=date; 
+        // SensorId n'est pas un 'objectId' mongoose
+        storedData.sensorId=sensorId;
+        storedData.value=value;    
+   
         await storedData.save(); 
         return 201; 
    }
@@ -248,6 +250,28 @@ storedDatasSchema.statics.registerIntDataOld = async function registerIntDataOld
       }*/
    }
 }
+
+
+/******************************/
+/* GESTION CAPTEURS METHODS   */
+/******************************/
+// Delete related sensorGroup datas
+storedDatasSchema.statics.deleteDatasDependenciesForGroupId = async function deleteDatasDependenciesForGroupId (groupId) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            //works
+            await this.deleteMany({groupId: groupId}).exec();
+            resolve();
+        }
+        catch (err) {
+            reject(err);
+        }
+    })
+}
+
+
+
+
 
 //compiling model from a schema
 // Arg1 : name of model, 2: schema to use,

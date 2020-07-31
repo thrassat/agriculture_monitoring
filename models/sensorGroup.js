@@ -1,6 +1,9 @@
 const mongoose = require( 'mongoose'); 
       timestamps = require('mongoose-timestamp');
 
+const {user} = require('./user')  
+const {storedDatas} = require('./storedDatas')
+
 /*************************************************/
 /*                  SUBDOCUMENTS                 */
 /*************************************************/
@@ -85,6 +88,7 @@ var sensorGroupSchema = new mongoose.Schema({
        type: String,
        trim: true,
        sparse: true,
+       unique: true
        //switch to unique ? Unique fait aussi index
          // required: true, 
    },
@@ -97,7 +101,7 @@ var sensorGroupSchema = new mongoose.Schema({
        //todo regexp
    },
    //geographic location? timezone
-   owners: [ownerSchema], // todo add owner correctement 
+  // owners: [ownerSchema], // todo add owner correctement ::: je pense supprimer car géré coté user 
    sensors: [sensorSchema] //[0,3,6] [min,average,max]
 }, 
 {collection: 'sensorgroups'}
@@ -128,6 +132,39 @@ sensorGroupSchema.post('save', function(error, doc, next) {
       next();
     }
   });
+/****************************************************************************/
+/*               ON DELETE, DELETE DEPENCIES (cascade delete)               */
+/****************************************************************************/
+sensorGroupSchema.pre('deleteOne', { document: true },async function(next) {
+  
+    try {
+        // var users = await user.getAllUsersDependenciesFields (); 
+        // //console.log(users)
+        // for(var i=0;i<users.length;i++) {
+        //     // supprime bien, mais vérfiier si jamais trouve pas le group id si supprime pas un truc random 
+        //     console.log(" users i ")
+        //     console.log(users[i])
+        //     users[i].accessTo.splice (users[i].accessTo.indexOf(this.groupId), 1);
+        //     users[i].isAdmin.splice (users[i].isAdmin.indexOf(this.groupId), 1);
+        //     console.log(" users i post")
+        //     console.log(users[i])
+        // }
+          // son groupId est potentiellement dans les array isAdmin et accessTo du user model 
+        await user.deleteUsersDependenciesForGroupId(this.groupId);
+          // also delete stored datas
+        await storedDatas.deleteDatasDependenciesForGroupId(this.groupId); 
+      
+        
+    }
+    catch (err) {
+        console.log(error); 
+        throw err;
+        // morgan ? How to handle 
+    }
+});
+
+
+
 /*************************************************************************************************************************/
 /*                                      STATIC SENSOR GROUP METHODS                                                      */  
 /*************************************************************************************************************************/
@@ -279,6 +316,27 @@ sensorGroupSchema.statics.getAllUnconfirmedSensorGroups = async function getAllU
    })
 };
 
+/**** Delete one sensor group  */
+sensorGroupSchema.statics.deleteGroupByGroupId = async function deleteGroupByGroupId (groupId) {
+        // au besoin afiner en renvoyer que les noms ou autre 
+   return new Promise(async (resolve,reject) => {
+    try {
+        let groups = await this.find({groupId: groupId}).exec(); 
+        if (groups.length != 1) {
+            reject(new Error("Duplicated sensorgroup ID"));
+        }
+        else {
+            await groups[0].deleteOne(); 
+            resolve();
+        }
+    }
+    catch(err){
+        reject(err);
+    }   
+})
+
+};
+
 /****************************/
 /* SENSOR MANAGER METHODS   */
 /****************************/
@@ -417,7 +475,7 @@ sensorGroupSchema.statics.isGroupConfirmed = async function isGroupConfirmed (gr
 
 /**** GET UNCONFIRMED SENSORS FROM SENSORS IDS ARRAY : *****/
 /**
-* Get unconfirmed sensors ids array from sensors ids array for a given groupid, also if new sensors are in the arg array, there are stored
+* Get unconfirmed sensors ids array from sensors ids array for a given groupId, also if new sensors are in the arg array, there are stored
 * @async
 * @param {string} groupId
 * @param {Array.string} sensors
@@ -473,7 +531,7 @@ sensorGroupSchema.statics.isSensorsConfirmed = async function isSensorsConfirmed
 
 /**** CHECK SENSORS ARRAY AND ADD IF NEW ONES *****/
 /**
-* Checking sensors ids array for an unconfirmed given groupid, if new sensors are in the arg array, there are stored
+* Checking sensors ids array for an unconfirmed given groupId, if new sensors are in the arg array, there are stored
 * @async
 * @param {string} groupId
 * @param {Array.string} sensors

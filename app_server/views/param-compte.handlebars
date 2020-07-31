@@ -1,0 +1,268 @@
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+<hr/>
+
+{{#if formErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each formErrors}}
+      <li> {{this.msg}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if mongooseErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each mongooseErrors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if validations}}
+  <div class="box container notification is-success">
+    <ul>
+    {{#each validations}}
+      <li> {{this}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
+<div class="container box">
+    <!-- TODO : potentialité de modifier l'email? d'en ajouter ? -->
+    <div class="box container notification">
+        <h3 class="subtitle"> Utilisateur : </h3>
+        <ul>
+            <li> 
+                <span class="has-text-weight-semibold is-italic"> Nom d'utilisateur </span>: {{uz.username}}
+            </li>
+            <li>   
+                <span class="has-text-weight-semibold is-italic">E-mail </span>: {{uz.email}}
+            </li>
+            <li>   
+                <span class="has-text-weight-semibold is-italic">Rôle actuel </span>: {{uz.role}}
+            </li>
+            <li> 
+                <!-- todo mise en forme date ? -->
+                <span class="has-text-weight-semibold is-italic">Dernière modification </span>: {{uz.updatedAt}}
+            </li>
+        </ul>
+    </div>
+    <form name="newUserForm" action="/gestion-comptes/update-user/{{uz.username}}" method="post">   
+        <div class="field">
+             <label class="label" for="userGroup"> Groupe(s) d'utilisateur : 
+            </label>
+             <label for="userName" class="label is-small has-text-weight-light is-italic"> Il est possible d'appartenir à aucun, un ou plusieurs groupes - actuellement non fonctionnel </label>
+            <div class="control">
+                 {{{displayUserGroupsWithChecked uz.group userGroups}}}
+                {{!-- {{#each userGroups}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="userGroup" value="{{this.name}}">
+                    {{this.name}}
+                    </label> - 
+                {{/each}} --}}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label" for="userRole"> Rôle
+            </label>
+            <label for="userMail" class="label is-small has-text-weight-light is-italic"> 
+                 L'application gère 3 niveaux de droits pour un compte utilisateur.
+                    <ul style='list-style-type: circle;'>
+                        <li > <b>Utilisateur</b> : pourra consulter les données en "temps réel" et l'historique pour les groupes de capteurs cochés ci-après</li>
+                        <li>  <b>Administrateur</b> : sera en plus responsable de groupe(s) de capteurs cochés ci-après (création de compte d'accès, confirmation de capteurs) </li>
+                        <li>  <b>Super Administrateur</b> : tous les droits sur la plateforme </li>
+                    </ul> 
+                </label>
+            <div class="control">
+                <div class="select">
+                    <select name="userRole" id="userRoleSelect"> 
+                        <!-- todo test -->
+                        {{#if (isUser uz.role)}}
+                        <option value="user" selected> Utilisateur </option>  
+                        <option value="admin"> Admin </option>
+                        <option value="superadmin"> Super admin </option>
+                        {{else}}
+                            {{#if (isAdmin uz.role)}} 
+                                <option value="user"> Utilisateur </option>  
+                                <option value="admin" selected> Admin </option>
+                                <option value="superadmin"> Super admin </option>
+                            {{else}}
+                                <option value="user"> Utilisateur </option>  
+                                <option value="admin"> Admin </option>
+                                <option value="superadmin" selected> Super admin </option>
+                            {{/if}}
+                        {{/if}}
+                    </select>       
+                </div>
+            </div>
+        </div>
+
+        <div id="commonUserForm">
+            <div class="field">
+                <label class="label" for="userGroupAccess"> Accès au(x) groupe(s) de capteurs (utilisateur)
+                </label>
+                <div class="control">
+                    {{{displayGroupsWithCheckedAccessUser uz.accessTo confirmedGroupNames}}}
+                </div>
+            </div>
+        </div>
+        
+
+        <div id="adminForm" style="display:none">
+            <div class="field">
+                <label class="label" for="adminGroupAccess"> Accès au(x) groupe(s) de capteurs (admin)
+                </label>
+                <div class="control">
+                    {{{displayGroupsWithCheckedAccessAdmin uz.accessTo confirmedGroupNames}}}
+                    {{!--OLD {{#each confirmedGroupNames}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="adminGroupAccess" value="{{this.groupId}}">
+                    {{this.name}}
+                    </label> - 
+                    {{/each}} --}}
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="adminGroupAdmin"> Administrateur pour le(s) groupe(s) : 
+                </label>
+                <div class="control">
+                    <!-- to test ; maybe todo : vérfiier que isadmin est pas vide -->
+                     {{{displayGroupsWithCheckedAdmin uz.isAdmin confirmedGroupNames}}}
+                    {{!-- {{#each confirmedGroupNames}}
+                    <label class="checkbox">
+                    <input type="checkbox" name="adminGroupAdmin" value="{{this.groupId}}">
+                    {{this.name}}
+                    </label> - 
+                    {{/each}} --}}
+                </div>
+            </div>
+        </div>
+
+        <div id="superadminForm" style="display:none">
+            <div class="field">
+                <label class="label" for="groupAccess"> Accès à tous les groupes de capteurs (superadmin)
+                </label>
+            </div>
+             <div class="field">
+                <label class="label" for="groupAccess"> Administrateur de tous les groupes de capteurs (superadmin)
+                </label>
+            </div>
+        </div>
+        
+        <!--div class="field">
+            <label for="userGroup"> Accès au(x) groupe(s) de capteurs
+            </label>
+            <div class="control">
+                <div class="select">
+                    <select name="userAccess" id="userAccessSelect" multiple> 
+                        {{#each confirmedGroupNames}}
+                            <option> {{this.name}} </option> 
+                        {{/each}}
+                    </select>      
+                </div>
+            </div>
+        </div-->
+
+        <br/>
+        <div class="field">
+            <div class="control"> 
+                <button class="button is-link" type="submit">Soumettre</button>
+            </div>
+        </div>
+    </form>
+    <div class="level">
+        <div class="level-left"></div>  
+        <div class="level-right">
+            <div class="level-item">
+                <button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe d'utilisateurs</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="confirmationModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Suppression d'un compte utilisateur</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('confirmationModal').style.display='none'"></button>
+    </header>
+    <section class="modal-card-body">
+      <!-- Content ... -->
+      <p>Vous êtes sur le point de supprimer ce compte utilisateur, <br> Cette action est <b>irréversible</b>, êtes-vous sûr? 
+      </p>
+    </section>
+    <footer class="modal-card-foot">
+      <form action="/gestion-comptes/delete-user/{{uz.email}}" method="post">
+        <button class="button is-warning" type='submit'>Oui, supprimer</button>
+      </form>
+      <button class="button" onclick="document.getElementById('confirmationModal').style.display='none'">Non, annuler l'opération</button>
+    </footer>
+  </div>
+</div>
+
+
+<script type="text/javascript"> 
+    //var userGroup = document.getElementById('userGroupSelect');
+    var role = document.getElementById('userRoleSelect'); 
+    var commonUserBloc = document.getElementById('commonUserForm') ; 
+    var adminBloc = document.getElementById('adminForm'); 
+    var superadminBloc = document.getElementById('superadminForm');
+    window.onload = function () {
+       // console.log(userTriedInfo) ne passe pas ici 
+        //role.value = 'user';
+        if (role.value === 'user') {
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        }
+        else if (role.value ==='admin') {
+            adminBloc.style.display = 'block'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='none'
+        }
+        else if (role.value === 'superadmin') {
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'block'; 
+            commonUserBloc.style.display ='none'
+        }
+        else {
+            // normalment impossible de rentrer dans ce bloc 
+            role.value = 'user'; 
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        }
+      //  userGroup.value ='none'; 
+    }
+    role.onchange = function () {
+        if (role.value ==="utilisateur") {
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        } 
+        else if (role.value ==="admin") {
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='none'
+            adminBloc.style.display = 'block'; 
+        }
+        else if (role.value === "superadmin") {
+            adminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='none'
+            superadminBloc.style.display = 'block'; 
+        }
+        else {
+            // display common user if abnormal behavior
+            adminBloc.style.display = 'none'; 
+            superadminBloc.style.display = 'none'; 
+            commonUserBloc.style.display ='block'
+        }
+    };
+   
+</script>

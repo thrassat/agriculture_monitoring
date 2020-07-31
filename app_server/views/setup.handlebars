@@ -68,16 +68,48 @@
     </div>
 
     <div class="field">
-      <label for="groupAdmin" class="label"> Qui sera admnistrateur pour ce groupe? 
+      <label class="label" for="userAccess"> Accès au groupe : 
       </label>
-      <div class="control">
-          <div class="select">
-            <select name="groupAdmin"> 
-                <option> JS déroulé dans les users TODO </option>
-            </select>
-          </div>
-      </div>
-    </div>  
+      <label for="userAccess" class="label is-small has-text-weight-light is-italic"> 
+        Pour les utilisateurs et administrateurs de la plateforme (superadministrateur l'ont automatiquement)
+      </label>
+        <div class="control">
+      <!-- arg1 : array de username ayant acces, arg 2 tout les usernames, 3 nom des checkbox" -->
+          {{{displayUsersChecked sensorGroup.groupId users 'userAccess'}}}
+        </div>
+    </div>
+    
+    <div class="field">
+      <label class="label" for="userGroupAccess"> Accès au groupe : 
+      </label>
+       <label for="userGroupAccess" class="label is-small has-text-weight-light is-italic"> 
+        Pour les groupes d'utilisateurs 
+      </label>
+        <div class="control">
+          {{{displayUsersGroupsChecked sensorGroup.groupId userGroups 'userGroupAccess'}}}
+        </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="userAdmin"> Administration du groupe : 
+      </label>
+      <label for="userAdmin" class="label is-small has-text-weight-light is-italic"> 
+        Pour les administrateurs de la plateforme (superadministrateur le sont automatiquement)
+      </label>
+        <div class="control">
+          {{{displayAdminsChecked sensorGroup.groupId admins 'userAdmin'}}}
+        </div>
+    </div>
+     <div class="field">
+      <label class="label" for="userGroupAdmin"> Administration du groupe : 
+      </label>
+       <label for="userGroupAdmin" class="label is-small has-text-weight-light is-italic"> 
+        Pour les groupes d'utilisateurs 
+      </label>
+        <div class="control">
+          {{{displayUsersGroupsAdminsChecked sensorGroup.groupId userGroups 'userGroupAdmin'}}}
+        </div>
+    </div> 
 
     <div class="field">
       <label class="label"> Groupe :
@@ -105,10 +137,41 @@
     </div>
     <div class="field">
       <div class="control"> 
-        <button class="button is-link" type="submit">Soumettre</button>
+        <button class="button is-link" type="submit">Sauvegarder les changements</button>
       </div>
     </div>
   </form>
+  <!-- todo cacher le boutton ? si on laisse que le superadmin faire ça -->
+  <div class="level">
+    <div class="level-left"></div>  
+    <div class="level-right">
+      <div class="level-item">
+        <button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe et les capteurs associés</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="confirmationModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Suppression d'un groupe de capteurs</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('confirmationModal').style.display='none'"></button>
+    </header>
+    <section class="modal-card-body">
+      <!-- Content ... -->
+      <p>Vous êtes sur le point de supprimer le groupe de capteurs, les <b>capteurs associés</b> et l'<b>ensemble des données liées</b>, cette action est <b>irréversible</b>, êtes-vous sûr? 
+      </p>
+    </section>
+    <footer class="modal-card-foot">
+      <form action="/delete/{{sensorGroup.groupId}}" method="post">
+        <button class="button is-warning" type='submit'>Oui, supprimer</button>
+      </form>
+      <button class="button" onclick="document.getElementById('confirmationModal').style.display='none'">Non, annuler l'opération</button>
+    </footer>
+  </div>
 </div>
 
 
@@ -239,18 +302,18 @@
             </div>
           </form>
         </div>
-
-        <div class="card-footer"> 
-          Possible footer 
-        </div>
       </div>
     {{/each}}
   </div>
 </div>
 
 <script>
+    // Get the modal(w3schools)
+ // var confirmationModal = document.getElementById('confirmationModal'); 
   // from https://stackoverflow.com/questions/19611557/how-to-set-default-value-for-html-select
   var tzSelect = document.getElementById('tzSelect');
+
+
   for (var i,j=0; i=tzSelect.options[j]; j++ ) {
     if(i.value == '{{sensorGroup.timezone}}') {
       tzSelect.selectedIndex = j; 
@@ -310,4 +373,5 @@
     var actionUrl = window.location.href + "/" + sensorId ; 
     form.action = actionUrl2; 
   }
+
 </script>

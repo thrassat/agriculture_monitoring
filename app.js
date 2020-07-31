@@ -26,10 +26,10 @@ require('./config/db');
 
 /********** Routers **********/
         /** Server **/
-var indexRouter = require('./app_server/routes/index');
+var indexRouter = require('./app_server/routes/serverRoutes');
 //var usersRouter = require('./app_server/routes/users');
         /** API **/
-var apiRouter = require('./app_api/routes/index');
+var apiRouter = require('./app_api/routes/apiRoutes');
 
 /********** Call express function **********/
 var app = express();
@@ -86,6 +86,7 @@ app.use('/api/v0', apiRouter);
 /********** APP errors **********/
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
+        // render 404 ici todo et pas d'appel next en ce cas 
   next(createError(404));
 });
 // error handler
@@ -94,6 +95,8 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   // render the error page
+
+  // 500 vraiment si on peut pas traiter : logger et renvoyer message sinon
   res.status(err.status || 500);
   res.render('error');
 });

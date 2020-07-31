@@ -1,12 +1,19 @@
 <div class="container">
   <h1 class="title"> {{pageHeader.title}} </h1>
+   {{#if (isSuperAdmin uzRole)}}
   <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
-     <div class="buttons">
+    {{else}}
+    <h2 class="subtitle"> Votre niveau de droits vous permet de créer un compte pour les groupes de capteurs que vous administrez</h2>   
+   {{/if}}
+    <div class="buttons">
         <a class="button is-rounded is-info" href="/gestion-comptes/new-user"> Créer un nouveau compte </a> 
+    {{#if (isSuperAdmin uzRole)}}
         <a class="button is-rounded is-info" href="/gestion-comptes/new-user-group"> Créer un nouveau groupe d'utilisateur</a> 
+    {{/if}}
     </div>
 </div>
 <hr/>
+{{#if (isSuperAdmin uzRole)}}
 <div class="container">
     <div class="card">
         <header class="card-header">
@@ -15,9 +22,11 @@
             </p>
         </header>
         <div class="card-content">
-            {{#each users}}
-            <a class="button is-primary is-rounded" href=""> "{{this.username}}" - {{this.role}} </a>
-            {{/each}}
+            <div class="buttons">
+                {{#each users}}
+                <a class="button is-primary is-rounded" href="/gestion-comptes/{{this.username}}"> "{{this.username}}" - {{this.role}} </a>
+                {{/each}}
+            </div>
         </div>
     </div>
     <br/>
@@ -28,10 +37,13 @@
             </p>           
         </header>
         <div class="card-content">
-            {{#each userGroups}}
-            <a class="button is-primary is-rounded" href="">{{this.name}}</a>
-            {{/each}}
+            <div class="buttons">
+                {{#each userGroups}}
+                <a class="button is-primary is-rounded" href="/gestion-comptes/group/{{this.name}}">{{this.name}}</a>
+                {{/each}}
+            </div>
+            
         </div>
     </div>
-
 </div>
+{{/if}}

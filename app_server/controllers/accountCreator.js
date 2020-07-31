@@ -1,13 +1,17 @@
-const {user} = require('../../models/user')  
+const {user} = require('../../models/user') ; 
 const {sensorGroup} = require('../../models/sensorGroup')
+const {token} = require('../../models/token')
 const {userGroup} = require ('../../models/userGroup');
 const validator = require('express-validator');
 const { body } = require('express-validator');
+const mailer = require('../helpers/mailer');
+const mongoose = require('mongoose'); 
+//var logger = require('morgan')
 /*************** Render & datas ***************/
 var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors, mongooseErrors, validations){
     res.render("new-user", {
-      styles: ['multiselect.css','vanillaSelectBox.css'],
-      headScripts: ['multiselect.min.js'],
+      styles: [],
+      headScripts: [],
       title: "Nouvel utilisateur",
       pageHeader: {
         title: "Création d'un nouveau compte",
@@ -18,21 +22,40 @@ var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors,
       userGroups: userGroups,
       formErrors: formErrors,
       mongooseErrors: mongooseErrors,
-      validations: validations
+      validations: validations, 
+      uzRole: req.user.role
     });
   }
   /*************** Function called by get route ***************/
   module.exports.displayNewUser= async function displayNewUser (req,res) {
     // req res useful ? 
     try { 
-        let confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
-        let userGroups = await userGroup.getAllUserGroups();
-        confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-        userGroups = userGroups.map(e=>e.toJSON());
-        renderNewUser(req,res,confirmedGroupNames,userGroups,[],[],[]);
+        var errors = [];
+        var confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
+        var userGroups = await userGroup.getAllUserGroups();
+        if (req.user.role === 'superadmin') {
+          confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
+          userGroups = userGroups.map(e=>e.toJSON());
+          renderNewUser(req,res,confirmedGroupNames,userGroups,[],[],[]);
+        }
+        else {
+          // obligatoirement admin (protégé niveau routes)
+          // permettre seulement la création de comptes avec accès et aministration pour le groupe dont je suis déjà admin 
+          let adminConfirmedGroupNames = await user.keepOnlyAdminGroups(req.user.email,confirmedGroupNames); 
+          adminConfirmedGroupNames = adminConfirmedGroupNames.map(e=> e.toJSON());
+          renderNewUser(req,res,adminConfirmedGroupNames,[],[],[],[]);
+        }
+       
     }
     catch (err) {
-      throw err; 
+      //logger.log(err); 
+      errors.push("Une erreur interne est survenue, veuillez réessayer"); 
+      if (req.user.role === 'superadmin') {
+        renderNewUser(req,res,confirmedGroupNames,userGroups,[],errors,[]);
+      }
+      else {
+        renderNewUser(req,res,adminConfirmedGroupNames,[],[],[],[])
+      }
     }
   }; 
   
@@ -40,10 +63,10 @@ var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors,
 module.exports.newUserFormHandler = [
   body('userMail').trim().escape(),
   body('userName').trim().escape(),
-
+  
   async function newUserFormHandler (req,res) {
     try {
-      console.log(req.body);
+      //console.log(req.body);
       // probleme pour instancier l'user object 
       var uz = new Object();
       var formErrors = [];
@@ -53,93 +76,97 @@ module.exports.newUserFormHandler = [
 
       /* don't requery that and send errors differently ? */ 
       var confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
-      var userGroups = await userGroup.getAllUserGroups();
-      confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-      userGroups = userGroups.map(e=>e.toJSON()); 
+      if (req.user.role === 'superadmin') {
+        var userGroups = await userGroup.getAllUserGroups();
+        confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
+        userGroups = userGroups.map(e=>e.toJSON()); 
+      }
+      else {
+        var adminConfirmedGroupNames = await user.keepOnlyAdminGroups(req.user.email,confirmedGroupNames); 
+        adminConfirmedGroupNames = adminConfirmedGroupNames.map(e=> e.toJSON());
+      }
+  
       if (!formErrors.isEmpty()) {
-        renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+        if (req.user.role === 'superadmin') {
+          renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+        }
+        else {
+          // obligatoirement admin (protégé niveau routes)
+          // permettre seulement la création de comptes avec accès et aministration pour le groupe dont je suis déjà admin 
+          renderNewUser(req,res,adminConfirmedGroupNames,[],formErrors.errors,mongooseErrors,validations);
+        }
       }
       else { 
         // required fields
         uz.username = req.body.userName; 
         uz.email = req.body.userMail; 
         uz.role = req.body.userRole; 
+        // USER GROUPS
         if (req.body.userGroup) {
-          if (typeof req.body.userGroup === 'string') {
-          //like this ? on verra au save
-          uz.group = []
-          uz.group.push(req.body.userGroup);
-          } 
-          else {
-            uz.group = req.body.userGroup;
-          }
+          uz.group = req.body.userGroup;
         }
+        //DIFFERENT ROLES 
         if (uz.role === "user") {
-
-        // how to handle checkboxes ? 
-        // stocker les _id mongo ? ou les unique name arduino OUI ça (si effectivement ceux hardware c bon)
-          uz.accessTo = req.body.userGroupAccess; 
-
+          uz.accessTo = req.body.userGroupAccess;
         }
         else if (uz.role === "admin") {
-          // si un seul choix pas dans un array ; todo
-          console.log(typeof req.body.adminGroupAdmin)
-          console.log(typeof req.body.adminGroupAccess)
-
-          if (typeof req.body.adminGroupAccess === 'string') {
-            // 1 seul sélectionné, n'est pas un array
-            uz.accessTo= [];
-            uz.accessTo.push(req.body.adminGroupAccess);
-          }
-          else {
-            
-            uz.accessTo = req.body.adminGroupAccess;
-            console.log(typeof uz.accessTo)
-           // console.log(uz.accessTo.toArray())
-          }
-
-          if (typeof req.body.adminGroupAdmin === 'string') {
-            // 1 seul sélectionné, n'est pas un array
-            uz.isAdmin= [];
-            uz.isAdmin.push(req.body.adminGroupAdmin);
-          }
-          else {
-            uz.isAdmin = req.body.adminGroupAdmin
-          }
-        
+          uz.accessTo = req.body.adminGroupAccess;
+          uz.isAdmin = req.body.adminGroupAdmin;
         }
         else if (uz.role === "superadmin") {
-          // add accessTo / admin all ? 
+          
         }
         else {
           // normalement impossible 
           formErrors.errors.push({"msg":"Something happened selecting role, please retry, if persistent contact a superadmin"}); 
-          renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+          if (req.user.role === 'superadmin') {
+            renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+          }
+          else {
+            // obligatoirement admin (protégé niveau routes)
+            renderNewUser(req,res,adminConfirmedGroupNames,[],formErrors.errors,mongooseErrors,validations);
+          } 
         }
 
-        // call user schema method : addUser 
-        // password ? 
-        // faire un add user pour chaque role ? 
-        
-        user.serializeUser(uz); // something with this?
+        // create unique token and store expiration time for this email 
+        let tokenString = await token.createToken(uz.email); 
+      
+         // add object user to user model
         await user.addUserObject(uz) ; 
-        validations.push("Utilisateur crée avec succès");
-        renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
-
+        // send email to new user 
+        await mailer.sendNewAccountMail(uz.email,tokenString);
+        validations.push("Utilisateur crée avec succès, un e-mail permettant de terminer la configuration a été envoyé"); 
+        if (req.user.role === 'superadmin') {
+          renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
+        }
+        else {
+          // obligatoirement admin (protégé niveau routes)
+          renderNewUser(req,res,adminConfirmedGroupNames,[],formErrors.errors,mongooseErrors,validations);
+        }
       }
     }
     catch(err) {
-      console.log(err); 
+      //console.log(err); 
       mongooseErrors.push(err); 
-      console.log(" RES OBJECT : ")
-      console.log(res);
-      console.log(" REQ OBJECT : ")
-      console.log(req);
-      renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations); 
-      // handlehowto ? send message to view : améliorer ça car la on a entièrement le message 
-      // on a fait qcch de ce type pour le sensorgroup
-      // avoir les valeurs déjà rentrées dans le formualire
-      // todo
+      // MAYBE TODO : JUSTE GENERAL MESSAGE  (si mongoose save est l'erreur bien fait sinon général)
+      // // not working si doublon username/email car déjà handle côté model user et généère une mongoose erreur marche pas non plus
+      // if (err instanceof mongoose.Error.ValidationError) {
+      //   mongooseErrors.push(err);
+      // }
+      // else {
+      //   console.log(err instanceof mongoose.Error)   // false alors que devrait être true https://mongoosejs.com/docs/api/error.html
+      //   mongooseErrors.push(new Error("Une erreur est survenue, veuillez réessayer"))
+      // }
+      
+      // log morgan ?
+      if (req.user.role === 'superadmin') {
+        renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations); 
+      }
+      else {
+        // obligatoirement admin (protégé niveau routes)
+        renderNewUser(req,res,adminConfirmedGroupNames,[],formErrors.errors,mongooseErrors,validations); 
+      }
+      
 
     }
    }

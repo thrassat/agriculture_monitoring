@@ -39,6 +39,17 @@
   <div class="hero-body"></div>
 </div-->
 <hr/>
+
+{{#if errors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each errors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
 <div class="container">
   {{#each sensorGroupsList}}
   <div class="level"> 
@@ -47,13 +58,22 @@
         <div class="card">
           <header class="card-header">
             <p class="card-header-title">
-              Nom du groupe : {{this.name}}
+              Nom du groupe : &nbsp; <b> {{this.name}} </b>
             </p>
           </header>
           <div class="card-content">
             <div class="content">
               <!--unique id ? -->
-              Content ? 
+              <p> Métriques des capteurs disponibles : </p>
+              <ul>
+              {{#each this.sensors}}
+                {{#if this.confirmed}}
+                <li>{{this.metric}}</li>
+                {{else}}
+                <li> Capteur non-confirmé</li>
+                {{/if}}
+              {{/each}}
+              </ul>
             </div>
           </div>
           <div class="card-footer">

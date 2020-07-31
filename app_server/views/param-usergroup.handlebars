@@ -1,0 +1,104 @@
+<div class="container">
+  <h1 class="title"> {{pageHeader.title}} </h1>
+  <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+</div>
+<hr/>
+
+{{#if formErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each formErrors}}
+      <li> {{this.msg}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if mongooseErrors}}
+  <div class="box container notification is-danger">
+    <ul>
+    {{#each mongooseErrors}}
+      <li> {{this.message}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+{{#if validations}}
+  <div class="box container notification is-success">
+    <ul>
+    {{#each validations}}
+      <li> {{this}} </li> 
+    {{/each}}
+    </ul>
+  </div>
+{{/if}}
+
+<div class="container box">
+    <div class="box container notification">
+        <h3 class="subtitle"> Groupe d'utilisateurs : </h3>
+        <ul>
+            <li> 
+                <span class="has-text-weight-semibold is-italic"> Nom </span>: {{group.name}}
+            </li>
+            <li> 
+                <!-- todo mise en forme date ? -->
+                <span class="has-text-weight-semibold is-italic">Dernière modification </span>: {{group.updatedAt}}
+            </li>
+        </ul>
+    </div>
+    <form name="newUserGroupForm" action="/gestion-comptes/group/{{group.name}}" method="post">   
+        <div class="field">
+            <label class="label" for="groupAccess"> Accès au(x) groupe(s) de capteurs
+            </label>
+            <div class="control">
+                {{{displayGroupsWithChecked group.accessTo confirmedGroupNames 'groupAccess'}}}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label" for="groupAdmin"> Administrateur pour le(s) groupe(s) : 
+            </label>
+            <div class="control">
+                {{{displayGroupsWithChecked group.isAdmin confirmedGroupNames 'groupAdmin'}}}
+            </div>
+        </div>
+
+        <br/>
+        <div class="field">
+            <div class="control"> 
+                <button class="button is-link" type="submit">Soumettre</button>
+            </div>
+        </div>
+    </form>
+    <div class="level">
+    <div class="level-left"></div>  
+    <div class="level-right">
+      <div class="level-item">
+        <button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe d'utilisateurs</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="confirmationModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Suppression d'un groupe d'utilisateurs</p>
+      <button class="delete" aria-label="close" onclick="document.getElementById('confirmationModal').style.display='none'"></button>
+    </header>
+    <section class="modal-card-body">
+      <!-- Content ... -->
+      <p>Vous êtes sur le point de supprimer ce groupe d'utilisateurs, les comptes utilisateurs resteront tout de même existants, si vous souhaitez les supprimer il faut le faire via la page de paramétrage d'un compte utilisateur. <br/> Cette action est <b>irréversible</b>, êtes-vous sûr? 
+      </p>
+    </section>
+    <footer class="modal-card-foot">
+      <form action="/delete/usergroup/{{group.name}}" method="post">
+        <button class="button is-warning" type='submit'>Oui, supprimer</button>
+      </form>
+      <button class="button" onclick="document.getElementById('confirmationModal').style.display='none'">Non, annuler l'opération</button>
+    </footer>
+  </div>
+</div>
+
+
+<script type="text/javascript"> 
+ 
+</script>

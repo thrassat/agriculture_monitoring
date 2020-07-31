@@ -1,0 +1,72 @@
+<div class="container">
+{{#if (tokenExpired token) }}
+  <div class="box container notification is-danger">
+    <p> Le délai pour valider votre compte est expiré, veuillez renouveler votre demande de création de compte en contactant un administrateur </p>    
+  </div>
+{{else}}
+  <div class="columns is-centered">
+    <div class="column box has-text-centered is-half">
+      <h1 class="title"> {{pageHeader.title}} </h1>
+      <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
+      <hr/>
+      <!-- todo error here : <div class="notification is-danger" id="error-message" style="display:none">   
+          </div> -->
+        
+        {{#if formErrors}}
+        <div class="box container notification is-danger">
+          <ul>
+          {{#each formErrors}}
+            <li> {{this.msg}} </li> 
+          {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+      {{#if mongooseErrors}}
+        <div class="box container notification is-danger">
+          <ul>
+          {{#each mongooseErrors}}
+            <li> {{this.message}} </li> 
+          {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+      {{#if validations}}
+        <div class="box container notification is-success">
+          <ul>
+          {{#each validations}}
+            <li> {{this}} </li> 
+          {{/each}}
+          </ul>
+          <script> 
+            window.setTimeout(function(){
+            window.location.href = '/login';
+          }, 6000);
+          </script>
+        </div>
+      {{/if}}
+
+      <form action="/gestion-comptes/validate-user/{{token.token}}" method="post">
+        <div class="field">
+          <label class="label" for="username">Nom d'utilisateur :</label>
+          <div class="control">
+            <input class="input has-text-centered is-rounded" type="text" name="username" placeholder="username12" value='{{user.username}}' required/>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="password">Mot de passe :</label>
+          <div class="control">
+            <input class="input has-text-centered is-rounded" type="password" name="password" placeholder="*********" autocomplete="current-password" required/>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <button class="button  is-link" type="submit" required> Sauvegarder les changements </button>
+          </div>
+        </div>
+    
+      </form>
+    </div>
+  </div>
+
+{{/if}}
+</div>

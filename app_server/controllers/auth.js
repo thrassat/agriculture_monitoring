@@ -1,9 +1,25 @@
 var passport = require ('passport'); 
-// tmp testing
-const {user} = require('../../models/user');
+// const {user} = require('../../models/user');
+
+//LOGIN
+module.exports.displayLogin = function (req,res) {
+    renderLogin(req,res);
+}; 
+
+var renderLogin = function (req,res,){
+    res.render("login", {  
+      title: 'login',
+      layout: 'loginLayout',
+      pageHeader: {
+        title:'Login',
+        strapline: 'Veuillez entrer vos identifiants de connexion'
+      },
+    });
+  }
 
 // try to use promise ? async/await
-module.exports.auth = function (req,res,next) {
+// POST LOGIN - AUTHENTICATION
+module.exports. auth = function (req,res,next) {
     //attempts to authenticate with the strategy it receives as its first parameter
     passport.authenticate('local',
     (err, user, info) => {
@@ -25,65 +41,9 @@ module.exports.auth = function (req,res,next) {
         });
     })(req,res,next);
 };
-// Other example : 
-// AUTHENTICATE
-// router.post('/login', passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), (req, res, next) => {
-//     req.session.save((err) => {
-//         if (err) {
-//             return next(err);
-//         }
-//         res.redirect('/');
-//     });
-// });
 
-// RENDER LOGIN
-// router.get('/login', (req, res) => {
-//     res.render('login', { user : req.user, error : req.flash('error')});
-// });
 
-module.exports.displayLogin = function (req,res) {
-    renderLogin(req,res);
-}; 
-
-var renderLogin = function (req,res,){
-    res.render("login", {  
-      title: 'login',
-      layout: 'loginLayout',
-      pageHeader: {
-        title:'Login',
-        strapline: 'Veuillez entrer vos identifiants de connexion'
-      },
-    });
-  }
-
-module.exports.register = function (req,res,next) {
-    /* send to api */
-    user.register(new user({ username : req.body.username }), req.body.password, (err, user) => {
-        if (err) {
-          return res.render('register', { error : err.message });
-        }
-        
-        passport.authenticate('local')(req, res, () => {
-            req.session.save((err) => {
-                if (err) {
-                    return next(err);
-                }
-                res.redirect('/');
-            });
-        });
-    });
-};
-
-module.exports.displayRegister = function (req,res) {
-    renderRegister(req,res);
-}; 
-
-var renderRegister = function (req,res) {
-    res.render("register", {
-        title: 'register',
-    });
-}   
-
+// LOGOUT
 module.exports.logout = function (req,res) {
     req.logout();
     req.session.save((err) => {

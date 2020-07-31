@@ -36,29 +36,28 @@
     <form name="newUserForm" action="/gestion-comptes/new-user" method="post">
         <div class="field">
             <label class="label" for="userMail"> E-mail</label>
-            <label for="userMail" class="label is-small has-text-weight-light is-italic"> Cette adresse sera asssociée au nouveau compte, c'est ici que l'utilisateur recevra le lien pour confirmer son compte en (créant/modifiant?) son nom d'utilisateur et son mot de passe </label>
+            <label for="userMail" class="label is-small has-text-weight-light is-italic"> Cette adresse sera asssociée au nouveau compte, c'est ici que l'utilisateur recevra le lien pour confirmer son compte en fournissant son nom d'utilisateur et son mot de passe </label>
             <p class="control">
-                <input class="input" name="userMail" type="email" placeholder="usermail@domain.com" required>
+                <input class="input" name="userMail" type="email" placeholder="usermail@domain.com" value="{{userTriedInfo.userMail}}" required>
             </p>
-        </div>
-        <div class="field">
-            <div class="control">
-                password tmp ?
-            </div>
         </div>
         
         <div class="field">
              <label class="label" for="userName"> Nom d'utilisateur </label>
             <label for="userName" class="label is-small has-text-weight-light is-italic"> L'utilisateur pourra le modifier </label>   
             <div class="control">
-              <input class="input" name="userName" type="text" placeholder="username1" required>
+              <input class="input" name="userName" type="text" placeholder="username1" value="{{userTriedInfo.userName}}" required>
             </div>
         </div>
     
         <div class="field">
-             <label class="label" for="userGroup"> Groupe(s) d'utilisateur : 
+            <label class="label" for="userGroup"> Groupe(s) d'utilisateurs : 
             </label>
-             <label for="userName" class="label is-small has-text-weight-light is-italic"> Il est possible d'appartenir à aucun, un ou plusieurs groupes</label>
+            {{#if (isSuperAdmin uzRole)}}
+             <label for="userGroup" class="label is-small has-text-weight-light is-italic"> Il est possible d'appartenir à aucun, un ou plusieurs groupes d'utilisateurs qui peuvent avoir des accès et des droits administratifs supplémentaires</label>
+            {{else}}
+            <label for="userGroup" class="label is-small has-text-weight-light is-italic"> Votre niveau de droits "Administrateur" ne vous permet pas d'affecter l'utilisateur à un groupe. Contactez un "super administrateur" si besoin est. </label>
+            {{/if}}
             <div class="control">
                 {{#each userGroups}}
                     <label class="checkbox">
@@ -72,13 +71,22 @@
         <div class="field">
             <label class="label" for="userRole"> Rôle
             </label>
-            <label for="userMail" class="label is-small has-text-weight-light is-italic"> Donner plus d'infos </label>
+            <label for="userMail" class="label is-small has-text-weight-light is-italic"> 
+                L'application gère 3 niveaux de droits pour un compte utilisateur.
+                    <ul style='list-style-type: circle;'>
+                        <li > <b>Utilisateur</b> : pourra consulter les données en "temps réel" et l'historique pour les groupes de capteurs cochés ci-après</li>
+                        <li>  <b>Administrateur</b> : sera en plus responsable de groupe(s) de capteurs cochés ci-après (création de compte d'accès, confirmation de capteurs) </li>
+                        <li>  <b>Super Administrateur</b> : tous les droits sur la plateforme </li>
+                    </ul>
+            </label>
             <div class="control">
                 <div class="select">
                     <select name="userRole" id="userRoleSelect"> 
                         <option value="user" selected> Utilisateur </option>  
                         <option value="admin"> Admin </option>
+                        {{#if (isSuperAdmin uzRole)}}
                         <option value="superadmin"> Super admin </option>
+                        {{/if}}
                     </select>       
                 </div>
             </div>
@@ -101,6 +109,7 @@
         
 
         <div id="adminForm" style="display:none">
+            <p class="label is-small has-text-weight-light is-italic"> Pour les groupes de capteurs dont l'utilisateur sera administrateur, pensez à cocher aussi l'accès. </p>
             <div class="field">
                 <label class="label" for="adminGroupAccess"> Accès au(x) groupe(s) de capteurs (admin)
                 </label>
@@ -114,7 +123,7 @@
                 </div>
             </div>
             <div class="field">
-                <label class="label" for="adminGroupAdmin"> Sera administrateur pour le(s) groupe(s) : 
+                <label class="label" for="adminGroupAdmin"> Administrateur pour le(s) groupe(s) : 
                 </label>
                 <div class="control">
                     {{#each confirmedGroupNames}}
@@ -168,17 +177,18 @@
 </script-->
 
 <script type="text/javascript"> 
-    var userGroup = document.getElementById('userGroupSelect');
+    //var userGroup = document.getElementById('userGroupSelect');
     var role = document.getElementById('userRoleSelect'); 
     var commonUserBloc = document.getElementById('commonUserForm') ; 
     var adminBloc = document.getElementById('adminForm'); 
     var superadminBloc = document.getElementById('superadminForm');
     window.onload = function () {
+       // console.log(userTriedInfo) ne passe pas ici 
         role.value = 'user';
         adminBloc.style.display = 'none'; 
         superadminBloc.style.display = 'none'; 
         commonUserBloc.style.display ='block'
-        userGroup.value ='none'; 
+      //  userGroup.value ='none'; 
     }
     role.onchange = function () {
         if (role.value ==="utilisateur") {

@@ -70,6 +70,7 @@ require('../models/sensorGroup')
 require('../models/user_V0');
 require('../models/userGroup'); 
 require('../models/user'); 
+require('../models/token')
 
 /* Example from MongoDB website 
 
