@@ -58,13 +58,7 @@
             </label>
              <label for="userName" class="label is-small has-text-weight-light is-italic"> Il est possible d'appartenir à aucun, un ou plusieurs groupes - actuellement non fonctionnel </label>
             <div class="control">
-                 {{{displayUserGroupsWithChecked uz.group userGroups}}}
-                {{!-- {{#each userGroups}}
-                    <label class="checkbox">
-                    <input type="checkbox" name="userGroup" value="{{this.name}}">
-                    {{this.name}}
-                    </label> - 
-                {{/each}} --}}
+                {{{displayUserGroupsWithChecked uz.group userGroups}}}
             </div>
         </div>
 
@@ -82,7 +76,6 @@
             <div class="control">
                 <div class="select">
                     <select name="userRole" id="userRoleSelect"> 
-                        <!-- todo test -->
                         {{#if (isUser uz.role)}}
                         <option value="user" selected> Utilisateur </option>  
                         <option value="admin"> Admin </option>
@@ -120,26 +113,13 @@
                 </label>
                 <div class="control">
                     {{{displayGroupsWithCheckedAccessAdmin uz.accessTo confirmedGroupNames}}}
-                    {{!--OLD {{#each confirmedGroupNames}}
-                    <label class="checkbox">
-                    <input type="checkbox" name="adminGroupAccess" value="{{this.groupId}}">
-                    {{this.name}}
-                    </label> - 
-                    {{/each}} --}}
                 </div>
             </div>
             <div class="field">
                 <label class="label" for="adminGroupAdmin"> Administrateur pour le(s) groupe(s) : 
                 </label>
                 <div class="control">
-                    <!-- to test ; maybe todo : vérfiier que isadmin est pas vide -->
-                     {{{displayGroupsWithCheckedAdmin uz.isAdmin confirmedGroupNames}}}
-                    {{!-- {{#each confirmedGroupNames}}
-                    <label class="checkbox">
-                    <input type="checkbox" name="adminGroupAdmin" value="{{this.groupId}}">
-                    {{this.name}}
-                    </label> - 
-                    {{/each}} --}}
+                    {{{displayGroupsWithCheckedAdmin uz.isAdmin confirmedGroupNames}}}
                 </div>
             </div>
         </div>
@@ -155,20 +135,6 @@
             </div>
         </div>
         
-        <!--div class="field">
-            <label for="userGroup"> Accès au(x) groupe(s) de capteurs
-            </label>
-            <div class="control">
-                <div class="select">
-                    <select name="userAccess" id="userAccessSelect" multiple> 
-                        {{#each confirmedGroupNames}}
-                            <option> {{this.name}} </option> 
-                        {{/each}}
-                    </select>      
-                </div>
-            </div>
-        </div-->
-
         <br/>
         <div class="field">
             <div class="control"> 
@@ -209,14 +175,11 @@
 
 
 <script type="text/javascript"> 
-    //var userGroup = document.getElementById('userGroupSelect');
     var role = document.getElementById('userRoleSelect'); 
     var commonUserBloc = document.getElementById('commonUserForm') ; 
     var adminBloc = document.getElementById('adminForm'); 
     var superadminBloc = document.getElementById('superadminForm');
     window.onload = function () {
-       // console.log(userTriedInfo) ne passe pas ici 
-        //role.value = 'user';
         if (role.value === 'user') {
             adminBloc.style.display = 'none'; 
             superadminBloc.style.display = 'none'; 
@@ -239,7 +202,6 @@
             superadminBloc.style.display = 'none'; 
             commonUserBloc.style.display ='block'
         }
-      //  userGroup.value ='none'; 
     }
     role.onchange = function () {
         if (role.value ==="utilisateur") {

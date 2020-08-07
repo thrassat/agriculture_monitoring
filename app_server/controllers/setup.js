@@ -9,17 +9,15 @@ const mongoose = require( 'mongoose');
 const {user} = require('../../models/user');
 const {userGroup} = require('../../models/userGroup');
 
+
 /*************** Render & datas ***************/
 var renderSetup = function (req,res,group,users,admins,userGroups,formErrorArray,mongooseErrorArray,validationsMessageArray){
   res.render("setup", {
     title: 'Group setup',
     pageHeader: {
       title:"Paramétrage d'un groupe de capteurs et de ses capteurs",
-      strapline: "Remplissez les informations dans les formulaires ci-après pour celles que vous souhaitez modifier/ajouter/confirmer" //todo
+      strapline: "Remplissez les informations dans les formulaires ci-après pour celles que vous souhaitez modifier/ajouter/confirmer" 
     },
-    //get all sensors groups  , return all fields to index
-    //change names 
-    // todo return au niveau de la request du model ou a une autre étape que ce qui nous intéresse
     sensorGroup: group,
     users: users,
     admins: admins,
@@ -30,16 +28,16 @@ var renderSetup = function (req,res,group,users,admins,userGroups,formErrorArray
     role: req.user.role
   });
 }
+
 /*************** Function called by GET route ***************/
-/*DISPLAY FORM FOR THE SENSOR GROUP WE WANT TO CONFIRM AND SETTING UP */
-module.exports.renderSetupWithDatas = async function renderSetupWithDatas (req,res) {
+module.exports.renderFirstSetupWithDatas = async function renderFirstSetupWithDatas (req,res) {
   // req res useful ? 
   try { 
     var mongooseErrors = []; 
     var validations = [] ; 
     var formErrors = [];
     var group;
-      // todo : errr 
+
     if (req.params.groupId) {
         group= await sensorGroup.getSensorGroupById(req.params.groupId); 
         var users = await user.getAllUsers () ;
@@ -50,11 +48,43 @@ module.exports.renderSetupWithDatas = async function renderSetupWithDatas (req,r
     else {
         throw new Error('id parameter empty')
     }
-    renderSetup(req,res,group,users,admins,userGroups,formErrors,mongooseErrors,validations);
+    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors,validations);
   }
   catch (err) {
     mongooseErrors.push(err);
-    renderSetup(req,res,group,users,admins,userGroups,formErrors,mongooseErrors,validations);
+    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors,validations);
+  }
+};
+
+/*DISPLAY FORM FOR THE SENSOR GROUP WE WANT TO CONFIRM AND SETTING UP */ 
+async function renderSetupWithDatas (req,res,formErrors,mongooseErrors,validations) {
+  // req res useful ? 
+  try { 
+    // if(!mongooseErrors) {
+    //   var mongooseErrors = []; 
+    // }
+    // if(!validations) {
+    //   var validations = [] ;
+    // }
+    // if(!formErrors) {
+    //   var formErrors = [];
+    // }
+    var group;
+    if (req.params.groupId) {
+        group= await sensorGroup.getSensorGroupById(req.params.groupId); 
+        var users = await user.getAllUsers () ;
+        var admins = await user.getAllAdmins(); 
+        var userGroups = await userGroup.getAllUserGroupsFields() ; 
+        group = group.toJSON(); 
+    }
+    else {
+        throw new Error('id parameter empty')
+    }
+    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors,validations);
+  }
+  catch (err) {
+    mongooseErrors.push(err);
+    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors,validations);
   }
 };
 
@@ -64,10 +94,9 @@ module.exports.renderPostSetup =
   [
   //middleware functions (express-validator)
   // body : same as check but only checking req.body (check aussi req.cookies, req.headers, req.params, req.pquery)
-  //check('inputTest','ce champ est requis').trim().isLength({min:1}),
   body('groupName','Erreur au niveau du nom du groupe de capteurs').trim().escape(),
   body('groupTz','Veuillez fournir le fuseau horaire').not().isEmpty().trim(),
- // todo réu escape tz ???  
+
   async function renderPostSetup (req,res) {
   // req res useful ? 
   try { 
@@ -77,18 +106,11 @@ module.exports.renderPostSetup =
     var formErrors = [];  
     var groupId = req.params.groupId; 
     var formObject = req.body;
-    // console.log(req.body.groupName);
-    // console.log(req.body.groupTz);
-    // console.log(req.body.groupAdmin);
-    console.log(req.body);
-    // console.log(req.body.groupUnconfirmed)
-    // console.log(req.body.groupConfirmed)
-    /// await check('inputTest','ce champ est requis').trim().isLength({min:1})
+   
     // Finds the validation errors in this request and wraps them in an object with handy functions
     formErrors = validator.validationResult(req); 
     if (req.params.groupId) {
         group= await sensorGroup.getSensorGroupById(groupId); 
-        //group = group.map(e => e.toJSON());
     }
     else {
         throw new Error('id parameter empty')
@@ -96,7 +118,7 @@ module.exports.renderPostSetup =
 
     if (!formErrors.isEmpty()) {
       group = group.toJSON();   
-      renderSetup(req,res,group,formErrors.errors,mongooseErrors,validations);
+      renderSetupWithDatas(req,res,formErrors,mongooseErrors,validations);
       return;
     }
     else {
@@ -111,17 +133,13 @@ module.exports.renderPostSetup =
 
       /*********** FIELD ACCES AU GROUPE (UTILISATEUR & ADMIN) */
       // Si changement pour les utilisateurs ayant accès : modifier
-      // Chaque d'utilisation testé 
+      // Chaque d'utilisation testée 
       if (!(JSON.stringify(formObject.userAccess) === JSON.stringify(storedUsersWithAccess))) {
         // user supprimé (apparait dans stored user mais pas dans form object)
         if (!formObject.userAccess) {
           await user.suppressAccessAllUsers(groupId)
         }
-        // else if (storedUsersWithAccess.length===0) {
-        //   for (var j=0; j<formObject.userAccess.length;j++) {
-        //     console.log("la")
-        //     await user.addAccess(formObject.userAccess[j],groupId); 
-        //   }
+
         else {
           if ((typeof formObject.userAccess) === 'string') { 
             formObject.userAccess = decodeURI(formObject.userAccess)
@@ -311,8 +329,12 @@ module.exports.renderPostSetup =
       } else {
         group.confirmed = false;
       }
-      // todo appeler une méthode du model? 
-      await group.save(); 
+      // todo appeler une méthode du model (genre await sensorGroup.modifyGroup(group,req.body) // name,tz,groupConfirmed)
+      // oui a faire mais attention car plus haut sont associé le nom et la timezone aussi
+      // (une fonction pour chaque ou pour les 3 mais pas faire qu'avec confirmed sinon on perd de l'info, revoir mécanisme)
+
+      await group.save();
+
       // send validation message ?? 
       validations.push("Le groupe de capteurs a été modifié avec succès");
       group = group.toJSON();
@@ -327,7 +349,7 @@ module.exports.renderPostSetup =
     console.log(err);  
     group = group.toJSON(); 
     mongooseErrors.push(err); 
-    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors)
+    renderSetup(req,res,group,users,admins,userGroups,formErrors.errors,mongooseErrors,[])
     //throw err; 
     //err ? 
   }
@@ -335,9 +357,7 @@ module.exports.renderPostSetup =
 
 module.exports.renderPostSensor = 
 [ //middleware functions (express-validator)
-  // todo vérifier que c'est correct d'utiliser le escape la ? 
-  // todo réu 
-  // désecape quand on le récupère de la base 
+  // désecape quand on le récupère de la base? 
   body('sensName').trim().escape(),
   body('sensType').trim().escape(),
   body('sensUnit').trim().escape(),
@@ -352,12 +372,9 @@ module.exports.renderPostSensor =
     var formErrors = [] ; 
     var mongooseErrors = [] ;
     var validations = []; 
-    console.log(req.params.groupId);
-    console.log(req.params.sensorId);
     formErrors = validator.validationResult(req); 
     if (req.params.groupId) {
       group= await sensorGroup.getSensorGroupById(req.params.groupId); 
-      //group = group.map(e => e.toJSON());
     }
     else {
       throw new Error('id parameter empty')
@@ -365,12 +382,15 @@ module.exports.renderPostSensor =
 
     if (!formErrors.isEmpty()) {
       group = group.toJSON();   
-      renderSetup(req,res,group,formErrors.errors,mongooseErrors,validations);
+      renderSetupWithDatas(req,res,formErrors,mongooseErrors,validations);
       return;
     }
     else {
       var i ; 
       // register modificated sensor 
+      // todo appeler une méthode du modèle !!!!! 
+      // avec les différentes information du post dans le req.body 
+      // mais pas utiliser le save ici
       for (i=0;i<group.sensors.length;i++) {
         if (group.sensors[i].sensorId === req.params.sensorId) {
          // confirmation 
@@ -394,16 +414,33 @@ module.exports.renderPostSensor =
           
         }
       }
+      // todo pas utiliser le save ici ! 
      await group.save();
-     group = group.toJSON();
-     validations.push("Les informations du capteur '"+req.params.sensorId+"' du groupe '"+req.params.groupId+"' ont été modifiées avec succès")
-     renderSetup(req,res,group,formErrors.errors,mongooseErrors,validations)
+     validations.push("Les informations du capteur "+req.params.sensorId+" du groupe "+group.name+" ont été modifiées avec succès");
+     renderSetupWithDatas(req,res,formErrors,mongooseErrors,validations);
     }
   }
   catch (err) {
-    group = group.toJSON(); 
+    console.log(err)
     mongooseErrors.push(err); 
-    renderSetup(req,res,group,formErrors.errors,mongooseErrors,validations)
+    renderSetupWithDatas(req,res,formErrors,mongooseErrors,validations);
   }
 }]; 
 
+
+// SUPPRESSION D'UN CAPTEUR
+module.exports.deleteSensor = async function (req,res) {
+  try {
+      await sensorGroup.deleteSensorById(req.params.groupId,req.params.sensorId); 
+
+      var validations = []
+      validations.push("Le capteur "+req.params.sensorId+" et ses données ont correctement été supprimées")
+      renderSetupWithDatas(req,res,[],[],validations);
+  }
+  catch (err) {
+      var mongooseErrors = []; 
+      mongooseErrors.push(err)
+      renderSetupWithDatas(req,res,[],mongooseErrors,[]);
+      //throw err; 
+  }
+}

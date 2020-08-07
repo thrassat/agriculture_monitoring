@@ -4,6 +4,7 @@
 
 const {sensorGroup} = require('../../models/sensorGroup'); 
 const {user} = require('../../models/user');
+
 /*************** Render & datas ***************/
 var renderAdmin = function (req,res,unconfirmedList,confirmedList){
   res.render("gestion-capteurs", {
@@ -12,9 +13,6 @@ var renderAdmin = function (req,res,unconfirmedList,confirmedList){
       title:'Gestion des capteurs',
       strapline: "Accès au paramétrage des différents groupe de capteurs et chacun de leurs capteurs"
     },
-    //get all sensors groups  , return all fields to index
-    //change names 
-    // todo return au niveau de la request du model ou a une autre étape que ce qui nous intéresse
     sensorGroupsUnconfirmed: unconfirmedList,
     sensorGroupsConfirmed: confirmedList,
   });
@@ -26,10 +24,11 @@ module.exports.renderAdminWithDatas = async function renderAdminWithDatas (req,r
   try { 
     let unconfirmedGroupsList = await sensorGroup.getAllUnconfirmedSensorGroups(); 
     let confirmedGroupsList = await sensorGroup.getAllConfirmedSensorGroups(); 
-    //Fixing Handlebars issue: Access has been denied to resolve the property "uniqueid" because it is not an "own property" of its parent.
-    // https://github.com/handlebars-lang/handlebars.js/issues/1642 
+    
     
       if (req.user.role === 'superadmin') {
+        //Fixing Handlebars issue: Access has been denied to resolve the property "uniqueid" because it is not an "own property" of its parent.
+    // https://github.com/handlebars-lang/handlebars.js/issues/1642 
         unconfirmedGroupsList = unconfirmedGroupsList.map(e => e.toJSON());
         confirmedGroupsList = confirmedGroupsList.map(e => e.toJSON());
         renderAdmin(req,res,unconfirmedGroupsList,confirmedGroupsList);
@@ -46,5 +45,6 @@ module.exports.renderAdminWithDatas = async function renderAdminWithDatas (req,r
     }
   catch (err) {
     throw err; 
+    // handle error ? 
   }
 };

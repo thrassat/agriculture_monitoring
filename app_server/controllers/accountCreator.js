@@ -7,6 +7,8 @@ const { body } = require('express-validator');
 const mailer = require('../helpers/mailer');
 const mongoose = require('mongoose'); 
 //var logger = require('morgan')
+
+
 /*************** Render & datas ***************/
 var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors, mongooseErrors, validations){
     res.render("new-user", {
@@ -26,6 +28,7 @@ var renderNewUser = function (req,res,confirmedGroupNames,userGroups,formErrors,
       uzRole: req.user.role
     });
   }
+
   /*************** Function called by get route ***************/
   module.exports.displayNewUser= async function displayNewUser (req,res) {
     // req res useful ? 
@@ -66,8 +69,6 @@ module.exports.newUserFormHandler = [
   
   async function newUserFormHandler (req,res) {
     try {
-      //console.log(req.body);
-      // probleme pour instancier l'user object 
       var uz = new Object();
       var formErrors = [];
       var mongooseErrors = [];
@@ -135,6 +136,7 @@ module.exports.newUserFormHandler = [
         await user.addUserObject(uz) ; 
         // send email to new user 
         await mailer.sendNewAccountMail(uz.email,tokenString);
+
         validations.push("Utilisateur crée avec succès, un e-mail permettant de terminer la configuration a été envoyé"); 
         if (req.user.role === 'superadmin') {
           renderNewUser(req,res,confirmedGroupNames,userGroups,formErrors.errors,mongooseErrors,validations);
@@ -167,7 +169,6 @@ module.exports.newUserFormHandler = [
         renderNewUser(req,res,adminConfirmedGroupNames,[],formErrors.errors,mongooseErrors,validations); 
       }
       
-
     }
    }
 ];

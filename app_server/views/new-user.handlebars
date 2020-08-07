@@ -146,20 +146,6 @@
                 </label>
             </div>
         </div>
-        
-        <!--div class="field">
-            <label for="userGroup"> Accès au(x) groupe(s) de capteurs
-            </label>
-            <div class="control">
-                <div class="select">
-                    <select name="userAccess" id="userAccessSelect" multiple> 
-                        {{#each confirmedGroupNames}}
-                            <option> {{this.name}} </option> 
-                        {{/each}}
-                    </select>      
-                </div>
-            </div>
-        </div-->
 
         <br/>
         <div class="field">
@@ -170,25 +156,17 @@
     </form>
 </div>
 
-<!--script type="text/javascript" src="/javascripts/vanillaSelectBox.js"></script>
-<script type="text/javascript">
-  //  first mutliselect try fails document.multiselect('#userAccessSelect');
-  let mySelect = new vanillaSelectBox("#userAccessSelect"); 
-</script-->
 
 <script type="text/javascript"> 
-    //var userGroup = document.getElementById('userGroupSelect');
     var role = document.getElementById('userRoleSelect'); 
     var commonUserBloc = document.getElementById('commonUserForm') ; 
     var adminBloc = document.getElementById('adminForm'); 
     var superadminBloc = document.getElementById('superadminForm');
     window.onload = function () {
-       // console.log(userTriedInfo) ne passe pas ici 
         role.value = 'user';
         adminBloc.style.display = 'none'; 
         superadminBloc.style.display = 'none'; 
         commonUserBloc.style.display ='block'
-      //  userGroup.value ='none'; 
     }
     role.onchange = function () {
         if (role.value ==="utilisateur") {
@@ -207,7 +185,6 @@
             superadminBloc.style.display = 'block'; 
         }
         else {
-            // display common user if abnormal behavior
             adminBloc.style.display = 'none'; 
             superadminBloc.style.display = 'none'; 
             commonUserBloc.style.display ='block'

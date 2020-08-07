@@ -6,39 +6,36 @@ timestamps = require('mongoose-timestamp');
 /*              STORED DATAS SCHEMA              */
 /*************************************************/
  const storedDatasSchema = new mongoose.Schema( {
+    // correspond au temps de mesure capturé par l'Arduino et associé à l'envoi de cette donnée
     date: {
         type: Date, 
         required: true
-    }, //timestamp? remplacé par le plug-in ou doublé par sécu ? 
-    // Changement de conception : on ne force pas être un objectid ce field là, comme ça on peut gérer 
-    // le field sensor ID comme on l'entend direct avec son object id 
-    // arduinoid-datatype(-num)
+    }, //timestamp? remplacé par le plug-in? Pour l'instant doublé par sécurité, peuvent différer 
+    // ID du groupe de capteur (Arduino) d'où provient la donnée
     groupId: {
         type: String, 
         required: true,
+        // potential todo regexp?
     },
+    // ID du capteur d'où provient la donnée 
     sensorId: {
         type: String,
         required: true,
-        // todo regexp
+        // potential todo regexp?
     },
-    // supprimé  type: {type: String, required: true},oui ajouter, pas sur voir note reu6 potentiellement avec l'ID du sensor on verra quel schema il a et on reconnait le type et commen traiteer 
+    // valeur de la donnée : du mongoose type mixed mais pour l'instant on gère le type javascript number seulement
     value: {
         type: mongoose.SchemaTypes.Mixed,
         required: true,     
     },
-     /* on utilise polymorphic pattern , avec le field "type" 
-    on saura quel type de données on a dans value grâce au type*/
-    /* idée d'avoir un schéma flexible ici, value changera de type selon le type de donnés*/
-    /* potentielle utilisation d'attribute pattern */
-}, //{collection: todo}
+}, {collection: 'storeddatas'}
 );
 
 /**************************************/
 /*               PLUGINS              */
 /**************************************/
 storedDatasSchema.plugin(timestamps); // add created at and last update at
-// todo check: voir si mieux d'ajouter juste manuellement un field de création
+// potential todo check: voir si mieux d'ajouter juste manuellement un field de création
 
 
 /*************************************************************************************************************************/
@@ -50,11 +47,10 @@ storedDatasSchema.plugin(timestamps); // add created at and last update at
  * @property {string} sensorid Stored data of that sensor id
  * @property {any} value Valeur de la grandeur
  */
-/******************/
-/* LIVE METHODS   */
-/******************/
 
-
+/*************************************************************************/
+/*                      GETTERS METHODS  (READ)                          */
+/*************************************************************************/
 /**** GET LAST DATA BY SENSOR ID: *****/
 /**
 * Get last stored datas for a given sensor
@@ -76,32 +72,7 @@ storedDatasSchema.statics.getLastDataByIds = async function getLastDataByIds (gr
     })
 }; 
 
-
-/**** GET LAST DATA BY SENSOR ID OLD: *****/
-/**
-* Get last stored datas for a given sensor
-* @async
-* @param {string} sensorId 
-* @return {Promise.<storedData>|Error} dataPacket 
-* @throws throw error if query fails
-*/
-storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySensorId (sensorId) {
-    return new Promise(async (resolve,reject) => {
-        try {
-            let dataPacket  = await this.findOne({sensorId: sensorId}).sort({date: -1}).exec();
-            resolve(dataPacket); 
-        }
-        catch(err) {
-            reject(err);    
-        }
-    })
-}; 
-
-/*********************/
-/*  HISTORY METHODS  */
-/*********************/
-
-/**** GET DATAS FROM..TO BY SENSOR ID : *****/
+/**** GET DATAS FROM..TO BY SENSOR & GROUP ID : *****/
 /**
 * Get all stored datas for a given sensor between two dates
 * @async
@@ -115,10 +86,7 @@ storedDatasSchema.statics.getDatasFromTo = async function getDatasFromTo (groupI
     return new Promise(async (resolve,reject) => {
         try {
             let datas = await this.find({groupId: groupId, sensorId: sensorId}).find({ date: {$gte: from, $lte: to}}).sort({date: 1}).exec(); 
-            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
             // https://www.w3schools.com/js/js_dates.asp 
-            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent 
-              //console.log(datas)
             resolve(datas); 
         }
         catch (err) {
@@ -139,31 +107,7 @@ storedDatasSchema.statics.getAllDatas = async function getAllDatas (groupId,sens
     return new Promise(async (resolve,reject) => {
         try {
             let datas = await this.find({groupId: groupId, sensorId: sensorId}).select('value date').sort({date: 1}).exec(); 
-            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
             // https://www.w3schools.com/js/js_dates.asp 
-            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
-            resolve(datas); 
-        }
-        catch (err) {
-            reject(err)
-        }
-    })
-}; 
-/**** GET ALL DATAS BY SENSOR ID OLD: *****/
-/**
-* Get all stored datas for a given sensor 
-* @async
-* @param {string} sensorId 
-* @return {Promise.<storedData[]>|Error} datas
-* @throws throw error if query fails
-*/
-storedDatasSchema.statics.getAllDatas1 = async function getAllDatas1 (sensorId) {
-    return new Promise(async (resolve,reject) => {
-        try {
-            let datas = await this.find({sensorId: sensorId}).sort({date: 1}).exec(); 
-            // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
-            // https://www.w3schools.com/js/js_dates.asp 
-            // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
             resolve(datas); 
         }
         catch (err) {
@@ -172,9 +116,39 @@ storedDatasSchema.statics.getAllDatas1 = async function getAllDatas1 (sensorId) 
     })
 }; 
 
-/***************************/
-/* DATA RECEIVER METHODS   */
-/***************************/
+/***********************************************************************/
+/*                      DELETE METHODS  (Delete)                       */
+/***********************************************************************/
+// Delete related sensorGroup datas
+storedDatasSchema.statics.deleteDatasDependenciesForGroupId = async function deleteDatasDependenciesForGroupId (groupId) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            await this.deleteMany({groupId: groupId}).exec();
+            resolve();
+        }
+        catch (err) {
+            reject(err);
+        }
+    })
+}
+// Delete related datas for a sensor
+// todo tests 
+storedDatasSchema.statics.deleteDatasDependenciesForSensor = async function deleteDatasDependenciesForSensor (groupId,sensorId) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            await this.deleteMany({groupId: groupId,sensorId: sensorId}).exec();
+            resolve();
+        }
+        catch (err) {
+            reject(err);
+        }
+    })
+
+}
+
+/*****************************************************************/
+/*                      ADD / CREATE METHODS                     */
+/*****************************************************************/
 /**** REGISTER A INTEGER DATAPACKET : *****/
 /**
 * Store received number data   
@@ -187,7 +161,7 @@ storedDatasSchema.statics.getAllDatas1 = async function getAllDatas1 (sensorId) 
 * @throws throw error if mongoose save method fails
 */  
 
-// todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
+// potential todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
 storedDatasSchema.statics.registerIntData = async function registerIntData (date,groupId,sensorId,value) {
     var storedData = new storedDatas ; 
      storedData.date=date; 
@@ -213,63 +187,7 @@ storedDatasSchema.statics.registerIntData = async function registerIntData (date
        }*/
     }
  }
-/**** REGISTER A DATAPACKET OLD VERSION : *****/
-/**
-* Store received number data   
-* @async
-* @param {Date} date timestamp of that data 
-* @param {string} sensorId 
-* @param {number} value
-* @return {number|Error} http status (201 created resource success)
-* @throws throw error if mongoose save method fails
-*/  
-
-// todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
-storedDatasSchema.statics.registerIntDataOld = async function registerIntDataOld (date,sensorId,value) {
-    try { 
-        var storedData = new storedDatas ; 
-        storedData.date=date; 
-        // SensorId n'est pas un 'objectId' mongoose
-        storedData.sensorId=sensorId;
-        storedData.value=value;    
-   
-        await storedData.save(); 
-        return 201; 
-   }
-   catch(err) {
-    // do something with error , handle here or throw to dataReceiver
-    console.log(err); 
-    throw err; 
-    //possible "style "
-    /*if (err instanceof HttpError && err.response.status == 404) {
-        // loop continues after the alert
-        alert("No such user, please reenter.");
-      } else {
-        // unknown error, rethrow
-        throw err;
-      }*/
-   }
-}
-
-
-/******************************/
-/* GESTION CAPTEURS METHODS   */
-/******************************/
-// Delete related sensorGroup datas
-storedDatasSchema.statics.deleteDatasDependenciesForGroupId = async function deleteDatasDependenciesForGroupId (groupId) {
-    return new Promise(async (resolve,reject) => {
-        try {
-            //works
-            await this.deleteMany({groupId: groupId}).exec();
-            resolve();
-        }
-        catch (err) {
-            reject(err);
-        }
-    })
-}
-
-
+// 
 
 
 
@@ -278,3 +196,87 @@ storedDatasSchema.statics.deleteDatasDependenciesForGroupId = async function del
 // 3:optional mongoDB collection name, si vide : par défault pluriel et sans maj du nom model : consultations
 const storedDatas = mongoose.model('storedDatas',storedDatasSchema);   
 module.exports = {storedDatas};
+
+
+/**** GET LAST DATA BY SENSOR ID OLD: *****/
+// /**
+// * Get last stored datas for a given sensor
+// * @async
+// * @param {string} sensorId 
+// * @return {Promise.<storedData>|Error} dataPacket 
+// * @throws throw error if query fails
+// */
+// storedDatasSchema.statics.getLastDataBySensorId = async function getLastDataBySensorId (sensorId) {
+//     return new Promise(async (resolve,reject) => {
+//         try {
+//             let dataPacket  = await this.findOne({sensorId: sensorId}).sort({date: -1}).exec();
+//             resolve(dataPacket); 
+//         }
+//         catch(err) {
+//             reject(err);    
+//         }
+//     })
+// }; 
+
+/**** GET ALL DATAS BY SENSOR ID OLD: *****/
+// /**
+// * Get all stored datas for a given sensor 
+// * @async
+// * @param {string} sensorId 
+// * @return {Promise.<storedData[]>|Error} datas
+// * @throws throw error if query fails
+// */
+// storedDatasSchema.statics.getAllDatas1 = async function getAllDatas1 (sensorId) {
+//     return new Promise(async (resolve,reject) => {
+//         try {
+//             let datas = await this.find({sensorId: sensorId}).sort({date: 1}).exec(); 
+//             // works on Mongo compass { "date": {$gt: new Date('2017'),$lt: new Date('2021')} }
+//             // https://www.w3schools.com/js/js_dates.asp 
+//             // formating datas to send ici ? Ou dans le controller api (timezone etc.. needed), faire un objet de 2 array, date et data qui correspondent
+//             resolve(datas); 
+//         }
+//         catch (err) {
+//             reject(err)
+//         }
+//     })
+// }; 
+
+/**** REGISTER A DATAPACKET OLD VERSION : *****/
+// /**
+// * Store received number data   
+// * @async
+// * @param {Date} date timestamp of that data 
+// * @param {string} sensorId 
+// * @param {number} value
+// * @return {number|Error} http status (201 created resource success)
+// * @throws throw error if mongoose save method fails
+// */  
+
+// // todo retourner une promise resolve du result de save ? en soit retourne rien JSON save mais on peut créer notre promise response 
+// storedDatasSchema.statics.registerIntDataOld = async function registerIntDataOld (date,sensorId,value) {
+//     try { 
+//         var storedData = new storedDatas ; 
+//         storedData.date=date; 
+//         // SensorId n'est pas un 'objectId' mongoose
+//         storedData.sensorId=sensorId;
+//         storedData.value=value;    
+   
+//         await storedData.save(); 
+//         return 201; 
+//    }
+//    catch(err) {
+//     // do something with error , handle here or throw to dataReceiver
+//     console.log(err); 
+//     throw err; 
+//     //possible "style "
+//     /*if (err instanceof HttpError && err.response.status == 404) {
+//         // loop continues after the alert
+//         alert("No such user, please reenter.");
+//       } else {
+//         // unknown error, rethrow
+//         throw err;
+//       }*/
+//    }
+// }
+
+

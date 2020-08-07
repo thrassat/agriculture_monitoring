@@ -1,5 +1,4 @@
 const mongoose = require( 'mongoose'); 
-      //timestamps = require('mongoose-timestamp');
 const crypto = require('crypto');
 /**************************************/
 /*          TOKEN SCHEMA              */
@@ -7,10 +6,12 @@ const crypto = require('crypto');
 // Utilisé pour générer une url unique et avec une date d'expiration pour la création de compte et le renouvellement de mot de passe 
 
 const tokenSchema = new Schema ({
+    // random string 
     token: {
         type: String,
         required: true  
     },
+    // utilisation de mongoose pour une auto expiration du document après 24h
     expiration: {
         //from https://stackoverflow.com/questions/14597241/setting-expiry-time-for-a-collection-in-mongodb-using-mongoose
         type: Date,
@@ -18,7 +19,7 @@ const tokenSchema = new Schema ({
         expires: 86400, //24hours
         default: Date.now  
     },
-    //user lié
+    //user lié (via l'e-mail)
     email: {
         type: String,
         trim: true,
@@ -50,45 +51,14 @@ tokenSchema.post('save', function(error, doc, next) {
       next();
     }
   });
-
-// tokenSchema.post('remove', function(error,doc,next) {
-//     idée : rajouter un champ : used et s'il reste false (on a pas confirmé le compte alors quand le token expire on supprime le compte user associé)
-//     D'après ce post : https://stackoverflow.com/questions/41430949/executing-a-script-when-mongoose-timer-expires
-//     pas possible
-//      A faire manuellement depuis l'application avec un super admin 
-//      todo documenter ça  
-    // Je peux rapide ajouter un field : confirmé truefalse dans le modèle user et quand il set son password on met à true
-    // comme ça dans la gestion des comptes le superadmin pourrait les voir facilement pour les supprimer au cas ou   
-// });
-
   
-/**************************************/
-/*               METHODS              */
-/**************************************/
-tokenSchema.statics.createToken = async function createToken (email) {
-    return new Promise(async (resolve,reject) => {
-        try {
-            // Function inspired from https://stackoverflow.com/questions/8838624/node-js-send-email-on-registration?noredirect=1&lq=1 
-            var tokenString; 
-            var tokenObject = new token; 
-            // require('crypto').randomBytes(32, function(ex, buf) {
-            //     tokenString = buf.toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
-            // });
-            // console.log(tokenString)
-            tokenString = crypto.randomBytes(32).toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
-            //console.log(tok)
-            tokenObject.token = tokenString ;
-            tokenObject.email = email;   
-            await tokenObject.save();
-            resolve(tokenString);
-        }
-        catch (err) {
-            reject(err);
-        }
-    })
-};
-
-
+/*******************************************************************************************************************/
+/*                                      STATIC TOKENS METHODS                                                      */  
+/*******************************************************************************************************************/
+/*************************************************************************/
+/*                      GETTERS METHODS  (READ)                          */
+/*************************************************************************/
+// Getting token document
 tokenSchema.statics.getTokenObject = async function getTokenObject (token) {
     return new Promise(async (resolve,reject) => {
         try {
@@ -101,6 +71,32 @@ tokenSchema.statics.getTokenObject = async function getTokenObject (token) {
     })
 }; 
 
+/*****************************************************************/
+/*                      ADD / CREATE METHODS                     */
+/*****************************************************************/
+// création du token : 32 Bytes random string
+tokenSchema.statics.createToken = async function createToken (email) {
+    return new Promise(async (resolve,reject) => {
+        try {
+            // Function inspired from https://stackoverflow.com/questions/8838624/node-js-send-email-on-registration?noredirect=1&lq=1 
+            var tokenString; 
+            var tokenObject = new token; 
+            tokenString = crypto.randomBytes(32).toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
+            tokenObject.token = tokenString ;
+            tokenObject.email = email;   
+            await tokenObject.save();
+            resolve(tokenString);
+        }
+        catch (err) {
+            reject(err);
+        }
+    })
+};
+
+/***********************************************************************/
+/*                      DELETE METHODS  (Delete)                       */
+/***********************************************************************/
+// manually delete token  (quand l'utilisateur l'a bien consommé)
 tokenSchema.statics.deleteToken = async function deleteToken (email) {
     return new Promise(async (resolve,reject) => {
         try {

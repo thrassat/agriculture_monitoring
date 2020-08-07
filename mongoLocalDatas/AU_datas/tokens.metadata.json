@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"AU_datas.tokens"},{"v":2,"unique":true,"key":{"email":1},"name":"email_1","ns":"AU_datas.tokens","background":true},{"v":2,"key":{"expiration":1},"name":"expiration_1","ns":"AU_datas.tokens","expireAfterSeconds":86400,"background":true}],"uuid":"fa5e5ea69742406fa040bf289ba6ed45"}

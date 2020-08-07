@@ -11,6 +11,7 @@ var closeCon;
 /*************** SETUP DB URI ************************/
 var dbURI = 'mongodb://localhost/AU_datas';
 
+/* entrer ici les informations pour une connexion a une base de données de production (pas en local) */ 
 if(process.env.NODE_ENV === 'production') {
     console.log("NODE_ENV : "+ process.env.NODE_ENV + " // Mode production actif");
     console.log(process.env.MONGOLAB_URI);
@@ -62,24 +63,7 @@ process.on('SIGTERM', function() {
 
 
 // Mongoose schema
-/* test */
-// todo add new ones ? sensorGroup & storedDatas
-// possiblement todo pour éviter l'export fait pour chaque schéma à chaque fois 
-require('../models/consultation');
 require('../models/sensorGroup')
-require('../models/user_V0');
 require('../models/userGroup'); 
 require('../models/user'); 
 require('../models/token')
-
-/* Example from MongoDB website 
-
-const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://teow:<password>@cluster0-t7inc.azure.mongodb.net/test?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
-*/

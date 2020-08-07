@@ -1,14 +1,8 @@
 'use strict';
-// todo improve : découpler avec le modele ... 
-
 const {user} = require('../../models/user');
 const {userGroup} = require ('../../models/userGroup');
 const {sensorGroup} = require('../../models/sensorGroup')
-// const jsHelper = require('../helpers/jsHelpers');
-// const { render } = require('node-sass');
-// const storedDatas = require('../../models/storedDatas');
-//const { validator } = require('express-validator');
-//  const { mongo } = require('mongoose');
+
 /*************** Render & datas ***************/
 var renderParamCompt = function (req,res,userObject,userGroups,sensorGroups,formErrors,mongooseErrors,validations){
   res.render("param-compte", {
@@ -30,9 +24,7 @@ var renderParamCompt = function (req,res,userObject,userGroups,sensorGroups,form
 module.exports.displayParamCompt= async function displayParamCompt (req,res) {
   // req res useful ? 
   try { 
-  //  var formErrors = [];
     var mongooseErrors = [];
-   // var validations = [];
     let userObject = await user.getUserByUsername(req.params.username); 
     let userGroups = await userGroup.getAllUserGroups();
     
@@ -49,7 +41,6 @@ module.exports.displayParamCompt= async function displayParamCompt (req,res) {
   }
 };
 
-// todo : suppression de comptes 
 
 /*************** Function called by post routes ***************/
 module.exports.postUserParam = [
@@ -67,27 +58,6 @@ module.exports.postUserParam = [
       var userGroups = await userGroup.getAllUserGroups();
       var confirmedGroupNames = await sensorGroup.getAllConfirmedSensorGroupsNamesIds() ; 
      
-      // console.log("-------")
-      // console.log(storedUser) 
-      // console.log("-------")
-      // console.log(typeof storedUser.accessTo)
-      // console.log(typeof formObject.userGroupAccess)
-
-      // console.log(storedUser.accessTo==formObject.userGroupAccess)
-      // console.log(storedUser.accessTo===formObject.userGroupAccess)
-      // console.log(JSON.stringify(storedUser.accessTo)===JSON.stringify(formObject.userGroupAccess))
-      
-      // /***** User groups Modification *****/  
-      // console.log(!(JSON.stringify(formObject.userGroup) === JSON.stringify(storedUser.group)))
-
-      // console.log("ug from form")
-      // console.log(formObject.userGroup)
-      // console.log(typeof formObject.userGroup)
-  
-      // console.log("ug in db")
-      // console.log(storedUser.group)
-      // console.log(typeof storedUser.group)
-      // console.log(typeof storedUser.group[0])
 
       //potential todo generic function
       if (typeof formObject.userGroup === 'string') {
@@ -354,70 +324,6 @@ module.exports.postUserParam = [
           /// ne devrait pas pouvoir entrer là (role de l'utilisateur déjà en base ni admin, ni user, ni superadmin)
           throw new Error("Erreur interne, veuillez soumettre à nouveau vos modifications")
         }
-        
-
-
-          // if (JSON.stringify(storedUser.accessTo)===JSON.stringify(formObject.adminGroupAccess)) {
-          //   if (JSON.stringify(storedUser.isAdmin)===JSON.stringify(formObject.adminGroupAdmin)) {
-          //     // rien n'a été modifié 
-          //     confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-          //     storedUser = storedUser.toJSON();
-          //     userGroups = userGroups.map(e => e.toJSON());
-          //     validations.push("Pas de modification d'accès ou d'administration")
-          //     renderParamCompt(req,res,storedUser,userGroups,confirmedGroupNames,[],[],validations);
-          //   }
-          //   else {
-          //     // juste admin modifiés 
-          //     storedUser.isAdmin = formObject.adminGroupAdmin;
-          //     await storedUser.save()
-          //     confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-          //     storedUser = storedUser.toJSON();
-          //     userGroups = userGroups.map(e => e.toJSON());
-          //     // validations et render
-          //     validations.push("Certains statuts administrateur pour des groupes de capteurs ont été modifiés avec succès")
-          //     renderParamCompt(req,res,storedUser,userGroups,confirmedGroupNames,[],[],validations) ; 
-          //   }
-          // }
-          // else {
-          //   // acces modifié
-          //   if (JSON.stringify(storedUser.isAdmin)===JSON.stringify(formObject.adminGroupAdmin)) {
-          //     // pas de mofification admin (juste accès) 
-          //     storedUser.accessTo = formObject.adminGroupAccess;
-          //     await storedUser.save();
-
-          //     confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-          //     storedUser = storedUser.toJSON();
-          //     userGroups = userGroups.map(e => e.toJSON());
-          //     validations.push("Certains accès à des groupes de capteurs ont été modifiés avec succès")
-          //     renderParamCompt(req,res,storedUser,userGroups,confirmedGroupNames,[],[],validations);
-          //   }
-          //   else {
-          //     // admin modifié aussi (accès et admin changés)
-          //     storedUser.accessTo = formObject.adminGroupAccess;
-          //     storedUser.isAdmin = formObject.adminGroupAdmin;
-          //     await storedUser.save()
-
-          //     confirmedGroupNames = confirmedGroupNames.map(e=>e.toJSON());
-          //     storedUser = storedUser.toJSON();
-          //     userGroups = userGroups.map(e => e.toJSON());
-          //     // validations et render
-          //     validations.push("Certains accès et statuts administrateur pour des groupes de capteurs ont été modifiés avec succès")
-          //     renderParamCompt(req,res,storedUser,userGroups,confirmedGroupNames,[],[],validations) ; 
-          //   }
-          // }
-      // ET LE GROUP ACCESS 
-
-
-      // if (storedUser.accessTo === formObject.userGroupAccess) {
-      //   console.log("user accessTo egaux")
-      // }
-      // if (storedUser.accessTo === formObject.adminGroupAccess) {
-      //   console.log("stored user accessTo  - admin group access egaux")
-      // }
-      // if (storedUser.isAdmin === formObject.adminGroupAdmin ) {
-      //   console.log("admin égaux ")
-      // }
-      // if selon le role (attention au role soumis et au role qu'il y avait avant!)
       }
     }
 
@@ -438,6 +344,7 @@ module.exports.postUserParam = [
 module.exports.deleteUserAccount =async function deleteUserAccount (req,res) {
   try {
     await user.deleteUserByEmail(req.params.email);
+    // todo trouver un moyen d'afficher un message de confirmation? 
     res.redirect('/gestion-comptes');
   }
   catch(err) {

@@ -22,7 +22,7 @@ var ctrlDeleter = require('../controllers/deleter');
 var ctrlParamComptes = require('../controllers/paramCompt');
 var ctrlUserValidation = require('../controllers/accountValidator');
 // reset pwd (improvement)
-// var ctrlResetPwd = require('../controllers/resetPwd')
+var ctrlResetPwd = require('../controllers/resetPwd')
 // USER GROUPS 
 var ctrlUserGroupCreator = require('../controllers/userGroupCreator')
 var ctrlParamUserGroup = require('../controllers/paramUserGroup')
@@ -65,18 +65,19 @@ router.get('/gestion-capteurs',helpers.isLoggedInAndHasAdminRole,ctrlGestCapteur
 /***************************************************************************************************************************/
 /* param-compte : page affichant le paramétrage d'un groupes de capteurs et ses capteurs et permettant leurs confirmations */
 /***************************************************************************************************************************/
-router.get('/setup/:groupId',helpers.isLoggedInAndIsAdmin,ctrlSetup.renderSetupWithDatas);// HTTP POST modification/confirmation d'un capteur
+router.get('/setup/:groupId',helpers.isLoggedInAndIsAdmin,ctrlSetup.renderFirstSetupWithDatas);// HTTP POST modification/confirmation d'un capteur
 // HTTP POST modification/confirmation d'un capteur 
-router.post('/setup/:groupId/:sensorId', helpers.isLoggedInAndIsAdmin, ctrlSetup.renderPostSensor);
+router.post('/setup/:groupId/:sensorId', helpers.isLoggedInAndIsAdmin, ctrlSetup.renderPostSensor); //ok 
 // HTTP POST modification/confirmation d'un groupe de capteurs
-router.post('/setup/:groupId', helpers.isLoggedInAndIsAdmin, ctrlSetup.renderPostSetup); 
+router.post('/setup/:groupId', helpers.isLoggedInAndIsAdmin, ctrlSetup.renderPostSetup); //ok 
+// HTTP POST : suppression d'un capteur 
+router.post('/setup/delete-sensor/:groupId/:sensorId',helpers.isLoggedInAndIsSuperAdmin,ctrlSetup.deleteSensor) //ok
 
 // SUPPRESSIONS A AMELIORER (faire comme pour un compte utilisateur)
 // pour un sensorgroup
-router.post('/delete/:groupId',helpers.isLoggedInAndIsAdmin,ctrlDeleter.deleteGroup)
+router.post('/delete/:groupId',helpers.isLoggedInAndIsAdmin,ctrlDeleter.deleteGroup) //ok 
 // pour un usergroup [only superadmin]
-router.post('/delete/usergroup/:groupname',helpers.isLoggedInAndIsSuperAdmin,ctrlDeleter.deleteUserGroup)
-// old corrigé router.post('/delete/user/:email',ctrlDeleter.deleteUserAccount)
+router.post('/delete/usergroup/:groupname',helpers.isLoggedInAndIsSuperAdmin,ctrlDeleter.deleteUserGroup) //ok 
 
 /************************************************ GESTION DES COMPTES ********************************************************/
 /**************************************************************************************************************************/
@@ -119,6 +120,7 @@ router.get('/gestion-comptes/new-user/:token', ctrlUserValidation.displayUserVal
 router.post('/gestion-comptes/validate-user/:token', ctrlUserValidation.postUserValidation); //ok 
 // reset pwd // potentiellement à améliorer : bypass avec le account validator et ?reset=true en paramètre
 // pour améliorer router.get('/gestion-comptes/new-user/:token', ctrlUserValidation.displayResetPwd);
+router.post('/resetPwd',ctrlResetPwd.resetPwd);
 
 /*************************************************************************************************************/
 /*                                    Pages CONNECTION                                                       */
@@ -146,28 +148,3 @@ module.exports = router;
 // // PASSPORT & LOGIN
 // var passport = require('passport'); 
 // //old const connectEnsureLogin = require('connect-ensure-login');
-
-
-/// TMP 
-// router.get('/bulma', function (req,res) {
-//   res.render("bulmatest")
-// });
-
-// // test loggin : 
-
-// /* from https://auth0.com/blog/create-a-simple-and-secure-node-express-app/ */
-// const secured = (req, res, next) => {
-//   if (req.user) {
-//     return next();
-//   }
-//   req.session.returnTo = req.originalUrl;
-//   res.redirect("/login");
-// };
-
-// // Simple route middleware to ensure user is authenticated.
-// // from https://www.ctl.io/developers/blog/post/build-user-authentication-with-node-js-express-passport-and-mongodb   
-// function ensureAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) { return next(); }
-//   req.session.error = 'Please log in!';
-//   res.redirect('/login');
-// }

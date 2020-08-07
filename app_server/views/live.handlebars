@@ -1,11 +1,3 @@
-<!--div id="banner" class="header">
-  <div class="row">
-    <div class="col-lg-6">
-      <h1> {{pageHeader.title}} </h1> 
-        <div class="small"> &nbsp; {{pageHeader.strapline}}</div>
-    </div>
-  </div>
-</div-->
 <div class="container">
   <div class="columns">
     <div class="column is-four-fifths">
@@ -26,7 +18,7 @@
       <header class="card-header">
         <p class="card-header-title">
           Nom du capteur : {{this.sensName}}
-        </p>        <!-- ID ?? -->
+        </p>       
       </header>
       <div class="card-content">
         <div class="content">
@@ -57,37 +49,3 @@
   {{/each}}
 </div>
 {{/each}}
-
-  {{!-- {{#each datasInfo}}
-  <div class="level">
-    {{#each this}}
-    <div class="level-item">
-      <div class="card">
-        <header class="card-header">
-          <p class="card-header-title">
-            Nom du capteur : {{this.sensName}}
-          </p>        <!-- ID ?? -->
-        </header>
-        <div class="card-content">
-          <div class="content">
-            {{#if this.sensConfirmation}}
-              <p> Métrique : {{this.sensMetric}}</p>
-            <div class="box">
-              <p> {{this.sensLastDataValue}} {{this.sensData.unit}}</p>
-              <p> {{this.sensLastDataDate}}</p>
-            </div>
-            {{else}}
-              <div class="box notification is-warning">
-                <p>Capteur non-confirmé </p>
-              </div>
-            {{/if}}
-          </div>
-        </div>
-
-      </div>
-    </div>
-    {{/each}}
-  </div>
-  {{/each}} --}}
-
-

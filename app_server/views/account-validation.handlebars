@@ -9,10 +9,8 @@
       <h1 class="title"> {{pageHeader.title}} </h1>
       <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
       <hr/>
-      <!-- todo error here : <div class="notification is-danger" id="error-message" style="display:none">   
-          </div> -->
         
-        {{#if formErrors}}
+      {{#if formErrors}}
         <div class="box container notification is-danger">
           <ul>
           {{#each formErrors}}

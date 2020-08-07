@@ -25,6 +25,7 @@ module.exports.renderAbout = async function (req, res) {
   } 
   catch(err) {
     console.log(err); 
+    throw err;
     // todo how to handle error ?
   }
 };

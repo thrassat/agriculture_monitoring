@@ -1,0 +1,90 @@
+/************************************************************************************************/
+/*		MANUAL TESTS FOR ardSetup function					           */
+/************************************************************************************************/
+---- 
+Cette fonction se trouve dans le controller API dataReceiver. 
+Elle permet de gérer l'HTTP Post réalisé par l'Arduino (=sensor group) à chaque allumage. 
+(Appelé dans sa fonction setup)
+---- 
+C'est du plain text qui est reçu sous la forme : 
+arduinouniqueid-idsensor1-idsensor2-idsensor(i)  ... 
+Pour l'instant il est possible d'envoyer deux identifiants identiques (à résoudre) 
+--------------------------------------------------------------------------------------------------
+3 cas d'utilisation principaux : 
+	
+********* Si le sensor group n'est pas stocké : (condition confirmed==null) *********
+
+Il est ajouté en base avec son ID, confirmed = false, et les identifiants de sensors reçus
+Appel de la fonction : addUnconfirmedSensorGroup(groupId,sensors), return 201 si success
+Réponse à l'Arduino : 
+	Success : 
+		 201, "message" : "new unconfirmed group and sensors added" 
+	Fail : 
+		500, "message" : "Error inserting new sensorgroup, please retry, if persistent please contact an admin"
+	
+********* Si le sensor group est stocké mais non confirmé : *********
+
+On va vérifier s'il y a des nouveaux sensors à ajouter à ce groupe. On considère qu'il n'est pas possible d'avoir des sensors confirmés si le groupe ne l'a pas été. 
+Appel de la fonction checkAndAddIfNewSensors(groupId,sensors), return newStoredSensors array (contenant les ids des nouveaux sensors ajoutés)
+Success : 
+	+ si tous les sensors sont déjà stockés : 
+	200, "message" : "Your sensor group and all sensors are already registered but still not confirmed by an admin, please contact one if necessary"   
+	+ si on a ajouté de nouveaux sensors : 
+	201,  "New sensors : id1, id2... are now stored ; Your sensor group and all sensors are registered but still not confirmed by an admin, please contact one if necessary ;"
+
+Fail : 
+	500, "message" : "Error checking and adding new sensors to your unconfirmed sensor group, please retry, if persistent please contact an admin"
+	 
+********* Si le sensor group est stocké et confirmé : *********
+
+On va checker si les sensors passés par le HTTP Post existent en base et s'ils sont confirmés, s'il n'existe pas, on les crée (non confirmés)
+Appel de la fonction : isSensorsConfirmed(groupId,sensors), return unconfirmedArray (contenant les ids des sensors non confirmés
+Success : 
+	+ si tous les sensors sont aussi confirmés : 
+	200, "message" : "Your sensor group and all your sensors are confirmed !"
+	+ si certains sont non confirmés :
+	 200, "message" : "your sensor group is confirmed, those sensors are not id1, id2... - contact an admin if you want them confirmed and functional" 
+
+Fail :
+	500,   "message" : "Error checking sensors confirmation and addind new ones, please retry, if persistent please contact an admin" 
+	 
+*************************************************************************************************
+
+********* TESTS : *********
+********* POSTMAN *********
+
+1/ sending : arduinouniqueid2-t1-t2-rh 
+
+********* ERROR : *********
+MongoError: E11000 duplicate key error collection: AU_datas.sensorgroups index: sensors.sensorId_1 dup key: { : "t1" }
+ ********* Car : 
+il y a déjà des sensors groupes avec ces sensors ids, et ils sont mis a unique et index true dans les sensors schemas 
+doc : https://mongoosejs.com/docs/schematypes.html 
+********* Fix : 
+Enlève le field unique: true du sensor schema , on laisse le field index (facilite la recherche mais potentiellement il y'en aura plusieurs en base) 
+
+
+********** Test sequence ********** (console output en screenshot) 
+// passe à travers tous les cas (saufs erreurs) 
+
++ arduinouniqueid1-t1-t2-rh // ok : "new unconfirmed group and sensors added"
++ arduinouniqueid2-t1-t2-rh // ok : "new unconfirmed group and sensors added"
++ arduinouniqueid2-t1-t2-rh // ok : "Your sensor group and all sensors are already registered but still not confirmed by an admin, please contact one if necessary"
++ arduinouniqueid2-t1-t2-rh-co2 // ok :  "New sensors : co2 are now stored ; Your sensor group and all sensors are registered but still not confirmed by an admin, please contact one if necessary ;"
+
+confirmed true pour arduinouniqueid2 : 
+
++ arduinouniqueid2-t1-t2-rh-co2 // ok : "your sensor group is confirmed, those sensors are not t1,t2,rh,co2 - contact an admin if you want them confirmed and functional"
++ arduinouniqueid2-t1-t2-rh // ok : co2 n'est pas renvoyé dans le message mais toujours stocké (remove sensor ? ) "your sensor group is confirmed, those sensors are not t1,t2,rh - contact an admin if you want them confirmed and functional" 
++ arduinouniqueid2-t1-t2-rh-co2-co3 // ok (co3 bien ajouté) "your sensor group is confirmed, those sensors are not t1,t2,rh,co2,co3 - contact an admin if you want them confirmed and functional" 
+
+confirmed true pour chaque sensor d'arduinouniqueid2 :
+
++ arduinouniqueid2-t1-t2-rh-co2-co3 // ok : "Your sensor group and all your sensors are confirmed !"
+
+t1 et rh confirmed à false pour arduinouniqueid2 : 
+
++ arduinouniqueid2-t1-t2-rh-co2-co3 // ok : "your sensor group is confirmed, those sensors are not t1,rh - contact an admin if you want them confirmed and functional"
+
+
+ 

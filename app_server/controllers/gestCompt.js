@@ -31,13 +31,14 @@ module.exports.displayGestCompt= async function displayGestCompt (req,res) {
     }
     else {
       // route protégé forcément un admin : 
-      // Display seulement la possibilité de créer un compte pour les sensorgroup pour les sensorgrup liés
+      // Display seulement la possibilité de créer un compte pour les sensorgroup pour les sensorgroup liés
       renderAdminGestCompt(req,res,[],[]);
     }
 
   }
   catch (err) {
     throw err; 
+    // handle error ? 
   }
 };
 

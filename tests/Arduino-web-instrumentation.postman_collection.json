@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "1b596cd3-d730-4887-bd24-cf784fac71fa",
+		"name": "Arduino-web-instrumentation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ardSetup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "arduinouniqueid2-temp2-co2-rh"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/v0/ardSetup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v0",
+						"ardSetup"
+					]
+				},
+				"description": "-- Post de l'arduino à l'allumage\n-- plain text\n-- format : arduinouniqueid-idsensor1-idsensor[i]"
+			},
+			"response": []
+		},
+		{
+			"name": "postDatas",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "1587755193 80",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/v0/receiver/arduinouniqueid2/rh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v0",
+						"receiver",
+						"arduinouniqueid2",
+						"rh"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -51,8 +51,6 @@ app.set('view engine','handlebars');
 /********** Logger (Morgan) **********/
 app.use(logger('dev')); // colored response for dev
 
-//3avr. todo : utilisé body parser? ou extended true for parsing nested objects
-
 /********** Application parsing **********/
 app.use(express.json()); // for parsing "application/json"
 app.use(express.urlencoded({ extended: false})); // for parsing "application/x-www-form-urlencoded"

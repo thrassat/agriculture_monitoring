@@ -1,0 +1,90 @@
+/************************************************************************************************/
+/*		MANUAL TESTS FOR Param compte						           */
+/************************************************************************************************/
+---- 
+Sur la page gestion de comptes, si l'on a les droits, on peut ouvrir un compte pour le paramétrer (groupe d'utilisateurs, rôle, accès, adminstration, suppression) 
+---- 
+
+--------------------------------------------------------------------------------------------------
+********* Fonctionnement 
+
+On est capable de confirmer un groupe de capteur ici et chacun des capteurs qu'il contient ainsi que modifier ses informations (déconfirmer un capteur, modifier son nom etc...) 
+Ce n'est pas possible de modifier les champs "groupId" ou pour les capteurs "sensorId" car c'est ce qu'envoit l'Arduino a chaque démarrage et comme cela qu'on identifie chaque composant. 
+
+
+------- 
+A Faire : 
+	* Selon les droits tel ou tel possibilité de modification
+	* si un compte n'est pas validé : le supprimer seul 
+	* Supprimer un compte 
+	 
+*************************************************************************************************
+
+********* TESTS : *********
+
+Création compte (screen) 
+
+********* Groupes utilisateurs *******************
+Soit 2 groupes d'utilisateurs g1,g2 : utilisateur appartient à aucun 
+	* il appartient aux 2 : Ok  // a 1 : ok 
+	* Appartient a 1 		// a 2 : ok 
+	* a nouveau a 2 		// a nouveau a 1 : ok 
+	* a 0 				// a nouveau a 0 : ok 	
+	
+*********** Roles 
+Seule modification : 
+	* user to admin : ok
+	* user to superadmin : 
+	* admin to user : ok 
+	* admin to superadmin  : ok 
+	* superadmin to user : ok 
+	* superadmin to admin  : ok 
+	/// ok : pas d'erreur : cohérent en db et en affichage 
+
+***** USER ACCESS (rôle user seulement) 
+	-- Sans changement de role 
+		Utilisateur avec aucun accès / ajout 1 / ajout 2 / Ajout x/  retrait 1 / retrait x / retour à 0 / ajout tous 
+		--> ok  
+	--- depuis admin 
+		* sans accès (admin sans acces vers user avec :)
+			* a sans accès : ok 
+			* 1 ajout : ok
+			* plusieurs ajouts : ok
+			
+		* avec 1 accès  (admin avec 1 accès vers user avec :)
+			* toujours le meme acces : ok 
+			* 1 retrait : ok
+			* 1 ajout : ok
+			* plusieurs ajouts : ok 
+			
+		* avec plusieurs accès 
+			* 1 retrait :ok 
+			* x retraits : ok 
+			* 1 ajout : ok 
+			* x ajouts  : ok 
+			* enlever tout : ok 		
+			* pas de changements : ok 
+			
+	--- depuis superadmin	 
+		* user à 0 accès : ok 
+		* user à 1 accès : ok 
+		* user à x accès : ok 
+
+***** ADMIN sans changement de role ***** 
+	***** ADMIN ACCESS & ISADMIN
+		-- chaque changement testé selon situation initiale +0,+1,+X, -1,-X -> ok 
+
+***** ADMIN avec changement de role ***** 
+	-- depuis user 
+		avec 1 acces / plusierus acces 0 acces
+		à un admin avec 1 acces / plusieurs acces 0 acces 
+		Pareil pour le "is admin" 
+		Normalement toutes combinaisons testées : OK 
+	-- depuis super admin 
+		to admin avec rien ok 
+		to admin avec 1 acces ok 
+		to admin avec x access ok 
+		+ meme config avec le isAmin 
+		
+		
+

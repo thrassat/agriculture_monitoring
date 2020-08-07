@@ -1,7 +1,6 @@
 let hbsHelpers = {
     nameOrEmpty: function(name) {
         // les 2 cas ont été testés 
-        // todo : afficher quoi? car normalement pas possible de paramètrer ensuite 
         if (name === undefined || name==="") {
             return "ID vide.. a régler côté Arduino"
         }
@@ -30,11 +29,6 @@ let hbsHelpers = {
             return true; 
         }
         else { return false;}
-    },
-    argIsInArray: function (element, array) {
-        console.log(element)
-        console.log(array)
-       //return (array.indexOf(element) > -1) ? true : false; 
     },
     displayGroupsWithCheckedAccessUser: function(accessTo, groups){
         var str = ''; 
@@ -151,7 +145,7 @@ let hbsHelpers = {
       
         for (var i=0; i<groups.length; i++) {
             str+= '<label class="checkbox">'; 
-            if (groupId && groups[i].accessTo.indexOf(groupId)>-1) {
+            if (groupId && groups[i].accessTo && groups[i].accessTo.indexOf(groupId)>-1) {
                 str+= '<input type="checkbox" name="'+name+'" value='+encodeURI(groups[i].name)+' checked> '+groups[i].name;
             }
             else {
@@ -166,7 +160,7 @@ let hbsHelpers = {
         var str = ''; 
         for (var i=0; i<groups.length; i++) {
             str+= '<label class="checkbox">'; 
-            if (groupId && groups[i].isAdmin.indexOf(groupId)>-1) {
+            if (groupId && groups[i].isAdmin && groups[i].isAdmin.indexOf(groupId)>-1) {
                 str+= '<input type="checkbox" name="'+name+'" value='+encodeURI(groups[i].name)+' checked> '+groups[i].name;
             }
             else {
@@ -177,47 +171,8 @@ let hbsHelpers = {
         }
         return str;
     },
-    booleanToConfirmedString: function(bool) {
-        if (bool) {
-            return "Confirmé";
-        }
-        else {
-            return "Non-confirmé"
-        }
-    },
-    inc: function(value, options) {
-        console.log('reading it');
-        return parseInt(value) + 1;
-    },
     toJSON: function(object) {
         return JSON.stringify(object);
-    },
-    ifEquals: function(arg1, arg2, options) {
-        return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
-    },
-    cutAbrev: function(datatype) {
-        switch(datatype) {
-            case 'temp':
-              return 'Température'; 
-            case 'rh':
-                return 'Humidité relative'; 
-            case 'co2':
-                return 'CO2'; 
-            default:
-                return datatype; 
-          } 
-    },
-    unit: function(datatype) {
-        switch(datatype) {
-            case 'temp':
-              return '°C'; 
-            case 'rh':
-                return '%'; 
-            case 'co2':
-                return 'ppm'; 
-            default:
-                return ''; 
-          } 
     },
 }
 

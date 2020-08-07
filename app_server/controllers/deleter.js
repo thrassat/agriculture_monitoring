@@ -1,7 +1,7 @@
 'use strict'; 
 const {sensorGroup} = require('../../models/sensorGroup')
 const {userGroup} = require ('../../models/userGroup');
-const {user} = require('../../models/user');
+//const {user} = require('../../models/user');
 
 
 // TODO INTEGRER ça AUX BONNES PAGES 

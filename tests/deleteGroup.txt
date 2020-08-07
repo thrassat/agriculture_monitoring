@@ -1,0 +1,31 @@
+
+/************************************************************************************************/
+/*		MANUAL TESTS FOR DELETE SENSOR GROUP				                   */
+/************************************************************************************************/
+---- 
+Action du bouton delete sensor group
+
+	- doit supprimer le document sensor group lié et l'ensemble de ses dépendances c'est à dire : ses occurences dans les array accessTo et isAdmin du modele utilisateur, et l'ensemble des "storedDatas" de ce sensorgroup
+--------------------------------------------------------------------------------------------------
+********* Fonctionnement 
+	- le bouton de suppression se trouve dans le formulaire de paramétrage d'un groupe de capteurs
+	- il déclenche ensuite la suppression du sensorgroup avec la méthode dans le model sensorgroup
+	- on utilise mongoose avec le "pre" delete qui va aller chercher et supprimer les différentes occurences de l'id (celui en dur dans l'arduino) dans les array accessTo et isAdmin des utilisateurs et les données liées
+	
+
+------- 
+A Faire : 
+	* message de confirmation ou d'erreur quand retour à l'accueil ? / sur la même page
+*************************************************************************************************
+
+********* TESTS : *********
+ 
+SUPPRESSION : 
+	- utilisateur : s'enlève bien de l'array : tester avec plusieurs ou vérifier qu'on supprime pas des trucs randoms
+	- tester la suppression de sotred datas avec le deleteMany 
+	
+On a créer un sensor group avec 3 données pour un capteur, 3 données pour un autre a intervalle de temps très séparés, un utilisateur est administrateur, responsable de cegroupe et peut y accéder (accede a 2 autres groupes) 
+
+ * données stockées bien supprimées
+ * actualisation correcte des utilisateurs
+ 

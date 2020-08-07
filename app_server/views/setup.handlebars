@@ -1,4 +1,3 @@
-<!-- todo add common title subtitle header ? --> 
 <div class="container">
   <h1 class="title"> {{pageHeader.title}} </h1>
   <h2 class="subtitle"> {{pageHeader.strapline}}</h2>
@@ -141,15 +140,17 @@
       </div>
     </div>
   </form>
-  <!-- todo cacher le boutton ? si on laisse que le superadmin faire ça -->
-  <div class="level">
-    <div class="level-left"></div>  
-    <div class="level-right">
-      <div class="level-item">
-        <button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe et les capteurs associés</button>
+  <!--on laisse que le superadmin supprimer le groupe -->
+  {{#if (isSuperAdmin role)}}
+    <div class="level">
+      <div class="level-left"></div>  
+      <div class="level-right">
+        <div class="level-item">
+          <button onclick="document.getElementById('confirmationModal').style.display='block'" class="button is-danger modal-button"> Supprimer le groupe et les capteurs associés</button>
+        </div>
       </div>
     </div>
-  </div>
+  {{/if}}
 </div>
 
 
@@ -174,7 +175,6 @@
   </div>
 </div>
 
-
 <div class="box container notification myhover" onclick='showSensorsContainer()'>
   <p class="" > Paramétrer les capteurs de ce groupe
     <span class="icon is-small">
@@ -198,11 +198,9 @@
           <p class="card-header-title title is-5">
             Paramétrage du capteur : {{this.sensorId}}
           </p>  
-          <!-- insérer notificaiton pour quand le capteur est déjà confirmé, faire qch commeça -->
         </header>
         <div class="card-content">
           {{#if this.confirmed}}
-          {{!-- already confirm --}}
           <div class="notification is-warning">
             Ce capteur est déjà confirmé, vous pouvez cependant annuler sa confirmation ou modifier/compléter ses informations
           </div>
@@ -212,7 +210,6 @@
           </div>
           {{/if}}
           <form  name="sensorForm-{{this.sensorId}}" onsubmit="sendToCurrentUrlWithSensorId(this,'{{this.sensorId}}');"  method="post">
-            <!-- mieux qu'essayer d'add un param input type="hidden" name="explore" value="search" /-->
             <div class="field">
               <label class="label">Nom du capteur : 
               </label>
@@ -301,6 +298,37 @@
               </div>
             </div>
           </form>
+          {{#if (isSuperAdmin ../role)}}
+          <div class="level">
+            <div class="level-left"></div>  
+            <div class="level-right">
+              <div class="level-item">
+                <button onclick="document.getElementById('confirmationModalSensor-{{this.sensorId}}').style.display='block'" class="button is-danger modal-button"> Supprimer ce capteur</button>
+              </div>
+            </div>
+          </div>
+         {{/if}}
+        </div>
+      </div>
+
+      <div class="modal" id="confirmationModalSensor-{{this.sensorId}}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Suppression d'un capteur</p>
+            <button class="delete" aria-label="close" onclick="document.getElementById('confirmationModalSensor-{{this.sensorId}}').style.display='none'"></button>
+          </header>
+          <section class="modal-card-body">
+            <!-- Content ... -->
+            <p>Vous êtes sur le point de supprimer ce capteur, l'<b>ensemble des données liées</b> seront supprimées, cette action est <b>irréversible</b>, êtes-vous sûr? 
+            </p>
+          </section>
+          <footer class="modal-card-foot">
+            <form action="/setup/delete-sensor/{{../sensorGroup.groupId}}/{{this.sensorId}}" method="post">
+              <button class="button is-warning" type='submit'>Oui, supprimer</button>
+            </form>
+            <button class="button" onclick="document.getElementById('confirmationModalSensor-{{this.sensorId}}').style.display='none'">Non, annuler l'opération</button>
+          </footer>
         </div>
       </div>
     {{/each}}
@@ -308,8 +336,6 @@
 </div>
 
 <script>
-    // Get the modal(w3schools)
- // var confirmationModal = document.getElementById('confirmationModal'); 
   // from https://stackoverflow.com/questions/19611557/how-to-set-default-value-for-html-select
   var tzSelect = document.getElementById('tzSelect');
 

@@ -41,7 +41,6 @@ module.exports.newUserGroupFormHandler = [
     
     async function newUserGroupFormHandler (req,res) {
         try {
-            console.log(req.body)
             var formErrors = [] ; 
             var mongooseErrors = [] ; 
             var validations = [] ; 

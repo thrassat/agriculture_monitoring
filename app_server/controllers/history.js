@@ -37,7 +37,6 @@ var renderUserHistoryPage = function (req,res,sensorsDatas,groupInfos){
     layout: 'mainUser',
     pageHeader: {
       title:'Historique des données ',
-      //strapline: 'Date/heure - Lieu'
     },
     sensInfos: sensorsDatas,
     group: groupInfos
@@ -50,9 +49,7 @@ module.exports.displayDatasHistory = async function (req, res) {
   try {
     var sensorsInfos = [];
     var sensor,sensorObject; 
-    // new : 
-    // send array with each sensors and its datas 
-    // get group 
+
     var group = await sensorGroup.getSensorGroupById(req.params.groupId); 
     var groupDatas = {"name":group.name,"id":group.groupId, "tz": group.timezone};
     for (var i=0; i<group.sensors.length; i++) {
@@ -74,11 +71,8 @@ module.exports.displayDatasHistory = async function (req, res) {
     // todo how to handle error ?
   }
 };
-/* first try : passing all datas directly  
-    datasTmp = await storedDatas.getAllDatas(sensor.sensorId) ;
-      datasTime = buildDateDatasArray(datasTmp,group.timezone);
-      allInfos = {"sensInfos":sensorInfos, "datasTime":datasTime};
-*/
+
+// FETCH DATAS "FROM" - "TO"
 module.exports.fetchFromTo = async function (req,res) {
   try {
     var datas,dateDataArray; 
@@ -87,16 +81,6 @@ module.exports.fetchFromTo = async function (req,res) {
     var to = req.query.to ; 
     var sensorId = req.params.sensorId; 
     var groupId = req.params.groupId;
-    // var from2 = moment().format(from)
-    // var from3 = moment().unix(from)
-    // console.log(from2)
-    // console.log(from3)
-    // console.log("valid moment history")
-    //console.log(from2.isValid())
-    //console.log(from3.isValid())
-    //console.log(from2.format())
-    //console.log(from.format())
-   // console.log(to)
 
     if (req.query.range) {
       var nowTmp = moment().tz(tz);
@@ -129,9 +113,8 @@ module.exports.fetchFromTo = async function (req,res) {
     else {
       datas = await storedDatas.getDatasFromTo(groupId,sensorId,from,to);  
     }
-    //  console.log(datas)
+  
       dateDataArray = buildArrayDateDatas(datas,tz); 
-      //console.log(dateDataArray)
       sendJsonResponse(res,200,dateDataArray);
   }
   catch(err) {
@@ -139,9 +122,9 @@ module.exports.fetchFromTo = async function (req,res) {
       "message": "get datas for chart error "
     });
   }
-
-
 }
+
+
 module.exports.getDatas = async function (req,res) {
   try { 
     // via query parameter ou aller le chercher directement ici 

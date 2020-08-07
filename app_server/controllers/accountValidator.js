@@ -2,10 +2,9 @@ const {user} = require('../../models/user') ;
 const {token} = require('../../models/token')
 const validator = require('express-validator');
 const { body } = require('express-validator');
-//const userGroup = require('../../models/userGroup');
 
-// cette page doit affihcer la possibilité de modifier l'username et le password 
-// et vérfieir que le token est bien actif 
+// cette page affiche la possibilité de modifier l'username et le password 
+// et vérifie que le token est bien actif 
 /*************** Render & datas ***************/
 var renderUserValidation = function (req,res,userDatas,formErrors, mongooseErrors, validations,token){
     res.render("account-validation", {
@@ -60,7 +59,6 @@ module.exports.displayUserValidation= async function displayUserValidation (req,
   try {  
       // idée : aller chercher l'utilisateur via le model token : s'il n'y a pas de correspondance le token est expiré
       // s'il y a correspondance on récupère l'objet utilisateur en question et on va aller le modifier grâce au formulaire sur la page
-      // potentiellement ça servira pour un reset de mot de passe
     var mongooseErrors = []; 
     var tokenObject = await token.getTokenObject (req.params.token);   
 
@@ -69,11 +67,7 @@ module.exports.displayUserValidation= async function displayUserValidation (req,
         var userDatas;
         userDatas = await user.getUserByEmail(tokenObject.email)
         userDatas = userDatas.toJSON(); 
-        console.log(req.query.reset)
-        console.log(req.query.reset == 'true')
         if (req.query.reset === 'true') {
-          console.log(req.query)
-          console.log("aaaaa")
           renderResetPwd(req,res,userDatas,[],[],[],tokenObject);
         }
         else {
@@ -83,8 +77,6 @@ module.exports.displayUserValidation= async function displayUserValidation (req,
     else {
         renderUserValidation(req,res,[],[],[],[],"expired")
     } 
-    //userGroups = userGroups.map(e=>e.toJSON());
- //   renderUserValidation(req,res,userDatas,[],[],[]);
   }
   catch (err) {
     //USE FLASH ??
@@ -93,7 +85,7 @@ module.exports.displayUserValidation= async function displayUserValidation (req,
   }
 }; 
 
-
+/*************** Function called by post route ***************/
 module.exports.postUserValidation = [
   body('username').trim().escape(),
   body('password').trim().escape(),
@@ -108,11 +100,9 @@ module.exports.postUserValidation = [
       if (tokenObject) {
         var userDatas;
         userDatas = await user.getUserByEmail(tokenObject.email)
-        //if not findOne console.log(userDatas[0].email)
         tokenObject = tokenObject.toJSON(); 
         // vérifier le formulaire 
         if (!formErrors.isEmpty()) {
-        // todo with right arguments 
           if (req.query.reset === 'true') {
             renderResetPwd(req,res,userDatas,formErrors.errors,mongooseErrors,validations,tokenObject);
           }
@@ -135,9 +125,8 @@ module.exports.postUserValidation = [
           }
         
         }
-      // essayer de sauvegarder les modifications 
-      // display error message et possibilité de réessayer 
 
+      // display error message et possibilité de réessayer ?
       // ou valider : message de validation et redirect a la page de connexion 
       }
       else {
@@ -146,7 +135,8 @@ module.exports.postUserValidation = [
   
     }
     catch (err) {
-      // render avec error ?
+      // render avec error 
+      // better handler ? 
      // console.log(err); 
       mongooseErrors.push(err);
       renderUserValidation(req,res,userDatas,[],mongooseErrors,[],tokenObject)

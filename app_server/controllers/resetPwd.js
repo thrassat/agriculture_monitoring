@@ -31,16 +31,6 @@ module.exports.resetPwd = [
                 }
             }
        
-            // create token 
-            //await 
-            //delete pwd 
-            // send link to email
-
-            // with link : enter new password 
-            // how to display error message ???? 
-
-
-            //return res.redirect('/login?info=' + info.message);
         }
         catch(err) {    
             console.log(err); 

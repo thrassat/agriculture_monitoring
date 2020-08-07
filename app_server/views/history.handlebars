@@ -74,11 +74,6 @@
 {{/each}}
 </div>
 
-<!--input type="text" class="tail-datetime-field" />
-<input type="text" id="dtRome" /-->
-<!-- test tmp 
-<a id='link' download='filename.png'>Save as Image</a>
--->
 {{#each sensInfos}} 
 <div class="container">
   <div class="columns">
@@ -103,9 +98,6 @@
                  <p> 
                    <a target="_blank" id="img-{{this.id}}" download='{{this.name}}.png'><i class="fa fa-download" aria-hidden="true"></i>
                     Télécharger le graphique </a>
-                    
-                   <!--a onclick="download_graph(this,'{{this.id}}')"><i class="fa fa-download" aria-hidden="true"></i>
-                Télécharger le graphique </a-->
                 </p>
               </div>
             </div>
@@ -136,7 +128,7 @@ var selectRange = document.getElementById('select-range');
 var charts = document.getElementsByClassName('chartContainer'); 
 var tz = '{{group.tz}}'; 
 var canvasArray = [];
-//var json; 
+
 function createConfig(sensorId) {
     return {
         type: 'line',
@@ -208,18 +200,13 @@ function ajaxPromise (url) {
     });
   });
 }
-// Initiate data by default range
-//var initChartDatas = function (chart,sensorId,timezone,range) {
+// Initiate data
 var initChartDatas = async function (chart,sensorId,timezone) {
     try {    
-     // var url = window.location.href+"/"+sensorId+"?tz="+timezone+"&range="+range;
-     // par 
+
       var now =  moment().tz(tz)
       var nowTmp =  moment().tz(tz)
       var from = nowTmp.subtract(1,'days'); 
-     // console.log("init now")  
-      //console.log(now) 
-      //console.log(from)
       var url = window.location.href+"/"+sensorId+"?tz="+timezone+"&from="+from+"&to="+now;
       var datas = await ajaxPromise(url) ;
       var json = JSON.parse(datas);   
@@ -228,7 +215,7 @@ var initChartDatas = async function (chart,sensorId,timezone) {
       chart.update();
     }
     catch (err) {
-        //how to handle , todo reu
+        //how to handle ? todo
         console.log(err);
     }
 };
@@ -236,13 +223,8 @@ var initChartDatas = async function (chart,sensorId,timezone) {
 // Update data when selected input change 
 var fetchDatas = async function (timezone,from,to,range) {
     try {     
-      //var chart,sensorId ; 
       if (range ==="") {
         for (var i=0; i<canvasArray.length; i++) {
-        /* if (canvasArray[i].sensor === sensorId) {
-            chart = canvasArray[i].chart ; 
-            break; 
-          }*/
         var sensorId = canvasArray[i].sensor; 
         var chart = canvasArray[i].chart; 
       
@@ -256,25 +238,20 @@ var fetchDatas = async function (timezone,from,to,range) {
       }
       else {
         for (var i=0; i<canvasArray.length; i++) {
-        /* if (canvasArray[i].sensor === sensorId) {
-            chart = canvasArray[i].chart ; 
-            break; 
-          }*/
-        var sensorId = canvasArray[i].sensor; 
-        var chart = canvasArray[i].chart; 
-      
-        var url = window.location.origin+window.location.pathname+"/"+sensorId+"?tz="+timezone+"&range="+range;
-        var datas = await ajaxPromise (url)
-        var json = JSON.parse(datas)
-        chart.data.datasets[0].data = json.datas; 
-        chart.data.labels = json.dates; 
-        chart.update();
+          var sensorId = canvasArray[i].sensor; 
+          var chart = canvasArray[i].chart; 
+        
+          var url = window.location.origin+window.location.pathname+"/"+sensorId+"?tz="+timezone+"&range="+range;
+          var datas = await ajaxPromise (url)
+          var json = JSON.parse(datas)
+          chart.data.datasets[0].data = json.datas; 
+          chart.data.labels = json.dates; 
+          chart.update();
         }
       }
     }
     catch (err) {
         //how to handle , todo
-        //alert js ? 
         console.log(err);
     }
 };
@@ -286,7 +263,7 @@ async function updateDatas() {
     await fetchDatas(tz,startDate.value,endDate.value,"") ; 
   }
   catch (err){
-    // log error 
+    // log error? how to handle todo  
     console.log(err)
   }
 } 
@@ -303,12 +280,7 @@ window.onload = function() {
     var config = createConfig(sensorId); 
     chart = new Chart(ctx,config);
     canvasArray.push({"sensor":sensorId, "chart":chart}); 
-   // initChartDatas(chart,sensorId,tz,selects[i].value);
     initChartDatas(chart,sensorId,tz);
-    // test tmp 
-    //var url_base64 = canvas.toDataURL('image/png') ; 
-    //var test = document.getElementById('link')
-    //test.href = url_base64;  
   }
 }
 
@@ -328,10 +300,6 @@ function download_csv(sensorId) {
   }
 
   var csv = 'Date,Valeur\n';
-   /* test.forEach(function(row) {
-            csv += row.join(',');
-            csv += "\n";
-    });*/
     for (var i=0;i<csvArray[0].length;i++) {
       csv+= csvArray[0][i]+','+csvArray[1][i]+"\n";
     }
@@ -341,145 +309,4 @@ function download_csv(sensorId) {
     hiddenElement.download = sensorId+'.csv';
     hiddenElement.click();
 }
-
-/*function download_graph(element,sensorId) {
-  console.log(element)
-  for (var i=0; i<canvasArray.length; i++) {
-    if (canvasArray[i].sensor === sensorId) {
-      var currentChart = canvasArray[i].chart; 
-      element.src = currentChart.toBase64Image(); 
-    //  document.getElementById("url").src=url;
-      element.click()
-    }
-  }
-}*/
-
-
 </script>
-<!-- KEEP AWAY 
-
-// ON SELECT CHANGE : update datas
-// works, but right way ? (index j always 3 if print in on change function)
-for (j=0; j<selects.length;j++) { 
-  selects[j].onchange = function () {
-    getAndUpdateDatas(this.id.split('-')[1],tz,this.value); 
-  }
-}// Update data when selected input change 
-var getAndUpdateDatas = function (sensorId,timezone,range) {
-    try {     
-      var chart ; 
-      for (var i=0; i<canvasArray.length; i++) {
-        if (canvasArray[i].sensor === sensorId) {
-          chart = canvasArray[i].chart ; 
-          break; 
-        }
-      }
-      var url = window.location.href+"/"+sensorId+"?tz="+timezone+"&range="+range;
-      getAjax(url, function(data) {
-        json = JSON.parse(data);
-        chart.data.datasets[0].data = json.datas; 
-        chart.data.labels = json.dates; 
-        chart.update();
-      })
-    }
-    catch (err) {
-        //how to handle , todo
-        console.log(err);
-    }
-};
--->
-
-<!--script sens={{sensDatas}} >
- /* console.log(Handlebars.templates) ; 
-  console.log("{{sensDatas.sensInfos}}");
-  var group = '{{group}}'
-  console.log(group)
-  console.log(document)
-  var x = document.currentScript.getAttribute('sens')
-  console.log(x) ; 
-  console.log({{@exphbs}}) ; 
- // var sensDatas = {{{sensDatas}}} ; 
-
-  for (var i=0; i<sensDatas.length;i++) {
-    console.log(sensDatas[i])
-  }
-  console.log(sensDatas)
-  console.log(sensDatas.length)
-  console.log(sensDatas[0][0].sensInfos)
-  console.log(sensDatas.datasTime) */
-// recup sensor id ::: ou tricky par les elements 
-// Mais récupèrer mes données aussi ici .. 
-// axios au final ? 
-// hiding it ? 
-</script-->
-<!--script>
-/** script from Arne H. Bitubekk answer https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side */ 
-  // Example data given in question text
-var data = [
-  ['name1', 'city1', 'some other info'],
-  ['name2', 'city2', 'more info']
-];
-
-// Building the CSV from the Data two-dimensional array
-// Each column is separated by ";" and new line "\n" for next row
-var csvContent = '';
-data.forEach(function(infoArray, index) {
-  dataString = infoArray.join(';');
-  csvContent += index < data.length ? dataString + '\n' : dataString;
-});
-
-// The download function takes a CSV string, the filename and mimeType as parameters
-// Scroll/look down at the bottom of this snippet to see how download is called
-var downloadVar = function(link,content, fileName, mimeType) {
-  var a = document.createElement('a');
-  mimeType = mimeType || 'application/octet-stream';
-
-  if (navigator.msSaveBlob) { // IE10
-    navigator.msSaveBlob(new Blob([content], {
-      type: mimeType
-    }), fileName);
-  } else if (URL && 'download' in a) { //html5 A[download]
-    a.href = URL.createObjectURL(new Blob([content], {
-      type: mimeType
-    }));
-    a.setAttribute('download', fileName);
-    link.appendChild(a);
-    a.click();
-    link.removeChild(a);
-  } else {
-    location.href = 'data:application/octet-stream,' + encodeURIComponent(content); // only this mime type is supported
-  }
-}
-
-function dl (aObject) {
-  console.log(aObject)
-  downloadVar(aObject, csvContent, 'filename.csv','text/csv;encoding:utf-8');
-}
-
-//download(csvContent, 'dowload.csv', 'text/csv;encoding:utf-8');
-</script-->
-
-<!--script>
-var data = [
-   ['Foo', 'programmer'],
-   ['Bar', 'bus driver'],
-   ['Moo', 'Reindeer Hunter']
-];
- 
- 
-function download_csv(sensorId) {
-    var csv = 'Name,Title\n';
-    data.forEach(function(row) {
-            csv += row.join(',');
-            csv += "\n";
-    });
- 
-    console.log(csv);
-    // data via element chart js via sensor id ? 
-    var hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-    hiddenElement.target = '_blank';
-    hiddenElement.download = sensorId+'.csv';
-    hiddenElement.click();
-}
-</script-->

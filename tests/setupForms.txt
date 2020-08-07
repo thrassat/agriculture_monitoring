@@ -1,0 +1,32 @@
+/************************************************************************************************/
+/*		MANUAL TESTS FOR setup group / sensors forms 				           */
+/************************************************************************************************/
+---- 
+Après l'accès à la page d'administration, on peut ouvrir un groupe de capteurs pour le paramétrer et aussi paramétrer ses capteurs
+---- 
+La page présente un formulaire pour le groupe de capteur concerné et un formulaire pour chaque capteur qu'il contient
+--------------------------------------------------------------------------------------------------
+********* Fonctionnement 
+
+On est capable de confirmer un groupe de capteur ici et chacun des capteurs qu'il contient ainsi que modifier ses informations (déconfirmer un capteur, modifier son nom etc...) 
+Ce n'est pas possible de modifier les champs "groupId" ou pour les capteurs "sensorId" car c'est ce qu'envoit l'Arduino a chaque démarrage et comme cela qu'on identifie chaque composant. 
+
+
+------- 
+A Faire : 
+	* ajout des administrateurs 
+	* sécuriser la page selon les droits d'accès
+	* s'assurer des clicks url (possibilité de soumettre via onsubmit ou action (groupe et capteur méthodes différentes) 
+	* à s'assurer : les mongoose erreurs peuvent être trop parlante (donne des index ou quoi) 
+	* ajout d'informations : vocabulaire : "arduino/groupe etc ..." ; que signifie confirmer ; plus d'infos sur les fields ? 
+	 
+*************************************************************************************************
+
+********* TESTS : *********
+
+groupe de capteur : changement de nom / de confirmation / de timezone (et bonne sélection de valeur par défault) 
+
+changer des informations d'un capteur puis du groupe 
+changer des informations d'un capteur puis d'un autre capteur 
+
+besoin de remplir les champs requis / certains champs avec des nombres
